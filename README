@@ -1,0 +1,18 @@
+#HOW TO RUN ICEGRAIN IN CONSOLE
+#Note: use "no" instead of "suffix/" if unused!
+
+#rf-prediction
+./IceGrain -predict-image boundary-features/*.bmp.bin suffix/
+./IceGrain -predict-param boundary-features/image.bmp.bin parameterfile.txt suffix/
+
+#corrections
+./IceGrain -corrections boundary-features/image.bmp.bin suffix/
+
+#statistics
+./IceGrain -statistics boundary-features/image.bmp.bin suffix/
+
+#depth profile
+./IceGrain -depth-profile
+
+#identify subgrain boundaries
+./IceGrain -subgrains boundary-features/image.bmp.bin suffix/

@@ -1,0 +1,38 @@
+#PARAMETER FILE FOR GRAINSIZE TOOL
+
+#PATHS
+config.path_image /Volumes/Images/NEEM-LASM/
+config.path_watershed /Volumes/Processing/pixel-classification/watershed-segmentation/
+config.path_thumbs /Volumes/Images/NEEM-LASM/thumbs/
+config.path_boundary_rf combined
+config.path_rf_predictions /Volumes/Processing/rf-predictions/factor5_advanced/
+config.path_subGB_rf_predictions rf-predictions/
+config.path_plots /Volumes/Processing/plots/factor5_advanced/
+config.path_results /Volumes/Processing/statistics-results/factor5_advanced/
+
+#PARAMETERS FOR ICE STRUCTURE RECOGNITION
+#BUBBLE DETECTION
+config.bubble_boundary_threshold 0.5
+config.max_bubble_arc_length 10000
+#SUBGRAIN DETECTION
+config.subgrain_boundary_threshold 0.9
+#GRAIN MERGING
+config.no_boundary_threshold 0.9
+config.minimal_grain_size 500
+config.minimal_region_size 50000
+
+#PARAMETERS FOR ANALYSIS
+config.low_grain_size 0
+config.high_grain_size 0 #2000
+config.grain_size_step 1000
+config.grain_step 50
+config.min_bubble_distance 0 #200
+config.close_bubble_grain_size 5000
+config.grain_size_min 4 #2000
+
+#PARAMETERS FOR DEPTH PROFILES
+config.nr_depths 113 #55
+
+#PARAMETERS FOR CORRECTION WINDOW
+config.display_x 900
+config.display_y 600
