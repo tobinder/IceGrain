@@ -136,6 +136,15 @@ SplitStream sout(std::cout);
 
 int main(int argc, char *argv[])
 {
+    if(argc > 0)
+    {
+        std::string test=argv[argc-1];
+        if (test == "-test")
+        {
+            return 0;
+        }
+    }
+
     std::cout<<std::endl<<"IceGrain Calculation based on CIS"<<std::endl<<std::endl;
     std::string command_line_option=argv[1];
 
