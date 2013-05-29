@@ -89,29 +89,13 @@ void find_bubble_arcs(vigra::MultiArray<2,float> const & probability,
 
     //Check if there exists a bubble image
     filepath_b_image.resize(filepath_b_image.size()-3);
-    filepath_b_image.append("b.bmp");    
-
+    filepath_b_image.append("b.bmp");  
+    
     FILE *info_bubbles;
     info_bubbles = fopen(filepath_b_image.c_str(), "rb");
 
-    //Set colours
-    //green
-    vigra::RGBValue<unsigned int> green;
-    green.setGreen(255);  
-
-    //yellow
-    vigra::RGBValue<unsigned int> yellow;
-    yellow.setRed(255);
-    yellow.setGreen(255);
-
-    //red
-    vigra::RGBValue<unsigned int> red;
-    red.setRed(255);
-    
-    //black
-    vigra::RGBValue<unsigned int> black;
-
-    vigra::BRGBImage bubbles(dim_x, dim_y);
+    //Load bubble image
+    vigra::BasicImage<bool> bubbles(dim_x, dim_y);
 
     bool bubble_img = false;
 
@@ -123,7 +107,7 @@ void find_bubble_arcs(vigra::MultiArray<2,float> const & probability,
         {
             for(int x = 0; x < dim_x; x++)
             {
-                bubbles(x,y) = 0;
+                bubbles(x,y) = false;
             }
         }
     }
@@ -134,7 +118,7 @@ void find_bubble_arcs(vigra::MultiArray<2,float> const & probability,
         importImage(info_b_image, destImage(bubbles));
         fclose(info_bubbles);
         bubble_img = true;
-    }    
+    }   
 
     std::cout<<"Identify bubbles..."<<std::endl;
 
@@ -208,7 +192,7 @@ void find_bubble_arcs(vigra::MultiArray<2,float> const & probability,
         {
             for(int x=0; x<dim_x; x++)
             {
-                if(bubbles(x,y) == green) marked_pixels[ws_region_image(x,y)]++;
+                if(bubbles(x,y) == true) marked_pixels[ws_region_image(x,y)]++;
                 all_pixels[ws_region_image(x,y)]++;
             }
         }
@@ -372,7 +356,7 @@ void find_bubble_arcs(vigra::MultiArray<2,float> const & probability,
                     {
                         for(int b = -b_loop; b <= b_loop && (yy + b >= 0 && yy+b < dim_y); b++)
                         {
-                            if(bubbles(xx+a, yy+b) == green && ws_region_image(xx+a, yy+b)==area)
+                            if(bubbles(xx+a, yy+b) == true && ws_region_image(xx+a, yy+b)==area)
                             {
                                 arc_temp.length = 0;
                             }
@@ -516,7 +500,7 @@ void find_bubble_arcs(vigra::MultiArray<2,float> const & probability,
                         {
                             for(int b = -b_loop; b <= b_loop && (yy + b >= 0 && yy+b < dim_y); b++)
                             {
-                                if(bubbles(xx+a, yy+b) == green && ws_region_image(xx+a, yy+b)==area)
+                                if(bubbles(xx+a, yy+b) == true && ws_region_image(xx+a, yy+b)==area)
                                 {
                                     arc_temp.length = 0;
                                 }
@@ -1131,14 +1115,14 @@ void find_grain_arcs(seg & segment,
     info_bubbles = fopen(filepath_b_image.c_str(), "rb");
 
     //Set colours
-    //green
-    vigra::RGBValue<unsigned int> green;
-    green.setGreen(255);  
+    //true
+    vigra::RGBValue<unsigned int> true;
+    true.settrue(255);  
 
     //yellow
     vigra::RGBValue<unsigned int> yellow;
     yellow.setRed(255);
-    yellow.setGreen(255);
+    yellow.settrue(255);
 
     //red
     vigra::RGBValue<unsigned int> red;
