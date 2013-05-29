@@ -127,8 +127,8 @@ const float area_scaling=37444.0; //400.0;//one mm is 193.5 Pixels
 #include "correct_prediction.h"
 #include "statistics.h"
 #include "subgrain.cpp"
-#include "depth_profile.h"
-#include "single_depth_profile.h"
+//#include "depth_profile.h"
+//#include "single_depth_profile.h"
 #include "view.h"
 #include "analyze.h"
 
@@ -560,6 +560,8 @@ int main(int argc, char *argv[])
     */
     else if (command_line_option=="-statistics")
     {
+std::cout<<"Not supported by this version!"<<std::endl;
+/*
         std::cout<<"Option -statistics"<<std::endl;
 
         ParameterFile paramFile;
@@ -598,6 +600,7 @@ int main(int argc, char *argv[])
         path_results.append(folder.c_str());
 
         do_statistics(argv[argc-2],path_watershed,path_rf_predictions,path_plots,path_results,"parameters.txt", paramFile);
+*/
     }
 
     /*
@@ -605,6 +608,8 @@ int main(int argc, char *argv[])
     */
     else if (command_line_option=="-statistics-gui")
     {
+std::cout<<"Not supported by this version!"<<std::endl;
+/*
         ParameterFile paramFile;
 
         if( !paramFile.load(argv[argc-2]) )//parameter file defined in gui
@@ -666,6 +671,7 @@ int main(int argc, char *argv[])
             do_statistics(filepath_boundary_features,path_watershed,path_rf_predictions,path_plots,path_results,argv[argc-2],paramFile);
             i++;
         }
+*/
     }
 
     /*
@@ -673,6 +679,8 @@ int main(int argc, char *argv[])
     */
     else if (command_line_option=="-depth-profile")
     {
+std::cout<<"Not supported by this version!"<<std::endl;
+/*
         std::cout<<"Option -depth-profile"<<std::endl;
 
         ParameterFile paramFile;
@@ -689,6 +697,7 @@ int main(int argc, char *argv[])
 
         //single_depth_profile(path_results, paramFile);
         depth_profile(path_results, paramFile, 22);
+*/
     }
 
     /*
@@ -696,6 +705,8 @@ int main(int argc, char *argv[])
     */
     else if (command_line_option=="-depth-profile-gui")
     {
+std::cout<<"Not supported by this version!"<<std::endl;
+/*
         ParameterFile paramFile;
 
         if( !paramFile.load(argv[argc-1]) )//parameter file defined in gui
@@ -735,6 +746,7 @@ int main(int argc, char *argv[])
         grain_step.save(paramFile,"config");
 
         depth_profile(argv[argc-2], paramFile, atof(argv[argc-9]));
+*/
     }
 
     /*
@@ -742,6 +754,8 @@ int main(int argc, char *argv[])
     */
     else if (command_line_option=="-cloudy-bands")
     {
+std::cout<<"Not supported by this version!"<<std::endl;
+/*
         if (argc<17)
         {
             std::cout<<"Error: option -cloudy-bands needs more parameters!"<<std::endl;
@@ -757,6 +771,7 @@ int main(int argc, char *argv[])
 
         cloudy_bands(argv[2], argv[8], argv[3], argv[9], argv[4], argv[10], argv[5], argv[11], argv[6], argv[12], argv[7], argv[13],
                      path_rf_predictions, path_plots);
+*/
     }
 
     /*
@@ -764,6 +779,8 @@ int main(int argc, char *argv[])
     */
     else if (command_line_option=="-double-grain-size")
     {
+std::cout<<"Not supported by this version!"<<std::endl;
+/*
         if (argc<8)
         {
             std::cout<<"Error: option -cloudy-bands needs more parameters!"<<std::endl;
@@ -782,6 +799,7 @@ int main(int argc, char *argv[])
         std::string path_plots=argv[7];
 
         double_grain_size(path_results, suffix1, suffix2, minimal_bubble_distance, minimal_grain_size, path_plots);
+*/
     }
 
     /*

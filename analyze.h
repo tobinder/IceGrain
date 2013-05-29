@@ -42,7 +42,7 @@ void analyze(std::string filepath_list, std::string path_rf_predictions, std::st
              std::string path_to_ws_image, bool correct_suffix)
 {
     //initialise plplot class
-    plplot plot = plplot();
+//    plplot plot = plplot();
 
     std::ifstream list_file(filepath_list.c_str());
 
@@ -109,6 +109,8 @@ void analyze(std::string filepath_list, std::string path_rf_predictions, std::st
     //Plot correlations
     if(mode == 0) 
     {  
+std::cout<<"Not supported by this version!"<<std::endl;
+/*
         //Calculate correlations
         correlation corr_roundness_box_flattening;
         correlation corr_roundness_vertical_flattening;
@@ -247,6 +249,7 @@ void analyze(std::string filepath_list, std::string path_rf_predictions, std::st
             grain_roundness, corr_roundness_perimeter_ratio, filepath_roundness_perimeter_ratio);
         plot.draw_correlation("Grain box flattening", "Vertical grain flattening", grain_areas, grain_box_flattening, grain_ellipse_flattening, grain_box_flattening,
             grain_area_flattening, corr_vertical_box_flattening, filepath_vertical_box_flattening);
+*/
     }
     
     //Analyze parameters
@@ -2321,6 +2324,8 @@ void analyze(std::string filepath_list, std::string path_rf_predictions, std::st
 void new_depth_profiles(std::string filepath_list, std::string path_rf_predictions, std::string param_file, int minimal_bubble_distance,
     std::string path_results, bool correct_suffix, int low_grain_size, int high_grain_size, int grain_size_step, float depth_bin_width)
 {
+std::cout<<"Not supported by this version!"<<std::endl;
+/*
     if(depth_bin_width<=0.0f)
     {
         std::cout<<"Error: Positive depth bin width required!"<<std::endl;
@@ -3596,4 +3601,5 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
                                                                  disl_dens_percent_boundaries_profile_values,
                                                                  filepath_disl_dens_percent_boundaries_profile_out.c_str());
     }
+*/
 }

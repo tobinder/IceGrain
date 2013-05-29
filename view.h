@@ -52,11 +52,11 @@ void print_grain(float scaling, int dim_x, int dim_y, cimg_library::CImg<unsigne
 void boundary_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsigned char> & output_men, int selected_boundary, bool only_inner_boundaries,
     std::vector<bool> inner_boundary, std::string boundary_string, int unmarked, color_type * color, float scaling,
     std::vector< std::vector<int> > grain_boundary_index, std::vector< std::vector<point> > grain_boundary_pixels, std::vector<float> turning_point);
-
+/*
 void print_boundary(float scaling, int dim_x, int dim_y, cimg_library::CImg<unsigned char> output_men, cimg_library::CImg<unsigned char> image, int posx, int posy,
     std::string filepath_plots, int unmarked, std::string boundary_string, int selected_boundary, std::vector< std::vector<float> > grain_boundary_curvs, plplot plot,
     std::string suffix);
-
+*/
 void junction_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsigned char> & output_men, int selected_junction, std::string junction_string,
     int unmarked, color_type * color, float scaling, std::vector<int> grain_junctions, std::vector<point> junctions, std::vector< std::vector<int> > grain_junction_index,
     int pixels_average, point * average_pos);
@@ -712,7 +712,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
     else if (mode==1) //show grain boundaries
     {
         //initialise plplot class
-        plplot plot = plplot();
+//        plplot plot = plplot();
 
         int nr_grain_boundaries=grain_boundary_index.size();
 
@@ -888,7 +888,8 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
 
             boundary_menu(men, output_men, selected_boundary, only_inner_boundaries, inner_boundary, boundary_string, mark, color, scaling,
                 grain_boundary_index, grain_boundary_pixels, turning_point);
-
+std::cout<<"Not supported by this version!"<<std::endl;
+/*
             //print unmarked
             print_boundary(scaling, canvas.dimx(), canvas.dimy(), output_men, unmarked_image, posx, posy, filepath_plots, true, boundary_string,
                 selected_boundary, grain_boundary_curvs, plot, suffix);
@@ -896,7 +897,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             //print marked
             if (!mark) print_boundary(scaling, canvas.dimx(), canvas.dimy(), output_men, image, posx, posy, filepath_plots, false, boundary_string,
                 selected_boundary, grain_boundary_curvs, plot, suffix);
-
+*/
             return;
         }
 
@@ -1186,6 +1187,8 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             // press "ENTER" to print
             if (selectionDisplay.is_keyENTER)
             {
+std::cout<<"Not supported by this version!"<<std::endl;
+/*
                 print_boundary(scaling, selectionDisplay.dimx(), selectionDisplay.dimy(), output_men, image, posx, posy,
                 filepath_plots, unmarked, boundary_string, selected_boundary, grain_boundary_curvs, plot, suffix);
 
@@ -1202,6 +1205,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
 
                 std::cout<<"Export current cross-section to: "<<filepath_output<<std::endl;
                 plot.draw_curv_cross("Position [pixel]", "Gray value", "Cross-section", x_values, cross, filepath_output.c_str());
+*/
             }
 
             //SELECTION DISPLAY
@@ -1830,6 +1834,8 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
 
     else if (mode==3) //grain triple junctions analysis
     {
+std::cout<<"Not supported by this version!"<<std::endl;
+/*
         //initialise plplot class
         plplot plot = plplot();
 
@@ -1971,6 +1977,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
         std::cout<<"Export standard deviation to: "<<filepath_output<<std::endl;
         plot.draw_curv_cross("Pixels to average", "Standard deviation [degree]", "Standard deviation in dihedral angles", x_values, angle_deviations,
                              filepath_output.c_str());
+*/
     }
 
     else if (mode==4) //create grain overview
@@ -3412,7 +3419,7 @@ void boundary_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<u
         output_men.draw_text(150,10,name.c_str(),color[3],0,1,11,1,1);
     }
 }
-
+/*
 void print_boundary(float scaling, int dim_x, int dim_y, cimg_library::CImg<unsigned char> output_men, cimg_library::CImg<unsigned char> image, int posx, int posy,
     std::string filepath_plots, int unmarked, std::string boundary_string, int selected_boundary, std::vector< std::vector<float> > grain_boundary_curvs, plplot plot,
     std::string suffix)
@@ -3582,7 +3589,7 @@ void print_boundary(float scaling, int dim_x, int dim_y, cimg_library::CImg<unsi
     plot.draw_curv_cross("Position [pixel]", "Curvature [rad/pixel]", "Curvature", x_values, grain_boundary_curvs[selected_boundary],
                          filepath_output.c_str());
 }
-
+*/
 void junction_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsigned char> & output_men, int selected_junction, std::string junction_string,
     int unmarked, color_type * color, float scaling, std::vector<int> grain_junctions, std::vector<point> junctions, std::vector< std::vector<int> > grain_junction_index,
     int pixels_average, point * average_pos)

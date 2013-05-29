@@ -40,13 +40,13 @@
 
 #include "math_statistics.h"
 #include "structures_statistics.h"
-#include "plplot.h"
+//#include "plplot.h"
 #include "FitEllipse.h"
 #include "gbn.h"
 #include "param.h"
 
 #include "ConvexPerimeter.h"
-
+/*
 void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_image, std::string path_rf_predictions, std::string path_plots,
                    std::string path_results, std::string param_file, ParameterFile paramFile)
 {
@@ -2038,7 +2038,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
 
         filepath_grains.append(sts.str());
         exportImage(srcImageRange(grain_image), vigra::ImageExportInfo(filepath_grains.c_str()));
-        */
+        * /
         //********************************
         //OUTPUT VALUES FOR DEPTH PROFILES
         //********************************
@@ -3321,3 +3321,4 @@ void double_grain_size(std::string path_results, std::string suffix1, std::strin
     plot.draw_multi_histogram("Normalized grain equivalent radius","Relative occurrence","", grain_equiv_radius_norm_histogram,
                               grain_equiv_radius_norm_bin_width, 1.0f, grain_equiv_radius_norm_y_max, filepath_grain_radius_norm.c_str());
 }
+*/
