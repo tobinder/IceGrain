@@ -1051,7 +1051,6 @@ void initialize_structures(seg & segment,
     {
         if (bubble_area_size[area]>0)//bubble area
         {
-            found_bubble_areas.push_back(area+1);
             region_arc_index[area]=bubble_arc_index[area];
         }
         else if (grain_area_size[area]>0)//grain area
