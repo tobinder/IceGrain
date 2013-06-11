@@ -56,6 +56,7 @@
 #include <math.h>
 
 #include "bubble_grain_structure.h"
+#include "mosaic.cpp"
 
 void save_boundary_probabilities(vigra::MultiArray<2,float> const probability,
                                  std::string filepath_to_ws_region_image,
@@ -800,6 +801,9 @@ void extract_boundary_probabilities(std::string filepath_to_feature_file,std::st
     //REDUCE BOUNDARY PROBABILITY FOR VERTICAL HOUGH LABELED ARCS
     std::vector<int> vertical_arc_index;
     find_vertical_arcs(arcs,vertical_arc_index,found_bubble_arcs,ws_region_image,dim_x,dim_y);
+
+    //REDUCE BOUNDARY PROBABILITY FOR MOSAIC BORDERS
+    find_mosaic_borders(arcs,vertical_arc_index,found_bubble_arcs,two_boundings,dim_x,dim_y,get_filename(filepath_to_feature_file));
 
     for(int found=0; found<vertical_arc_index.size(); found++)
     {
