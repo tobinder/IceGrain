@@ -472,11 +472,16 @@ void find_vertical_arcs(std::vector< std::vector<point> > arcs,std::vector<int> 
 //fn is the filepath to the image file
 void extract_boundary_probabilities(std::string filepath_to_feature_file,std::string path_to_ws_image,std::string filepath_to_random_forest_file,
                                     std::string path_to_output_folder,std::string path_to_gm_output_folder,std::string param_file,ParameterFile paramFile,
-                                    std::string filepath_thumbs="no", std::string filepath_image="")
+                                    std::string filepath_thumbs="no", std::string filepath_image="", bool originalImageExists = true)
 {
     std::string param_file_name=get_filename(param_file);
     if (param_file_name != "parameters.txt") param_file_name.resize(param_file_name.size()-4);
     else param_file_name = "";
+
+    if(originalImageExists == false)
+    {
+        std::cout << "Not using the original image for calculations" << std::endl;
+    }
 
     std::string filepath_to_ws_image=path_to_ws_image;
     filepath_to_ws_image.append(get_filename(filepath_to_feature_file));
@@ -757,15 +762,19 @@ void extract_boundary_probabilities(std::string filepath_to_feature_file,std::st
     std::vector<int> & found_bubble_areas = GrainBoundNet.found_bubble_areas;
     std::vector< std::vector<int> > & bubble_arc_index = GrainBoundNet.bubble_arc_index;
 
-    find_bubble_arcs(unknown_probability,
-                       filepath_to_ws_image,
-                       path_to_output_folder,
-                       segment,
-                       GrainBoundNet,
-                       param_file,
-                       paramFile,
-                       selection_image,
-                       filepath_image);
+    //Do not perform bubble recognition if the original image does not exist
+    if(originalImageExists == true)
+    {
+        find_bubble_arcs(unknown_probability,
+                           filepath_to_ws_image,
+                           path_to_output_folder,
+                           segment,
+                           GrainBoundNet,
+                           param_file,
+                           paramFile,
+                           selection_image,
+                           filepath_image);
+   }
 
     std::list<int> found_border_areas;
 
@@ -813,6 +822,18 @@ void extract_boundary_probabilities(std::string filepath_to_feature_file,std::st
     std::vector<size_t> & region_labels = GrainBoundNet.region_labels;
     std::vector< std::vector<int> > & grain_arc_index = GrainBoundNet.grain_arc_index;
 
+    //Set no_boundary_threshold to 1.0 and minimal_grain_size to 1 if the original image does not exist
+    if(originalImageExists == false)
+    {
+        Parameter<float> no_boundary_threshold;
+        no_boundary_threshold.assign("", "no_boundary_threshold", 1.0);
+        no_boundary_threshold.save(paramFile, "config");
+
+        Parameter<int> minimal_grain_size;
+        minimal_grain_size.assign("", "minimal_grain_size", 1);
+        minimal_grain_size.save(paramFile, "config");
+    }
+    
     find_grain_arcs(segment,
                     GrainBoundNet,
                     found_border_areas,

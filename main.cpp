@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
     {
         ParameterFile paramFile;
 
-        if( !paramFile.load(argv[argc-3]) )//parameter file defined in gui
+        if( !paramFile.load(argv[argc-4]) )//parameter file defined in gui
         {
             std::cout<<"Error: Parameter file could not be found!"<<std::endl;
             return 0;
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
          * 'Default Classifier' is unchecked in the GUI, in which case 'FALSE' is appended to the end of the argument string.
          * The strings containing the two paths are seperated by a space character.
          */
-        std::string arg_path_rf = argv[argc-4];
+        std::string arg_path_rf = argv[argc-5];
         std::string filepath_boundary_features;
         if(arg_path_rf.compare(arg_path_rf.size()-5, 5, "FALSE") == 0)
         {            
@@ -304,18 +304,30 @@ int main(int argc, char *argv[])
         }
         else std::cout << "This was not supposed to happen" << std::endl;
 
-        std::string path_watershed=argv[argc-6];
-        std::string path_rf_predictions=argv[argc-5];
-        std::string path_thumbs=argv[argc-1];
+        std::string path_watershed=argv[argc-7];
+        std::string path_rf_predictions=argv[argc-6];
+        std::string path_thumbs=argv[argc-2];
 
-        std::string folder=argv[argc-2];
+        std::string folder=argv[argc-3];
         if (folder=="no") folder="";
         path_watershed.append(folder.c_str());
         path_rf_predictions.append(folder.c_str());
         if (path_thumbs!= "no") path_thumbs.append(folder.c_str());
 
+        bool originalImageExists;
+        std::string useOriginalImage = argv[argc-1];
+        if(useOriginalImage.compare("TRUE") == 0)
+        {
+            originalImageExists = true;
+        }
+        else
+        {
+            originalImageExists = false;
+        }
+
+
         int i=2;
-        while(i<argc-6)
+        while(i<argc-7)
         {
             std::string filepath_boundary_features_loop = filepath_boundary_features;
             filepath_boundary_features_loop.append(folder.c_str());
@@ -323,7 +335,7 @@ int main(int argc, char *argv[])
             filepath_boundary_features_loop.append(".bin");
 
             extract_boundary_probabilities(filepath_boundary_features_loop,path_watershed,path_boundary_rf(),path_rf_predictions,
-                                           path_rf_predictions,argv[argc-3],paramFile,path_thumbs,get_path(argv[i]));
+                                           path_rf_predictions,argv[argc-4],paramFile,path_thumbs,get_path(argv[i]), originalImageExists);
             i++;
         }
     }
