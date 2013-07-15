@@ -49,7 +49,7 @@ struct point
 
 // Berechne aus einer parametrisierten Kurve (in form von Punkten in einer Liste) den Winkel
 // der lokalen Normalen für jeden Kurvenpunkt
-void calculatePhi(std::vector<point>* list, std::vector<float>* phi, int numSmoothing)
+void calculatePhi(std::vector<point>* list, std::vector<float>* phi)
 {
     int precision=2;//combine two pixels to one pixel
 

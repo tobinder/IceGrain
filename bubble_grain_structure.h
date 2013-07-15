@@ -292,7 +292,7 @@ void find_bubble_arcs(vigra::MultiArray<2,float> const & probability,
                             }
                             else
                             {
-                                calculatePhi( &(arcs[i]), &(phi), 15 );
+                                calculatePhi( &(arcs[i]), &(phi));
                             }
 
                             // loop through the pixels of the arc
@@ -1022,7 +1022,7 @@ void merge_areas(vigra::BasicImage<unsigned int> & region_image,
                         }
                         else
                         {
-                            calculatePhi( &(arcs[region_arc_index[area-1][a]]), &(this_arc_phi), 15 );
+                            calculatePhi( &(arcs[region_arc_index[area-1][a]]), &(this_arc_phi));
                         }
 
                         //calculate the curvature
