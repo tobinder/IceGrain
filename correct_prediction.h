@@ -38,13 +38,12 @@
 #include "CImg.h"
 
 typedef unsigned char color_type[3];
-//Doxygen test commentary
 /*! \fn select_image_section(cimg_library::CImg<unsigned char> image, int display_x, int display_y, int & posx, int & posy)
-  \brief This is another line!
+  \brief Selects an image section.
   \param image the test image
-  \param display_x blbub
-  \param display_y blabb
-  \param posx aaaAAAAAAAAAAAAAAAAAAAA
+  \param display_x width
+  \param display_y height
+  \param posx X-Position
   \param posy Y-Position
  */
 cimg_library::CImg<unsigned char> select_image_section(cimg_library::CImg<unsigned char> image, int display_x, int display_y, int & posx, int & posy)
