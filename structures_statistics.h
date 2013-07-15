@@ -944,7 +944,7 @@ void junctions_and_outer_circle(size_t nr_areas,
         else
         {
             //std::cout << "Long arc... " << grain_boundary_pixels[i].size() << " ";
-            calculatePhi( &(grain_boundary_pixels[i]), &(grain_boundary_phis[i]), 15 );
+            calculatePhi( &(grain_boundary_pixels[i]), &(grain_boundary_phis[i]));
             //std::cout << "done!"<<std::endl;
         }
 
