@@ -62,54 +62,6 @@
  * - <a href="http://hci.iwr.uni-heidelberg.de/vigra/">VIGRA</a> is a superb collection of algorithms developed in the HCI. It includes algorithms for image analysis and classification with random forests.
  * - <a href="http://www.hdfgroup.org/">HDF5</a> is a data format used for storing scientific data efficiently and flexible. It is used for random forests at the moment, but further data can be integrated.
  * - <a href="http://plplot.sourceforge.net/">plplot</a> is a library to create plots without using additional programs like GNUplot or \b Matlab.
- * 
- * \section dataStructures Data Structures
- * \subsection dataStructures_hdf5 HDF5 Structures
- * To save all obtained structures, the hierarchic data format \b HDF5 was chosen. It enables the storage of a multitude of data structures in a single file. Programs
- * like \b Matlab can read from <B>HDF5</B>-files directly.
- * The tool <a href="http://www.hdfgroup.org/hdf-java-html/hdfview/">HDFView</a> enables viewing and editing of <B>HDF4</B>- and <B>HDF5</B>-files. \b HDFView is available for Windows, Linux and Mac operating systems. In \b HDFView, data sets
- * can be copied into the clipboard or exported as text files.
- * Analogous to the processing of microstructure images, there are three data structures, which build on one another:
- * - \b Segmentation
- * - \b Grain-Boundary-Network
- * - \b Network-Parameters
- * 
- * Note that only the \b Grain-Boundary-Network and \b Network-Parameters data structures will be explained in detail here, as they are part of the \b IceGrain project.
- * The \b Segmentation data structure is part of the \b CIS, and thus further documentation about this structure can be found in the <B>CIS</B>'s code manual.
- * 
- * \subsubsection dataStructures_hdf5_gbn Grain-Boundary-Network
- * Information about the corresponding class (grain boundary, bubble edge, artefact) for each edge as well as which regions represent grains is save din the file <tt>rf-predictions/*.bmp.h5</tt>.
- * The data set "region_labels" (lower left-hand side of \b figure 1) assigns a new region index to each region. In line 14, the region 15 is assigned the index 24. The 
- * data sets "grain_center_of_mass" and "bubble_center_of_mass" state the coordinates of the center of mass of the new regions. Since line 23 has the coordinate (0,0) in both 
- * case, it is neither a grain nor a bubble, but an ignored border region. All other regions can be assigned to a grain or a bubble.
- * \image html hdf5_gbn_1.png "Figure 1: New region indices in the network structure"
- * The data sets "bubble_size" and "grain_size" have zeros in line 23, for all other regions the size here is in pixels.
- * 
- * The group "grain_arcs_index" contains a data set for each grain region. A data set for the entry in "region_labels" has to be opened if one searches a data set corresponding
- * to a grain region. The index 21 is assigned to the former region 54. The data set "21", which can be seen on the upper right-hand corner of <B>figure 2</B>, contains the 
- * seven edge indices of the grain with the center of mass (189, 663). The pixel coordinate of these edges can be found in the "objects" file. For bubble regions, the 
- * edge indices are saved in "bubble_arcs", respectively.
- * \image html hdf5_gbn_2.png "Figure 2: Grain boundary and node indices of the network structure"
- * Furthermore, there are the two data sets "grain_bubble_junctions" and "grain_junctions". The second node point selected in <B>figure 4</B> does neither form a grain
- * boundary triple-point, nor a grain boundary/bubble node in the network structure. Only the nodes mentiond in "grain_bubble_junctions" and "grain_junctions" show up in 
- * the network structure.
- * 
- * \subsubsection dataStructures_hdf5_param Network-Parameters
- * The extracted parameters of the \b Grain-Boundary-Network are compiled in the file <tt>statistics-results/*.bmp.*.h5</tt>. The data set "grain_areas" lists all grain region
- * indices, among them is region 21 (entry 20), which is representedin all other data sets with entry 10. In line 10 of "grain_arc_height" it is stated, that the grain region
- * 21 has a height of 2.08 mm; there is a 0 in line 10 of "grain_arc_number". Of course, each grain has at least one grain boundary, but stating those regions with contact
- * to the border region cannot be faciliated in an exact manner.
- * \image html hdf5_np_1.png "Figure 3: Description of the extracted parameters"
- * 
- * In order to parameterize the \b Grain-Boundary-Network, the segmentation edges are compiled, so that they begin and end on a grain boundary triple-point or a grain/bubble
- * node point. The edges 13 and 14 together, for example, form the network edge 37 (data set "grain_boundary_index/37") on the upper right-hand corner of <B>figure 3</B>. The "-"
- * prefix at the entry 14 states, that the order of pixels stated in the "objects" file has to be reversed in order to create a continuation of edge 13.
- * 
- * The data set "grain_junction_inde" corresponds in principle to the data set "neighborhood-1" of the "objects" file. Here however, only the grain boundary triple-points are listed
- * (stated in "grain_junctions" of the network file). The former assigns the newly compiled edges 53, 54 and 65 to the node 22.
- * The groups "grain_boundary_curvs" and "grain_boundary_angles" indicate a pixel-wise orientation of the normal vector and curvature for all new edges.
- * \image html hdf5_seg_2.png "Figure 4: Objects of the segmentation"
- * 
  */
 #include <cgp/cgp_config.hxx>
 
