@@ -61,6 +61,40 @@ float get_abs_mean(std::vector<float> values)
     return (mean/values.size());
 }
 
+//median
+float get_median(std::vector<float> values)
+{
+
+    int size=values.size();
+    if(size!=1)
+    {
+        //sort the "values"-vector
+        sort( values.begin(), values.end() );
+
+        //f_index is the index of the median
+        float f_index=((float)size-1)*0.5f;
+        //if we make f_index-floor(f_index) we know how to round
+        //the median
+        float round_value=f_index-floor(f_index);
+
+        if(round_value==0)
+        {
+            return values[(int)f_index];
+        }
+        else
+        {
+            float return_value=0;
+            int   low_index=floor(f_index);
+            return_value=((1-round_value)*values[low_index]+ (round_value)*values[low_index+1]);
+            return return_value;
+        }
+    }
+    else
+    {
+        return values[1];
+    }
+}
+
 void find_bubble_arcs(vigra::MultiArray<2,float> const & probability,
                       std::string filepath_to_ws_region_image,
                       std::string path_to_output_folder,
@@ -69,7 +103,8 @@ void find_bubble_arcs(vigra::MultiArray<2,float> const & probability,
                       std::string param_file,
                       ParameterFile paramFile,
                       vigra::BasicImage<bool> selection_image,
-                      std::string fp_image)
+                      std::string fp_image,
+                      std::vector<int> & remove_bubble_arcs)
 {
     //Define references to attributes from seg class
     vigra::BasicImage<unsigned int> & ws_region_image =     segment.ws_region_image;
@@ -196,11 +231,100 @@ void find_bubble_arcs(vigra::MultiArray<2,float> const & probability,
                 all_pixels[ws_region_image(x,y)]++;
             }
         }
+        
+        FILE *info_main;
+        info_main = fopen(fp_image.c_str(), "rb");
 
-        for (int area=1; area<=nr_areas; area++)
+        if(info_main == NULL)
         {
-            if((double)marked_pixels[area]/(double)all_pixels[area]>0.9) bubble_prob[area]=1.0f;
-            else bubble_prob[area]=0.0f;
+            std::cout << "Error: Original image not found!" << std::endl;
+
+            for (int area=1; area<=nr_areas; area++)
+            {
+                if((double)marked_pixels[area]/(double)all_pixels[area]>0.9)
+                {
+                    bubble_prob[area]=1.0f;
+                }
+                else bubble_prob[area]=0.0f;
+            }
+        }
+        else
+        {
+            fclose(info_main);
+
+            //Load image
+            vigra::BImage main_image(dim_x, dim_y);
+            vigra::ImageImportInfo info_org_image(fp_image.c_str());
+            importImage(info_org_image, destImage(main_image));
+
+            for (int area=1; area<=nr_areas; area++)
+            {
+                if((double)marked_pixels[area]/(double)all_pixels[area]>0.9)
+                {
+                    //calculate cross-section difference
+                    std::vector<float> cross_section_diff;
+                    int found_arcs=0;
+                    int arc_index=-1;
+
+                    for(int i=0; i<arcs.size(); i++)//loop over arcs, find bubble boundaries
+                    {
+                        if (two_boundings(i,0)==area || two_boundings(i,1)==area)//arc belongs to area
+                        {
+                            found_arcs++;
+                            arc_index=i;
+
+                            // calculate angle phi of local normal vectors
+                            std::vector<float> phi;
+                            if(arcs[i].size() < 5 )
+                            {
+                                // if the size of an arc is smaller than 5, use a simpler approximation of the derivative
+                                double phi0 = atan2(arcs[i][1].y - arcs[i][0].y, arcs[i][1].x - arcs[i][0].x );
+                                phi.push_back( phi0 + PI/2.0f );
+                 
+                                for(int j=1; j<arcs[i].size()-1; j++)
+                                {
+                                    double phi_temp = atan2(arcs[i][j+1].y - arcs[i][j-1].y, arcs[i][j+1].x - arcs[i][j-1].x );
+                                    phi.push_back( phi_temp + PI/2.0f );
+                                }
+                 
+                                double phi_end = atan2(arcs[i].back().y - arcs[i][arcs[i].size()-2].y, arcs[i].back().x - arcs[i][arcs[i].size()-2].x );
+                                phi.push_back( phi_end + PI/2.0f );
+                            }
+                            else
+                            {
+                                calculatePhi( &(arcs[i]), &(phi), 15 );
+                            }
+
+                            // loop through the pixels of the arc
+                            for(int j=0; j<arcs[i].size(); j++)
+                            {
+                                // sample the cross section using information on the local normal
+                                std::vector<float> crossSection;
+                                for(int k=-10; k<11; k++)
+                                {
+                                    int x =  (int)(arcs[i][j].x + cos(phi[j])*k);
+                                    int y =  (int)(arcs[i][j].y + sin(phi[j])*k);
+
+                                    if( 0 <= x && main_image.width() > x + 1 && 0 <= y && main_image.height() > y + 1 )
+                                        crossSection.push_back((float)main_image(x,y));
+                                }	
+                                if(crossSection.size()>0) cross_section_diff.push_back(fabs(crossSection[0]-crossSection.back()));
+                            }
+                        }
+                    }
+
+                    if(get_median(cross_section_diff)>10 || found_arcs>1)//do not remove connected bubbles
+                    {
+                        bubble_prob[area]=1.0f;
+                    }
+                    else
+                    {
+                        bubble_prob[area]=0.0f;
+                        remove_bubble_arcs[arc_index]=true;
+                    }
+                }
+                else bubble_prob[area]=0.0f;
+            }
         }
 
         threshold=0.40f;
