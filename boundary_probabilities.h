@@ -762,6 +762,7 @@ void extract_boundary_probabilities(std::string filepath_to_feature_file,std::st
     std::vector<int> & found_bubble_areas = GrainBoundNet.found_bubble_areas;
     std::vector< std::vector<int> > & bubble_arc_index = GrainBoundNet.bubble_arc_index;
     std::vector<int> remove_bubble_arcs((int)arcs.size(), false);
+    GrainBoundNet.paramFileGBN = &paramFile;
 
     //Do not perform bubble recognition if the original image does not exist
     if(originalImageExists == true)

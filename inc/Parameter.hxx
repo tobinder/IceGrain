@@ -36,6 +36,10 @@
 
 #include "ParameterFile.hxx"
 
+//Includes for hdf5
+#include <cgp/cgp_hdf5.hxx>
+
+
 class AbstractParameter
 {
 protected:
@@ -128,6 +132,63 @@ public:
 	{
 		value =pf.get<T>(name+"."+this->name, defaultValue);
 	}
+    static void writeParamToHDF5(std::string paramName, int paramStdVal, hid_t & group_id, ParameterFile * paramFile)
+    {
+        Parameter<int> param;
+        param.assign("", paramName, paramStdVal);
+        param.load(*paramFile, "config");
+        
+        int paramArr[1];
+        paramArr[0] = param;
+
+        hsize_t dims[2];
+        dims[0] = 1;
+        dims[1] = 1;
+
+        hid_t dataspace_id = H5Screate_simple(2, dims, NULL);
+
+        hid_t dataset_id = H5Dcreate1(group_id, paramName.c_str(), H5T_NATIVE_INT, dataspace_id, H5P_DEFAULT);
+        H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, paramArr);
+    }
+    static void writeParamToHDF5(std::string paramName, float paramStdVal, hid_t & group_id, ParameterFile * paramFile)
+    {
+        Parameter<float> param;
+        param.assign("", paramName, paramStdVal);
+        param.load(*paramFile, "config");
+        
+        float paramArr[1];
+        paramArr[0] = param;
+
+        hsize_t dims[2];
+        dims[0] = 1;
+        dims[1] = 1;
+
+        hid_t dataspace_id = H5Screate_simple(2, dims, NULL);
+
+        hid_t dataset_id = H5Dcreate1(group_id, paramName.c_str(), H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT);
+        H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, paramArr);
+    }
+    static void writeParamToHDF5(std::string paramName, std::string paramStdVal, hid_t & group_id, ParameterFile * paramFile)
+    {
+        Parameter<std::string> param;
+        param.assign("", paramName, paramStdVal);
+        param.load(*paramFile, "config");
+        
+        std::string paramStr = param;
+        const char * paramChar = paramStr.c_str();
+
+        hsize_t dims[2];
+        dims[0] = 1;
+        dims[1] = 1;
+
+        hid_t dataspace_id = H5Screate_simple(2, dims, NULL);
+
+        hid_t datatype = H5Tcopy (H5T_C_S1);
+        H5Tset_size (datatype, H5T_VARIABLE);
+
+        hid_t dataset_id = H5Dcreate1(group_id, paramName.c_str(), datatype, dataspace_id, H5P_DEFAULT);
+        H5Dwrite(dataset_id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, &paramChar);
+    }
 };
 
 template <class T>

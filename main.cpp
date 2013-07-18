@@ -71,6 +71,10 @@ const int nr_of_classes=3;
 const float length_scaling=193.5; //20.0;//one mm is 193.5 Pixels
 const float area_scaling=37444.0; //400.0;//one mm is 193.5 Pixels
 
+#include "inc/ParameterFile.hxx"
+//Static class attribute 
+std::string ParameterFile::filepath = "";
+
 #include "inc/ParameteredObject.hxx"
 
 #include "path_functions.h"

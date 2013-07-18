@@ -73,6 +73,7 @@ private:
 public:
 	ParameterFile(void) : noFoundWarnings(false), convertSlashes(true), delimiter(';') {}
 	ParameterFile(std::string fileName) : noFoundWarnings(false), convertSlashes(true), delimiter(';') {load(fileName);}
+	static std::string filepath;
 	~ParameterFile(void) {}
 
 	void setDelimiter(char delimiter)
@@ -261,6 +262,7 @@ public:
 			clear();
 			fromStream(file);
 			file.close();
+			filepath = fileName;
 			return true;
 		}
 	}
@@ -343,8 +345,6 @@ public:
 			}
 		}
 	}
-
-
 };
 
 template <> inline void ParameterFile::set(std::string parameter, std::string value)
