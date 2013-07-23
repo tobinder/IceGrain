@@ -459,25 +459,23 @@ void gbn::save_final_structure(std::string dest_path)
         Parameter<int>::writeParamToHDF5("feature4", 0, group_id, paramFileGBN);
         Parameter<int>::writeParamToHDF5("feature5", 0, group_id, paramFileGBN);
 
-        Parameter<int>::writeParamToHDF5("curvature", 0, group_id, paramFileGBN);
-        Parameter<int>::writeParamToHDF5("probmap", 0, group_id, paramFileGBN);
+        Parameter<int>::writeParamToHDF5("curvature", 1, group_id, paramFileGBN);
+        Parameter<int>::writeParamToHDF5("probmap", 1, group_id, paramFileGBN);
         Parameter<int>::writeParamToHDF5("arcsize", 0, group_id, paramFileGBN);
-        Parameter<int>::writeParamToHDF5("region", 0, group_id, paramFileGBN);
+        Parameter<int>::writeParamToHDF5("region", 1, group_id, paramFileGBN);
         Parameter<int>::writeParamToHDF5("cross_section", 0, group_id, paramFileGBN);
 
         Parameter<std::string>::writeParamToHDF5("path_boundary_rf", "", group_id, paramFileGBN);
 
-        Parameter<float>::writeParamToHDF5("bubble_boundary_threshold", (float)0.51, group_id, paramFileGBN);
-        Parameter<int>::writeParamToHDF5("max_bubble_arc_length", 9001, group_id, paramFileGBN);
-        Parameter<float>::writeParamToHDF5("subgrain_boundary_threshold", (float)0.91, group_id, paramFileGBN);
-        Parameter<float>::writeParamToHDF5("no_boundary_threshold", (float)0.81, group_id, paramFileGBN);
-        Parameter<int>::writeParamToHDF5("minimal_grain_size", 51, group_id, paramFileGBN);
-        Parameter<int>::writeParamToHDF5("minimal_region_size", 50013, group_id, paramFileGBN);
+        Parameter<float>::writeParamToHDF5("bubble_boundary_threshold", 0.5f, group_id, paramFileGBN);
+        Parameter<int>::writeParamToHDF5("max_bubble_arc_length", 10000, group_id, paramFileGBN);
+        Parameter<float>::writeParamToHDF5("subgrain_boundary_threshold", 0.9f, group_id, paramFileGBN);
+        Parameter<float>::writeParamToHDF5("no_boundary_threshold", 0.9f, group_id, paramFileGBN);
+        Parameter<int>::writeParamToHDF5("minimal_grain_size", 500, group_id, paramFileGBN);
+        Parameter<int>::writeParamToHDF5("minimal_region_size", 50000, group_id, paramFileGBN);
 
-        Parameter<int>::writeParamToHDF5("close_bubble_grain_size", 5001, group_id, paramFileGBN);
         //Close the group
         H5Gclose(group_id);
-
     }
 
     //Close the file
