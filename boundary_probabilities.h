@@ -777,7 +777,7 @@ void extract_boundary_probabilities(std::string filepath_to_feature_file,std::st
                            selection_image,
                            filepath_image,
                            remove_bubble_arcs);
-   }
+    }
 
     std::list<int> found_border_areas;
 
@@ -837,7 +837,7 @@ void extract_boundary_probabilities(std::string filepath_to_feature_file,std::st
         no_boundary_threshold.save(paramFile, "config");
 
         Parameter<int> minimal_grain_size;
-        minimal_grain_size.assign("", "minimal_grain_size", 1);
+        minimal_grain_size.assign("", "minimal_grain_size", 4);
         minimal_grain_size.save(paramFile, "config");
     }
     
