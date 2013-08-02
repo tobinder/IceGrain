@@ -1055,6 +1055,7 @@ void correct_prediction(std::string filepath_to_feature_file,std::string path_to
                 exportImage(srcImageRange(bubble_image), vigra::ImageExportInfo(filepath_bubbles.c_str()));
                 exportImage(srcImageRange(grain_image), vigra::ImageExportInfo(filepath_grains.c_str()));
              
+                grainBoundNet.paramFileGBN = &paramFile;
                 grainBoundNet.save_final_structure(filepath_new_classification);
 
                 std::cout<<"...done"<<std::endl;

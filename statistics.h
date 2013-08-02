@@ -1874,6 +1874,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             else str << "." << minimal_grain_size;
             filepath_new_classification2.append(str.str());
 
+            GrainBoundNet.paramFileGBN = &paramFile;
             GrainBoundNet.save_final_structure(filepath_new_classification2);
         }
 

@@ -301,8 +301,6 @@ void find_subgrains(std::string filepath_to_feature_file,std::string path_to_ima
     filepath_to_ws_image.append("a");//dirty
     segment2.load_arcs(filepath_to_ws_image, arcs);
 
-    
-
 	gbn grainBoundNet;
     size_t & nr_areas = grainBoundNet.nr_new_areas;
     long * & bubble_area_size = grainBoundNet.bubble_area_size;
@@ -1310,6 +1308,7 @@ void find_subgrains(std::string filepath_to_feature_file,std::string path_to_ima
                     
     exportImage(srcImageRange(grain_image), vigra::ImageExportInfo(filepath_grains.c_str()));
 
+    grainBoundNet.paramFileGBN = &paramFile;
 	grainBoundNet.save_final_structure(filepath_rf_predictions);
 
     std::cout<<"...done"<<std::endl;

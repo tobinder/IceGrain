@@ -68,8 +68,12 @@
 #include <vigra/edgedetection.hxx>
 
 const int nr_of_classes=3;
-const float length_scaling=193.5; //20.0;//one mm is 193.5 Pixels
-const float area_scaling=37444.0; //400.0;//one mm is 193.5 Pixels
+const float length_scaling=193.5; //LASM: one mm is 193.5 Pixels
+const float area_scaling=37444.0; //LASM: one mm is 193.5 Pixels
+//const float length_scaling=50.0;  //FA: one mm is 50 Pixels
+//const float area_scaling=2500.0;  //FA: one mm is 50 Pixels
+//const float length_scaling=20.0;  //GRIP/NorthGRIP: one mm is 20 Pixels
+//const float area_scaling=400.0;   //GRIP/NorthGRIP: one mm is 20 Pixels
 
 #include "inc/ParameterFile.hxx"
 //Static class attribute 
