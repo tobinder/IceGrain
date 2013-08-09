@@ -122,7 +122,6 @@ float ConvexPerimeter::fit(std::vector<point> pixels)
     int xback = pixelsX.back().x;   //x-coordinate of the end point    
     int xi = pixelsX[i].x;          //x- and y-coordinates of the i-th point
     int yi = pixelsX[i].y;    
-    std::vector<bool> already_used (pixelsX.size(),false);
 
     bool flag = false;              //Direction of the algorithm
 
@@ -159,7 +158,7 @@ float ConvexPerimeter::fit(std::vector<point> pixels)
                         }
                         else if(d.x < 0)
                         {
-                            angle = 3*PI/2 - atan((double)(float)d.y-(float)d.x);
+                            angle = 3*PI/2 - atan((double)(float)d.y/(float)d.x);
                         }
                         else if(d.x == 0)
                         {
@@ -175,7 +174,7 @@ float ConvexPerimeter::fit(std::vector<point> pixels)
                         }
                         else if(d.x > 0)
                         {
-                            angle = 3*PI/2 - atan((double)(float)d.y-(float)d.x);
+                            angle = 3*PI/2 - atan((double)(float)d.y/(float)d.x);
                         }
                         else if(d.x == 0)
                         {
@@ -183,7 +182,7 @@ float ConvexPerimeter::fit(std::vector<point> pixels)
                             else angle = 2*PI;
                         }                        
                     }
-                    if(angle < low && !already_used[j])
+                    if(angle < low)
                     {
                        convex_point = pixelsX[j];
                        low = angle;
@@ -197,7 +196,6 @@ float ConvexPerimeter::fit(std::vector<point> pixels)
             i = j_save;           
             xi = pixelsX[i].x;
             yi = pixelsX[i].y;
-            already_used[i]=true;
             
             //Calculate length of the convex hull's edges
             if(points.size() >= 1)
