@@ -40,14 +40,6 @@
 //
 #pragma once
 
-#ifdef GBN_STANDALONE
-//This include becomes necessary only if this class is included seperately in a project
-#include "boundary_probabilities.h"
-#include "boundary_data_structure.h"
-#endif
-
-/*Class representing the Grain-Boundary-Network structure (cf. code manual for IceGrain)*/
-
 class gbn
 {
     public:
@@ -70,7 +62,9 @@ class gbn
     std::vector<int>                found_bubble_areas;                 /*!< Indices of found grain areas.*/
     std::vector<float>              values;                             /*!< Unused as of now.*/
 
+    #ifndef GBN_STANDALONE
     ParameterFile *                 paramFileGBN;                       /*!< Pointer to parameter file used for gbn structure.*/
+    #endif
 
     //Methods ****************************************************************
     /*! Save the GBN structure into a HDF5 file.
@@ -448,6 +442,7 @@ void gbn::save_final_structure(std::string dest_path)
         }
     }
 
+    #ifndef GBN_STANDALONE
     {
         //Create group Parameters
         hid_t group_id = H5Gcreate1(file_save, "/Parameters", 0);
@@ -477,12 +472,12 @@ void gbn::save_final_structure(std::string dest_path)
         //Close the group
         H5Gclose(group_id);
     }
+    #endif
 
     //Close the file
     H5Fclose(file_save);
 
     std::cout<<"File closed"<<std::endl;
-
 }
 
 void gbn::load_final_structure(std::string filepath_new_classification)
@@ -892,5 +887,3 @@ void gbn::load_grain_sizes(std::string filepath_new_classification)
 
     std::cout<<"File closed"<<std::endl;
 }
-
-
