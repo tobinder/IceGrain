@@ -37,15 +37,15 @@
 class ConvexPerimeter
 {
     public:
-    //Methods***************************************************************************************
+    //Attributes
+    std::vector<point> points;
+
+    //Methods
     //Fit a convex perimeter to a set of pixels using Jarvis' March and return its length
     float fit(std::vector<point> pixels);
 
     private:
-    //Attributes************************************************************************************
-    std::vector<point> points;
-
-    //Methods***************************************************************************************
+    //Methods
     //Sort by x-coordinates, then sort by y-coordinate 
     std::vector<point> sortByX(std::vector<point> points);    
 };
@@ -218,7 +218,7 @@ float ConvexPerimeter::fit(std::vector<point> pixels)
     std::cout << "=> ratio =  " << ratio << std::endl; //Debug    
     */
     
-    points.clear();
+    //points.clear();
     return length;
 }
 

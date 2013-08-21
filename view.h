@@ -37,14 +37,15 @@
 void grain_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsigned char> & output_men, int selected_grain, bool only_inner_grains,
     std::vector<bool> inner_grain_areas, std::string grain_string, int unmarked, color_type * color, int diff_x, int diff_y, float scaling,
     std::vector< std::vector<point> > arcs, int dim_x, int dim_y, long * grain_area_size, std::vector< std::vector<int> >  grain_arc_index,
-    std::vector<point> grain_area_center_mass, std::vector<int> grain_areas, std::vector<float> grain_roundness, std::vector<float> grain_box_flattening,
+    std::vector<point> grain_area_center_mass, std::vector<int> grain_areas, std::vector<float> grain_perimeter_ratio, std::vector<float> grain_box_flattening,
     std::vector<float> grain_box_width, std::vector<float> grain_box_height, std::vector< std::vector<float> > ellipse_params, std::vector<float> ellipse_long_axis,
     std::vector<float> ellipse_flattening, std::vector<float> ellipse_long_axis_angle, std::vector<float> grain_arc_number, std::vector<float> grain_neighbors,
     std::vector<float> grain_longest_arc_length, float length_scaling, float area_scaling);
 
-void show_ellipse_box(cimg_library::CImg<unsigned char> & image, int selected_grain, int unmarked, float angle, area_range & range, FitEllipse fitEllipse,
-    std::vector<point> & ellipse_points, std::vector< std::vector<point> > arcs, int dim_x, int dim_y, std::vector< std::vector<int> > grain_arc_index,
-    std::vector<point> grain_area_center_mass, std::vector<bool> grain_arc, std::vector<int> grain_areas, std::vector< std::vector<float> > ellipse_params);
+void show_ellipse_box_conv(cimg_library::CImg<unsigned char> & image, int selected_grain, int unmarked, float angle, area_range & range,
+    ConvexPerimeter & convPerimeter, FitEllipse fitEllipse, std::vector<point> & ellipse_points, std::vector< std::vector<point> > arcs, int dim_x, int dim_y,
+    std::vector< std::vector<int> > grain_arc_index, std::vector<point> grain_area_center_mass, std::vector<bool> grain_arc, std::vector<int> grain_areas,
+    std::vector< std::vector<float> > ellipse_params);
 
 void print_grain(float scaling, int dim_x, int dim_y, cimg_library::CImg<unsigned char> output_men, cimg_library::CImg<unsigned char> image, int posx, int posy,
     std::string filepath_plots, int unmarked, std::string grain_string, std::string suffix);
@@ -171,7 +172,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
 
     param para;
     std::vector<int> & grain_areas = para.grain_areas;
-    std::vector<float> & grain_roundness = para.grain_roundness;
+    std::vector<float> & grain_perimeter_ratio = para.grain_perimeter_ratio;
     std::vector<float> & grain_box_flattening = para.grain_box_flattening;
     std::vector<float> & grain_box_width = para.grain_box_width;
     std::vector<float> & grain_box_height = para.grain_box_height;
@@ -431,7 +432,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             std::string grain_string(Str.str());
 
             grain_menu(men, output_men, selected_grain, only_inner_grains, inner_grain_areas, grain_string, mark, color, diff_x, diff_y, scaling,
-                arcs, dim_x, dim_y, grain_area_size, grain_arc_index, grain_area_center_mass, grain_areas, grain_roundness,
+                arcs, dim_x, dim_y, grain_area_size, grain_arc_index, grain_area_center_mass, grain_areas, grain_perimeter_ratio,
                 grain_box_flattening, grain_box_width, grain_box_height, ellipse_params, ellipse_long_axis, ellipse_flattening, ellipse_long_axis_angle,
                 grain_arc_number, grain_neighbors, grain_longest_arc_length, length_scaling(), area_scaling());
 
@@ -442,16 +443,20 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             range.y_high=0;
 
             std::vector<point> ellipse_points;
+
+            //Initialize convex perimeter class
+            ConvexPerimeter convPerimeter;
+
             float angle=0.0f;
             if (mark!=4) angle=ellipse_long_axis_angle[grain_areas[selected_grain]];
 
             //print unmarked
-            print_grain(scaling, canvas.dimx(), canvas.dimy(), output_men, unmarked_image, posx, posy, filepath_plots, 5, grain_string, suffix);
+            print_grain(scaling, canvas.dimx(), canvas.dimy(), output_men, unmarked_image, posx, posy, filepath_plots, 6, grain_string, suffix);
 
             //print marked
-            if (mark<5)
+            if (mark<6)
             {
-                show_ellipse_box(image, selected_grain, mark, angle, range, fitEllipse, ellipse_points, arcs, dim_x, dim_y, grain_arc_index,
+                show_ellipse_box_conv(image, selected_grain, mark, angle, range, convPerimeter, fitEllipse, ellipse_points, arcs, dim_x, dim_y, grain_arc_index,
                     grain_area_center_mass, grain_arc, grain_areas, ellipse_params);
 
                 print_grain(scaling, canvas.dimx(), canvas.dimy(), output_men, image, posx, posy, filepath_plots, mark, grain_string, suffix);
@@ -494,7 +499,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             std::string grain_string(Str.str());
 
             grain_menu(men, output_men, selected_grain, only_inner_grains, inner_grain_areas, grain_string, unmarked, color, diff_x, diff_y, scaling,
-                arcs, dim_x, dim_y, grain_area_size, grain_arc_index, grain_area_center_mass, grain_areas, grain_roundness,
+                arcs, dim_x, dim_y, grain_area_size, grain_arc_index, grain_area_center_mass, grain_areas, grain_perimeter_ratio,
                 grain_box_flattening, grain_box_width, grain_box_height, ellipse_params, ellipse_long_axis, ellipse_flattening, ellipse_long_axis_angle,
                 grain_arc_number, grain_neighbors, grain_longest_arc_length, length_scaling(), area_scaling());
 
@@ -540,7 +545,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             // press "b" to change selection for marked boundaries
                 if(selectionDisplay.key==98 || selectionDisplay.key==66)
             {
-                unmarked=(unmarked+1)%6;
+                unmarked=(unmarked+1)%7;
             }
 
             // press "i" to change selection for inner grains only
@@ -571,7 +576,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             scaling=1.0f;
             while (diff_x+50>scaling*display_x || diff_y+50>scaling*display_y) scaling+=0.1f;
 
-            if (unmarked<5) image=original_image;
+            if (unmarked<6) image=original_image;
             else image=unmarked_image;
 
             posx=std::max(0.0f,area_ranges[grain_areas[selected_grain]].x_low - (scaling*display_x-diff_x)/2.0f);
@@ -583,11 +588,15 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             else canvas.assign(display_x,display_y,1,3);
 
             std::vector<point> ellipse_points;
+
+            //Initialize convex perimeter class
+            ConvexPerimeter convPerimeter;
+
             float angle=0.0f;
             if (unmarked!=4) angle=ellipse_long_axis_angle[grain_areas[selected_grain]];
 
-            if (unmarked<5) show_ellipse_box(image, selected_grain, unmarked, angle, range, fitEllipse, ellipse_points, arcs, dim_x, dim_y, grain_arc_index,
-                grain_area_center_mass, grain_arc, grain_areas, ellipse_params);
+            if (unmarked<6) show_ellipse_box_conv(image, selected_grain, unmarked, angle, range, convPerimeter, fitEllipse, ellipse_points, arcs, dim_x, dim_y,
+                grain_arc_index, grain_area_center_mass, grain_arc, grain_areas, ellipse_params);
 
             cimg_forXY(canvas,x,y)
             {
@@ -599,7 +608,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
                 }
             }
 
-            if (unmarked<5 && scaling>1.0f)
+            if (unmarked<6 && scaling>1.0f)
             {
                 for (int arc=0; arc<grain_arc_index[grain_areas[selected_grain]].size(); arc++)
                     for (int p=0; p<arcs[grain_arc_index[grain_areas[selected_grain]][arc]].size(); p++)
@@ -709,6 +718,53 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
                             canvas((ellipse_points[i].x-posx)/scaling,(ellipse_points[i].y-posy)/scaling,0,0)=0;
                             canvas((ellipse_points[i].x-posx)/scaling,(ellipse_points[i].y-posy)/scaling,0,1)=255;
                             canvas((ellipse_points[i].x-posx)/scaling,(ellipse_points[i].y-posy)/scaling,0,2)=0;
+                        }
+                    }
+                }
+
+                if (unmarked==5)
+                {
+                    for (int i=0; i<convPerimeter.points.size(); i++)
+                    {
+                        int j=(i+1)%convPerimeter.points.size();
+
+                        if (fabs(convPerimeter.points[i].x-convPerimeter.points[j].x)>fabs(convPerimeter.points[i].y-convPerimeter.points[j].y))
+                        {
+                            float m=float(convPerimeter.points[j].y-convPerimeter.points[i].y)/float(convPerimeter.points[j].x-convPerimeter.points[i].x);
+                            if(convPerimeter.points[i].x<convPerimeter.points[j].x) for (int x=convPerimeter.points[i].x; x<=convPerimeter.points[j].x; x++) 
+                            {
+                                int y=convPerimeter.points[i].y+m*(x-convPerimeter.points[i].x);
+                                image(x,y,0,0)=0;
+                                image(x,y,0,1)=255;
+                                image(x,y,0,2)=0;
+                            }
+
+                            else for (int x=convPerimeter.points[i].x; x>=convPerimeter.points[j].x; x--)
+                            {
+                                int y=convPerimeter.points[i].y+m*(x-convPerimeter.points[i].x);
+                                image(x,y,0,0)=0;
+                                image(x,y,0,1)=255;
+                                image(x,y,0,2)=0;
+                            }
+                        }
+                        else if (fabs(convPerimeter.points[i].y-convPerimeter.points[j].y)>0)
+                        {
+                            float m=float(convPerimeter.points[j].x-convPerimeter.points[i].x)/float(convPerimeter.points[j].y-convPerimeter.points[i].y);
+                            if(convPerimeter.points[i].y<convPerimeter.points[j].y) for (int y=convPerimeter.points[i].y; y<=convPerimeter.points[j].y; y++) 
+                            {
+                                int x=convPerimeter.points[i].x+m*(y-convPerimeter.points[i].y);
+                                image(x,y,0,0)=0;
+                                image(x,y,0,1)=255;
+                                image(x,y,0,2)=0;
+                            }
+
+                            else for (int y=convPerimeter.points[i].y; y>=convPerimeter.points[j].y; y--) 
+                            {
+                                int x=convPerimeter.points[i].x+m*(y-convPerimeter.points[i].y);
+                                image(x,y,0,0)=0;
+                                image(x,y,0,1)=255;
+                                image(x,y,0,2)=0;
+                            }
                         }
                     }
                 }
@@ -2924,7 +2980,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
 void grain_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsigned char> & output_men, int selected_grain, bool only_inner_grains,
     std::vector<bool> inner_grain_areas, std::string grain_string, int unmarked, color_type * color, int diff_x, int diff_y, float scaling,
     std::vector< std::vector<point> > arcs, int dim_x, int dim_y, long * grain_area_size, std::vector< std::vector<int> >  grain_arc_index,
-    std::vector<point> grain_area_center_mass, std::vector<int> grain_areas, std::vector<float> grain_roundness, std::vector<float> grain_box_flattening,
+    std::vector<point> grain_area_center_mass, std::vector<int> grain_areas, std::vector<float> grain_perimeter_ratio, std::vector<float> grain_box_flattening,
     std::vector<float> grain_box_width, std::vector<float> grain_box_height, std::vector< std::vector<float> > ellipse_params, std::vector<float> ellipse_long_axis,
     std::vector<float> ellipse_flattening, std::vector<float> ellipse_long_axis_angle, std::vector<float> grain_arc_number, std::vector<float> grain_neighbors,
     std::vector<float> grain_longest_arc_length, float length_scaling, float area_scaling)
@@ -2936,7 +2992,8 @@ void grain_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsi
     else if (unmarked==2) men.draw_text(330,10, "Boundaries and ellipses are shown",color[1],0,1,11,1,1);
     else if (unmarked==3) men.draw_text(330,10, "Boundaries, boxes and ellipses are shown",color[1],0,1,11,1,1);
     else if (unmarked==4) men.draw_text(330,10, "Boundaries and fixed boxes are shown",color[1],0,1,11,1,1);
-    else if (unmarked==5) men.draw_text(330,10, "Boundaries are not shown",color[1],0,1,11,1,1);
+    else if (unmarked==5) men.draw_text(330,10, "Boundaries and convex perimeter are shown",color[1],0,1,11,1,1);
+    else if (unmarked==6) men.draw_text(330,10, "Boundaries are not shown",color[1],0,1,11,1,1);
 
     std::string name="Selected grain: ";
     name.append(grain_string);
@@ -2983,9 +3040,9 @@ void grain_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsi
 
     {   
         std::ostringstream Str;
-        Str << std::fixed << std::setprecision(2) << grain_roundness[grain_areas[selected_grain]];
+        Str << std::fixed << std::setprecision(2) << grain_perimeter_ratio[grain_areas[selected_grain]];
         std::string temp_string(Str.str());
-        std::string name="Roundness factor: ";
+        std::string name="Perimeter ratio: ";
         name.append(temp_string);
         men.draw_text(330,30,name.c_str(),color[3],0,1,11,1,1);
         output_men.draw_text(330,10,name.c_str(),color[3],0,1,11,1,1);
@@ -3107,9 +3164,10 @@ void grain_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsi
     }
 }
 
-void show_ellipse_box(cimg_library::CImg<unsigned char> & image, int selected_grain, int unmarked, float angle, area_range & range, FitEllipse fitEllipse,
-    std::vector<point> & ellipse_points, std::vector< std::vector<point> > arcs, int dim_x, int dim_y, std::vector< std::vector<int> > grain_arc_index,
-    std::vector<point> grain_area_center_mass, std::vector<bool> grain_arc, std::vector<int> grain_areas, std::vector< std::vector<float> > ellipse_params)
+void show_ellipse_box_conv(cimg_library::CImg<unsigned char> & image, int selected_grain, int unmarked, float angle, area_range & range,
+    ConvexPerimeter & convPerimeter, FitEllipse fitEllipse, std::vector<point> & ellipse_points, std::vector< std::vector<point> > arcs, int dim_x, int dim_y,
+    std::vector< std::vector<int> > grain_arc_index, std::vector<point> grain_area_center_mass, std::vector<bool> grain_arc, std::vector<int> grain_areas,
+    std::vector< std::vector<float> > ellipse_params)
 {
     //grain boundary pixels
     std::vector<point> all_boundary_pixels;
@@ -3250,6 +3308,55 @@ void show_ellipse_box(cimg_library::CImg<unsigned char> & image, int selected_gr
             }
         }
     }
+
+    if (unmarked==5)
+    {
+        convPerimeter.fit(all_boundary_pixels);
+
+        for (int i=0; i<convPerimeter.points.size(); i++)
+        {
+            int j=(i+1)%convPerimeter.points.size();
+
+            if (fabs(convPerimeter.points[i].x-convPerimeter.points[j].x)>fabs(convPerimeter.points[i].y-convPerimeter.points[j].y))
+            {
+                float m=float(convPerimeter.points[j].y-convPerimeter.points[i].y)/float(convPerimeter.points[j].x-convPerimeter.points[i].x);
+                if(convPerimeter.points[i].x<convPerimeter.points[j].x) for (int x=convPerimeter.points[i].x; x<=convPerimeter.points[j].x; x++) 
+                {
+                    int y=convPerimeter.points[i].y+m*(x-convPerimeter.points[i].x);
+                    image(x,y,0,0)=0;
+                    image(x,y,0,1)=255;
+                    image(x,y,0,2)=0;
+                }
+
+                else for (int x=convPerimeter.points[i].x; x>=convPerimeter.points[j].x; x--)
+                {
+                    int y=convPerimeter.points[i].y+m*(x-convPerimeter.points[i].x);
+                    image(x,y,0,0)=0;
+                    image(x,y,0,1)=255;
+                    image(x,y,0,2)=0;
+                }
+            }
+            else if (fabs(convPerimeter.points[i].y-convPerimeter.points[j].y)>0)
+            {
+                float m=float(convPerimeter.points[j].x-convPerimeter.points[i].x)/float(convPerimeter.points[j].y-convPerimeter.points[i].y);
+                if(convPerimeter.points[i].y<convPerimeter.points[j].y) for (int y=convPerimeter.points[i].y; y<=convPerimeter.points[j].y; y++) 
+                {
+                    int x=convPerimeter.points[i].x+m*(y-convPerimeter.points[i].y);
+                    image(x,y,0,0)=0;
+                    image(x,y,0,1)=255;
+                    image(x,y,0,2)=0;
+                }
+
+                else for (int y=convPerimeter.points[i].y; y>=convPerimeter.points[j].y; y--) 
+                {
+                    int x=convPerimeter.points[i].x+m*(y-convPerimeter.points[i].y);
+                    image(x,y,0,0)=0;
+                    image(x,y,0,1)=255;
+                    image(x,y,0,2)=0;
+                }
+            }
+        }
+    }
 }
 
 void print_grain(float scaling, int dim_x, int dim_y, cimg_library::CImg<unsigned char> output_men, cimg_library::CImg<unsigned char> image, int posx, int posy,
@@ -3293,7 +3400,7 @@ void print_grain(float scaling, int dim_x, int dim_y, cimg_library::CImg<unsigne
     for (int x=0; x<scaling*dim_x; x++)
         for (int y=0; y<output.height()-output_men.dimy(); y++)
             for (int i=0; i<3; i++)
-                if (output2(x,y)[i]==255 && unmarked!=5)
+                if (output2(x,y)[i]==255 && unmarked!=6)
                 {  
                     if (x>0) output(x-1,y)[i]=255;
                     if (x>1) output(x-2,y)[i]=255;
@@ -3353,7 +3460,8 @@ void print_grain(float scaling, int dim_x, int dim_y, cimg_library::CImg<unsigne
     if (unmarked==2) filepath_output.append("_ellipse");
     if (unmarked==3) filepath_output.append("_box_ellipse");
     if (unmarked==4) filepath_output.append("_fixed_box");
-    if (unmarked==5) filepath_output.append("_unmarked");
+    if (unmarked==5) filepath_output.append("_convex");
+    if (unmarked==6) filepath_output.append("_unmarked");
 
     filepath_output.append(suffix.c_str());
     filepath_output.append(".bmp");

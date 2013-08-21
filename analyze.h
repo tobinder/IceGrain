@@ -1609,6 +1609,7 @@ void analyze(std::string filepath_list, std::string path_rf_predictions, std::st
             paramtr = grain_perimeter_ratio;
             paramtr_name = "grain_perimeter_ratio";
             std::cout << "Parameter: grain perimeter ratio" << std::endl;
+            plot_type = 5;
         }
         else
         {
@@ -2168,7 +2169,7 @@ void analyze(std::string filepath_list, std::string path_rf_predictions, std::st
             corr_name="corr_roundness_perimeter_ratio";
             corr=corr_roundness_perimeter_ratio;
             std::cout<<"Correlation roundness/perimeter ratio"<<std::endl;
-            plot_type=4;
+            plot_type=5;
         }
 
         //Correlation: Vertical/Box Flattening
