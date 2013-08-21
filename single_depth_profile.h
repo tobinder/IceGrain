@@ -38,33 +38,31 @@ float get_depth(std::string name)
 {
     float depth=0.0f;
 
-    if(name=="NGRIP211.bmp") depth=211.0f*0.55f;
-    else if(name=="NGRIP301.bmp") depth=301.0f*0.55f;
-    else if(name=="NGRIP401.bmp") depth=401.0f*0.55f;
-    else if(name=="NGRIP502.bmp") depth=502.0f*0.55f;
-    else if(name=="NGRIP601.bmp") depth=601.0f*0.55f;
-    else if(name=="NGRIP701.bmp") depth=701.0f*0.55f;
-    else if(name=="NGRIP801.bmp") depth=801.0f*0.55f;
-    else if(name=="NGRIP902.bmp") depth=902.0f*0.55f;
-    else if(name=="NGRIP1001.bmp") depth=1001.0f*0.55f;
-    else if(name=="NGRIP1101.bmp") depth=1101.0f*0.55f;
-    else if(name=="NGRIP1200.bmp") depth=1200.0f*0.55f;
-    else if(name=="NGRIP1298.bmp") depth=1298.0f*0.55f;
-    else if(name=="NGRIP1401.bmp") depth=1401.0f*0.55f;
-    else if(name=="NGRIP1502.bmp") depth=1502.0f*0.55f;
-    else if(name=="NGRIP1602.bmp") depth=1602.0f*0.55f;
-    else if(name=="GRIP202.bmp") depth=202.0f*0.55f;
-    else if(name=="GRIP400.bmp") depth=400.0f*0.55f;
-    else if(name=="GRIP611.bmp") depth=611.0f*0.55f;
-    else if(name=="GRIP808.bmp") depth=808.0f*0.55f;
-    else if(name=="GRIP996.bmp") depth=996.0f*0.55f;
-    else if(name=="GRIP1208.bmp") depth=1208.0f*0.55f;
-    else if(name=="GRIP1395.bmp") depth=1395.0f*0.55f;
-    else if(name=="GRIP1610.bmp") depth=1610.0f*0.55f;
-    else if(name=="GRIP1819.bmp") depth=1819.0f*0.55f;
-    else 
+    std::string core=name;
+    core.erase(4,core.size()-3);
+
+    if(core!="NGRI" && core!="GRIP" && core!="EDML")
     {
         std::cout<<"Error: Depth not defined for "<<name<<std::endl;
+    }
+    else
+    {
+        if(core=="NGRI")
+        {
+            name.erase(0,5);
+            depth=atof(name.c_str())*0.55f;
+        }
+        else if(core=="GRIP")
+        {
+            name.erase(0,4);
+            depth=atof(name.c_str())*0.55f;
+        }
+        else if(core=="EDML")
+        {
+            name.erase(0,4);
+            name.erase(4,name.size()-3);
+            depth=atof(name.c_str());
+        }
     }
 
     return depth;

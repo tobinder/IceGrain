@@ -2485,10 +2485,12 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
 
                 if(filename==old || filename=="") break;//avoids reading last line twice
 
+                float depth=0.0f;
+
                 //extract suffix
                 std::string suffix1=get_path(filename);
 
-                if (suffix1.size()>0)
+                if (correct_suffix && suffix1.size()>0)
                 {
                     suffix1.resize(suffix1.size()-1);
                     suffix1=get_filename(suffix1.c_str());
@@ -2496,117 +2498,121 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
                     suffix1.append("/");
 
                     if(iter==1 && bagnr>2506) break;
-                    float depth=(float)bagnr*0.55f;
+                    depth=(float)bagnr*0.55f;
+                }
+                else
+                {
+                    depth=get_depth(get_filename(filename));
+                }
 
-                    if (depth>0.0f)
+                if (depth>0.0f)
+                {
+                    if (depth>depth_max)
                     {
-                        if (depth>depth_max)
+                        depth_max=depth;
+                        grain_sizes.resize(1+depth_max/depth_bin_width);
+                        grain_size_histogram.resize(1+depth_max/depth_bin_width);
+                        grain_size_max.resize(1+depth_max/depth_bin_width,0);
+                        grain_size_mean.resize(1+depth_max/depth_bin_width);
+                        grain_size_max_x.resize(1+depth_max/depth_bin_width);
+                        boundary_sizes.resize(1+depth_max/depth_bin_width);
+                    }
+                    
+                    gbn grainBoundNet;
+                    size_t & nr_areas = grainBoundNet.nr_new_areas;
+                    long * & grain_area_size = grainBoundNet.grain_area_size;
+
+                    std::string param_file_name=get_filename(param_file);
+                    if (param_file_name != "parameters.txt") param_file_name.resize(param_file_name.size()-4);
+                    else param_file_name = "";
+
+                    std::string filepath_new_classification=path_rf_predictions;
+                    if (correct_suffix) filepath_new_classification.append(suffix1);
+                    filepath_new_classification.append(param_file_name.c_str());
+
+                    std::stringstream s;
+                    if (iter==0 && minimal_grain_size>0) s << "." << minimal_grain_size;
+                    else if (iter>0) s << "." << minimal_bubble_distance << "." << minimal_grain_size;
+
+                    filepath_new_classification.append(get_filename(filename));
+                    filepath_new_classification.append(s.str());
+                    filepath_new_classification.append(".h5");
+
+                    //IMPORT RESULTS FROM HDF5 file
+                    grainBoundNet.load_grain_sizes(filepath_new_classification);
+
+                    param para;
+                    std::vector<int> & grain_areas = para.grain_areas;
+                    std::vector<float> & grain_roundness = para.grain_roundness;
+                    std::vector<float> & grain_box_flattening = para.grain_box_flattening;
+                    std::vector<float> & ellipse_long_axis_angle = para.ellipse_long_axis_angle;
+                    std::vector<float> & grain_area_width = para.grain_area_width;
+                    std::vector<float> & grain_area_height = para.grain_area_height;
+                    std::vector< std::vector<float> > & grain_boundary_curvs = para.grain_boundary_curvs;
+                    std::vector<float> & grain_perimeter_ratio = para.grain_perimeter_ratio;
+
+                    std::stringstream s2;
+                    if (iter==0) s2 << "." << minimal_grain_size << ".h5";
+                    else s2 << "." << minimal_bubble_distance << "." << minimal_grain_size <<".h5";
+
+                    std::string filepath_parameters=path_results;
+                    if (correct_suffix) filepath_parameters.append(suffix1);
+                    filepath_parameters.append(get_filename(filename));
+                    filepath_parameters.append(s2.str());
+
+                    //load grain width and height
+                    para.load_selected_extracted_parameters(filepath_parameters);
+
+                    for (int area_index=0; area_index<grain_areas.size(); area_index++)
+                    {
+                        int area=grain_areas[area_index];
+
+                        if (grain_area_size[area]>grain_size_max[depth/depth_bin_width])
                         {
-                            depth_max=depth;
-                            grain_sizes.resize(1+depth_max/depth_bin_width);
-                            grain_size_histogram.resize(1+depth_max/depth_bin_width);
-                            grain_size_max.resize(1+depth_max/depth_bin_width,0);
-                            grain_size_mean.resize(1+depth_max/depth_bin_width);
-                            grain_size_max_x.resize(1+depth_max/depth_bin_width);
-                            boundary_sizes.resize(1+depth_max/depth_bin_width);
-                        }
-                        
-                        gbn grainBoundNet;
-                        size_t & nr_areas = grainBoundNet.nr_new_areas;
-                        long * & grain_area_size = grainBoundNet.grain_area_size;
-
-                        std::string param_file_name=get_filename(param_file);
-                        if (param_file_name != "parameters.txt") param_file_name.resize(param_file_name.size()-4);
-                        else param_file_name = "";
-
-                        std::string filepath_new_classification=path_rf_predictions;
-                        if (correct_suffix) filepath_new_classification.append(suffix1);
-                        filepath_new_classification.append(param_file_name.c_str());
-
-                        std::stringstream s;
-                        if (iter==0 && minimal_grain_size>0) s << "." << minimal_grain_size;
-                        else if (iter>0) s << "." << minimal_bubble_distance << "." << minimal_grain_size;
-
-                        filepath_new_classification.append(get_filename(filename));
-                        filepath_new_classification.append(s.str());
-                        filepath_new_classification.append(".h5");
-
-                        //IMPORT RESULTS FROM HDF5 file
-                        grainBoundNet.load_grain_sizes(filepath_new_classification);
-
-                        param para;
-                        std::vector<int> & grain_areas = para.grain_areas;
-                        std::vector<float> & grain_roundness = para.grain_roundness;
-                        std::vector<float> & grain_box_flattening = para.grain_box_flattening;
-                        std::vector<float> & ellipse_long_axis_angle = para.ellipse_long_axis_angle;
-                        std::vector<float> & grain_area_width = para.grain_area_width;
-                        std::vector<float> & grain_area_height = para.grain_area_height;
-                        std::vector< std::vector<float> > & grain_boundary_curvs = para.grain_boundary_curvs;
-                        std::vector<float> & grain_perimeter_ratio = para.grain_perimeter_ratio;
-
-                        std::stringstream s2;
-                        if (iter==0) s2 << "." << minimal_grain_size << ".h5";
-                        else s2 << "." << minimal_bubble_distance << "." << minimal_grain_size <<".h5";
-
-                        std::string filepath_parameters=path_results;
-                        if (correct_suffix) filepath_parameters.append(suffix1);
-                        filepath_parameters.append(get_filename(filename));
-                        filepath_parameters.append(s2.str());
-
-                        //load grain width and height
-                        para.load_selected_extracted_parameters(filepath_parameters);
-
-                        for (int area_index=0; area_index<grain_areas.size(); area_index++)
-                        {
-                            int area=grain_areas[area_index];
-
-                            if (grain_area_size[area]>grain_size_max[depth/depth_bin_width])
-                            {
-                                grain_size_histogram[depth/depth_bin_width].resize((int)grain_bin_width*log10(grain_area_size[area])+1,0);
-                                grain_size_max[depth/depth_bin_width]=grain_area_size[area];
-                            }
-
-                            if (grain_area_size[area]>grain_size_min)
-                            {
-                                grain_size_histogram[depth/depth_bin_width][(int)grain_bin_width*log10(grain_area_size[area])]++;
-                                param_entry entry;
-                                entry.size=grain_area_size[area]/area_scaling();
-                                entry.flat=grain_area_width[area]/grain_area_height[area];
-                                entry.round=grain_roundness[area];
-                                entry.boxflat=grain_box_flattening[area];
-                                entry.width=grain_area_width[area];
-                                entry.height=grain_area_height[area];
-                                entry.angle=ellipse_long_axis_angle[area];
-                                entry.ratio=grain_perimeter_ratio[area];
-                                grain_sizes[depth/depth_bin_width].push_back(entry);
-                            }
+                            grain_size_histogram[depth/depth_bin_width].resize((int)grain_bin_width*log10(grain_area_size[area])+1,0);
+                            grain_size_max[depth/depth_bin_width]=grain_area_size[area];
                         }
 
-                        delete grain_area_size;
-                        
-                        for (int boundary=0; boundary<grain_boundary_curvs.size(); boundary++)
+                        if (grain_area_size[area]>grain_size_min)
                         {
-                            std::vector<float> curv_values;
-                            float mean=0.0f;
-                            float standard_deviation;
-
-                            for (int p=0; p<grain_boundary_curvs[boundary].size(); p++)
-                            {
-                                float curv=fabs(grain_boundary_curvs[boundary][p])/0.75f;//gauging, has to be validated!!
-
-                                if (curv<0.15)//CUT OFF BY CURV 0.15!!
-                                {
-                                    curv_values.push_back(curv);
-                                }
-                            }
-
-                            if(curv_values.size()>0) calculate_mean_standard_deviation(curv_values, mean, standard_deviation);
-
+                            grain_size_histogram[depth/depth_bin_width][(int)grain_bin_width*log10(grain_area_size[area])]++;
                             param_entry entry;
-                            entry.size=curv_values.size();
-                            entry.flat=mean; //mean curv
-                            boundary_sizes[depth/depth_bin_width].push_back(entry);
+                            entry.size=grain_area_size[area]/area_scaling();
+                            entry.flat=grain_area_width[area]/grain_area_height[area];
+                            entry.round=grain_roundness[area];
+                            entry.boxflat=grain_box_flattening[area];
+                            entry.width=grain_area_width[area];
+                            entry.height=grain_area_height[area];
+                            entry.angle=ellipse_long_axis_angle[area];
+                            entry.ratio=grain_perimeter_ratio[area];
+                            grain_sizes[depth/depth_bin_width].push_back(entry);
                         }
+                    }
+
+                    delete grain_area_size;
+                    
+                    for (int boundary=0; boundary<grain_boundary_curvs.size(); boundary++)
+                    {
+                        std::vector<float> curv_values;
+                        float mean=0.0f;
+                        float standard_deviation;
+
+                        for (int p=0; p<grain_boundary_curvs[boundary].size(); p++)
+                        {
+                            float curv=fabs(grain_boundary_curvs[boundary][p])/0.75f;//gauging, has to be validated!!
+
+                            if (curv<0.15)//CUT OFF BY CURV 0.15!!
+                            {
+                                curv_values.push_back(curv);
+                            }
+                        }
+
+                        if(curv_values.size()>0) calculate_mean_standard_deviation(curv_values, mean, standard_deviation);
+
+                        param_entry entry;
+                        entry.size=curv_values.size();
+                        entry.flat=mean; //mean curv
+                        boundary_sizes[depth/depth_bin_width].push_back(entry);
                     }
                 }
 
