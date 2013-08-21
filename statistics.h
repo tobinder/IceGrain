@@ -92,6 +92,14 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
     percentage_grains.assign("", "percentage_grains", 0.95f);
     percentage_grains.load(paramFile,"config");
 
+    Parameter<float> length_scaling;
+    length_scaling.assign("", "length_scaling", 193.5f);
+    length_scaling.load(paramFile,"config");
+
+    Parameter<float> area_scaling;
+    area_scaling.assign("", "area_scaling", 37444.0f);
+    area_scaling.load(paramFile,"config");
+
     std::string filepath_new_classification=path_rf_predictions;
     filepath_new_classification.append(param_file_name.c_str());
 
@@ -166,14 +174,14 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
     //scaling from pixels to length
     std::string length_unit="Length in mm (";
     char length_pixels[20];
-    sprintf(length_pixels, "%.0f", length_scaling);
+    sprintf(length_pixels, "%.0f", length_scaling());
     length_unit.append(length_pixels);
     length_unit.append(" pixels)");
 
     //scaling from pixels to area
     std::string area_unit="Size in mm^2 (";
     char area_pixels[20];
-    sprintf(area_pixels, "%.0f", area_scaling);
+    sprintf(area_pixels, "%.0f", area_scaling());
     area_unit.append(area_pixels);
     area_unit.append(" pixels)");
 
@@ -670,7 +678,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             if (grain_area_size[area]>grain_size_min) //criterion to exclude small grains instead of merging
             {
                 size_index grain;
-                grain.size=grain_area_size[area]/area_scaling;
+                grain.size=grain_area_size[area]/area_scaling();
                 grain.index=area;
                 area_sizes.push_back(grain);
             }
@@ -852,7 +860,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             {
                 grain_equiv_radius_histogram[(int)grain_equiv_radius_bin_width*log10(equiv_radius)]++;
             }
-            grain_equiv_radius_values.push_back(equiv_radius/length_scaling);
+            grain_equiv_radius_values.push_back(equiv_radius/length_scaling());
 
             //grain area width
             float grain_area_width=std::max(1, area_ranges[area].x_high-area_ranges[area].x_low);
@@ -866,7 +874,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             {
                 grain_area_width_histogram[(int)grain_area_width_bin_width*log10(grain_area_width)]++;
             }
-            grain_area_width_values.push_back(grain_area_width/length_scaling);
+            grain_area_width_values.push_back(grain_area_width/length_scaling());
 
             //grain area height
             float grain_area_height=std::max(1, area_ranges[area].y_high-area_ranges[area].y_low);
@@ -880,7 +888,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             {
                 grain_area_height_histogram[(int)grain_area_height_bin_width*log10(grain_area_height)]++;
             }
-            grain_area_height_values.push_back(grain_area_height/length_scaling);
+            grain_area_height_values.push_back(grain_area_height/length_scaling());
 
             //grain area flattening
             float grain_area_flattening=grain_area_width/grain_area_height;
@@ -1027,9 +1035,9 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                 if (long_axis>grain_ellipse_long_axis_min) 
                 {
                     grain_ellipse_long_axis_histogram[(int)grain_ellipse_long_axis_bin_width*log10(long_axis)]++;
-                    grain_ellipse_long_axis_values2.push_back(long_axis/length_scaling);
+                    grain_ellipse_long_axis_values2.push_back(long_axis/length_scaling());
                 }
-                grain_ellipse_long_axis_values[area_index]=long_axis/length_scaling;
+                grain_ellipse_long_axis_values[area_index]=long_axis/length_scaling();
 
                 //grain ellipse flattening
                 if (long_axis>0.0f && short_axis>0.0f) grain_ellipse_flattening_values[area_index]=long_axis/short_axis;//axes found correctly
@@ -1116,7 +1124,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                         grain_box_width_max=grain_box_width_values[area_index];
                     }
                     grain_box_width_histogram[(int)grain_box_width_bin_width*log10(grain_box_width_values[area_index])]++;
-                    grain_box_width_values[area_index]/=length_scaling;
+                    grain_box_width_values[area_index]/=length_scaling();
                     grain_box_width_values2.push_back(grain_box_width_values[area_index]);
 
                     //grain box height
@@ -1128,7 +1136,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                         grain_box_height_max=grain_box_height_values[area_index];
                     }
                     grain_box_height_histogram[(int)grain_box_height_bin_width*log10(grain_box_height_values[area_index])]++;
-                    grain_box_height_values[area_index]/=length_scaling;
+                    grain_box_height_values[area_index]/=length_scaling();
                     grain_box_height_values2.push_back(grain_box_height_values[area_index]);
 
                     //grain box flattening
@@ -1268,10 +1276,10 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             for(int i=0; i<min_bubble_distance_histogram.size(); i++)
             {
                 if (min_bubble_distance[grain_areas[area_index]]>min_bubble_distance_min &&
-                    grain_area_size[grain_areas[area_index]]/area_scaling<size_regions[i]) 
+                    grain_area_size[grain_areas[area_index]]/area_scaling()<size_regions[i]) 
                 {
                     min_bubble_distance_histogram[i][(int)min_bubble_distance_bin_width*log10(min_bubble_distance[grain_areas[area_index]])]++;
-                    min_bubble_distance_values[i].push_back(min_bubble_distance[grain_areas[area_index]]/length_scaling);
+                    min_bubble_distance_values[i].push_back(min_bubble_distance[grain_areas[area_index]]/length_scaling());
 
                     relaxation_values[(int)grain_bin_width*log10(grain_area_size[grain_areas[area_index]])].push_back
                         (min_bubble_distance_bin_width*log10(min_bubble_distance[grain_areas[area_index]]));
@@ -1305,7 +1313,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         for (int segment=0; segment<grain_boundary_pixels.size(); segment++)
         {
             size_index bound;
-            bound.size=grain_boundary_pixels[segment].size()/length_scaling;
+            bound.size=grain_boundary_pixels[segment].size()/length_scaling();
             bound.index=segment;
             boundary_sizes.push_back(bound);
 
@@ -1332,7 +1340,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             if (grain_arc_length>grain_arc_length_min) 
             {
                 grain_arc_length_histogram[(int)grain_arc_length_bin_width*log10(grain_arc_length)]++;
-                grain_arc_length_values.push_back(grain_arc_length/length_scaling);
+                grain_arc_length_values.push_back(grain_arc_length/length_scaling());
             }
         }
 
@@ -1430,7 +1438,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             if (grain_longest_arc_length[area]>grain_longest_arc_length_min) 
             {
                 grain_longest_arc_length_histogram[(int)grain_longest_arc_length_bin_width*log10(grain_longest_arc_length[area])]++;
-                grain_longest_arc_length_values2.push_back(grain_longest_arc_length[area]/length_scaling);
+                grain_longest_arc_length_values2.push_back(grain_longest_arc_length[area]/length_scaling());
             }
 
             //dihedral angles
@@ -1465,7 +1473,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             {
                 grain_arc_number_values.push_back(nr_arcs);
                 grain_neighbors_values.push_back(nr_neighbors);
-                grain_longest_arc_length_values.push_back(grain_longest_arc_length[area]/length_scaling);
+                grain_longest_arc_length_values.push_back(grain_longest_arc_length[area]/length_scaling());
             }
 
         }
@@ -1737,22 +1745,22 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         plot.draw_values_errors(x_axis, y_axis, "Largest grains distribution", grain_region_values, grain_region_errors, filepath_largest_grains.c_str());
         plot.draw_values_errors("* 10 percent largest grains", "Mean grain size of 10*n percent largest grains [mm^2]", "Largest grains distribution",
                                 grain_percent_values, grain_percent_errors, filepath_percent_grains.c_str());
-        plot.draw_histogram_log(area_unit,"Relative occurrence","Grain size distribution", grain_size_histogram, grain_bin_width, area_scaling,
+        plot.draw_histogram_log(area_unit,"Relative occurrence","Grain size distribution", grain_size_histogram, grain_bin_width, area_scaling(),
                                 grain_size_mean, grain_size_standard_deviation, grain_size_y_max, filepath_grain_size.c_str());
 
         float fit_mu, fit_sigma;
 
-        plot.draw_histogram_left_lognorm(area_unit, "Relative occurrence","Grain size distribution", grain_size_histogram, grain_bin_width, area_scaling,
+        plot.draw_histogram_left_lognorm(area_unit, "Relative occurrence","Grain size distribution", grain_size_histogram, grain_bin_width, area_scaling(),
                                 grain_size_start_mu, grain_size_start_sigma, grain_size_max_x, grain_size_stdabw_low, grain_size_stdabw_high,
                                 grain_size_y_max, fit_mu, fit_sigma, filepath_grain_size_fit.c_str());
 
         for (int j=0; j<grain_quantile_values.size(); j++)
         {
-            float i = (float)grain_size_histogram.size() - log10(grain_quantile_values[j]*area_scaling)*grain_bin_width +0.5f;
+            float i = (float)grain_size_histogram.size() - log10(grain_quantile_values[j]*area_scaling())*grain_bin_width +0.5f;
             float grains = exp(-0.5f * (log(i)-fit_mu)*(log(i)-fit_mu) / (fit_sigma*fit_sigma) ) / (i*fit_sigma*sqrt(2.0f*PI))*
                 (nr_areas-found_bubble_areas.size()-found_border_areas.size());
-            float size_diff = pow(10.0f,(log10(grain_quantile_values[j]*area_scaling)*grain_bin_width+0.5f)/grain_bin_width-log10(area_scaling))-
-                pow(10.0f,(log10(grain_quantile_values[j]*area_scaling)*grain_bin_width-0.5f)/grain_bin_width-log10(area_scaling));
+            float size_diff = pow(10.0f,(log10(grain_quantile_values[j]*area_scaling())*grain_bin_width+0.5f)/grain_bin_width-log10(area_scaling()))-
+                pow(10.0f,(log10(grain_quantile_values[j]*area_scaling())*grain_bin_width-0.5f)/grain_bin_width-log10(area_scaling()));
             grain_quantile_errors.push_back(size_diff*grain_quantile_values[j]/grains);
         }
 
@@ -1762,7 +1770,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                             grain_roundness_bin_width, 1.0f, grain_roundness_mean, grain_roundness_standard_deviation, grain_roundness_y_max,
                             filepath_grain_roundness.c_str());
         plot.draw_histogram_log(length_unit,"Relative occurrence","Grain equivalent radius distribution", grain_equiv_radius_histogram,
-                                grain_equiv_radius_bin_width, length_scaling, grain_equiv_radius_mean, grain_equiv_radius_standard_deviation,
+                                grain_equiv_radius_bin_width, length_scaling(), grain_equiv_radius_mean, grain_equiv_radius_standard_deviation,
                                 grain_equiv_radius_y_max, filepath_grain_equiv_radius.c_str());
         plot.draw_histogram("Normalized grain equivalent radius","Relative occurrence","Normalized grain equivalent radius distribution",
                             grain_equiv_radius_norm_histogram, grain_equiv_radius_norm_bin_width, 1.0f, grain_equiv_radius_norm_y_max,
@@ -1770,12 +1778,12 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         plot.draw_histogram("Box flattening factor","Relative occurrence","Box flattening distribution", grain_box_flattening_histogram,
                             grain_box_flattening_bin_width, 1.0f, grain_box_flattening_mean, grain_box_flattening_standard_deviation,
                             grain_box_flattening_y_max, filepath_grain_box_flattening.c_str());
-        plot.draw_histogram_log(length_unit,"Relative occurrence","Grain box width", grain_box_width_histogram, grain_box_width_bin_width, length_scaling,
+        plot.draw_histogram_log(length_unit,"Relative occurrence","Grain box width", grain_box_width_histogram, grain_box_width_bin_width, length_scaling(),
                                 grain_box_width_mean, grain_box_width_standard_deviation, grain_box_width_y_max, filepath_grain_box_width.c_str());
-        plot.draw_histogram_log(length_unit,"Relative occurrence","Grain box height", grain_box_height_histogram, grain_box_height_bin_width, length_scaling,
+        plot.draw_histogram_log(length_unit,"Relative occurrence","Grain box height", grain_box_height_histogram, grain_box_height_bin_width, length_scaling(),
                                 grain_box_height_mean, grain_box_height_standard_deviation, grain_box_height_y_max, filepath_grain_box_height.c_str());
         plot.draw_histogram_log(length_unit,"Relative occurrence","Ellipse long axis", grain_ellipse_long_axis_histogram,
-                                grain_ellipse_long_axis_bin_width, length_scaling, grain_ellipse_long_axis_mean,
+                                grain_ellipse_long_axis_bin_width, length_scaling(), grain_ellipse_long_axis_mean,
                                 grain_ellipse_long_axis_standard_deviation, grain_ellipse_long_axis_y_max, filepath_grain_ellipse_long_axis.c_str());
         plot.draw_histogram("Ellipse flattening factor","Relative occurrence","Ellipse flattening distribution", grain_ellipse_flattening_histogram,
                             grain_ellipse_flattening_bin_width, 1.0f, grain_ellipse_flattening_mean, grain_ellipse_flattening_standard_deviation,
@@ -1784,9 +1792,9 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                             grain_ellipse_long_axis_angle_histogram, grain_ellipse_long_axis_angle_bin_width, angle_scaling,
                             grain_ellipse_long_axis_angle_mean, grain_ellipse_long_axis_angle_standard_deviation, grain_ellipse_long_axis_angle_y_max,
                             filepath_grain_ellipse_long_axis_angle.c_str());
-        plot.draw_histogram_log(length_unit,"Relative occurrence","Grain width", grain_area_width_histogram, grain_area_width_bin_width, length_scaling,
+        plot.draw_histogram_log(length_unit,"Relative occurrence","Grain width", grain_area_width_histogram, grain_area_width_bin_width, length_scaling(),
                                 grain_area_width_mean, grain_area_width_standard_deviation, grain_area_width_y_max, filepath_grain_width.c_str());
-        plot.draw_histogram_log(length_unit,"Relative occurrence","Grain height", grain_area_height_histogram, grain_area_height_bin_width, length_scaling,
+        plot.draw_histogram_log(length_unit,"Relative occurrence","Grain height", grain_area_height_histogram, grain_area_height_bin_width, length_scaling(),
                                 grain_area_height_mean, grain_area_height_standard_deviation, grain_area_height_y_max, filepath_grain_height.c_str());
         plot.draw_histogram("Grain vertical flattening factor","Relative occurrence","Grain vertical flattening distribution", grain_area_flattening_histogram,
                             grain_area_flattening_bin_width, 1.0f, grain_area_flattening_mean, grain_area_flattening_standard_deviation,
@@ -1795,13 +1803,13 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                             grain_perimeter_ratio_bin_width, 1.0f, grain_perimeter_ratio_mean, grain_perimeter_ratio_standard_deviation,
                             grain_perimeter_ratio_y_max, filepath_grainperimeter_ratio.c_str());
         plot.draw_histogram_log(length_unit,"Relative occurrence","Distance to next bubble", min_bubble_distance_histogram,
-                                min_bubble_distance_bin_width, length_scaling, min_bubble_distance_mean, min_bubble_distance_standard_deviation,
+                                min_bubble_distance_bin_width, length_scaling(), min_bubble_distance_mean, min_bubble_distance_standard_deviation,
                                 min_bubble_distance_y_max, filepath_min_bubble_distance.c_str());
         plot.draw_values_errors_log_log(area_unit, length_unit, "Distance to next bubble vs. mean grain size",relaxation_mean,
-                                        relaxation_standard_deviation, grain_bin_width, area_scaling, min_bubble_distance_bin_width, length_scaling,
+                                        relaxation_standard_deviation, grain_bin_width, area_scaling(), min_bubble_distance_bin_width, length_scaling(),
                                         filepath_relaxation.c_str());
         plot.draw_values_errors_log_log(length_unit, area_unit, "Mean grain size vs. distance to next bubble",relaxation2_mean,
-                                        relaxation2_standard_deviation, min_bubble_distance_bin_width, length_scaling, grain_bin_width, area_scaling,
+                                        relaxation2_standard_deviation, min_bubble_distance_bin_width, length_scaling(), grain_bin_width, area_scaling(),
                                         filepath_relaxation2.c_str());
         if(grain_arc_number_histogram.size()>2)
             plot.draw_histogram_lognorm("Number of grain boundaries","Relative occurrence","Number of grain boundaries distribution",
@@ -1822,10 +1830,10 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             grain_neighbors_standard_deviation=0.0f;
         }
         plot.draw_histogram_log(length_unit,"Relative occurrence","Grain boundary length distribution", grain_arc_length_histogram,
-                                grain_arc_length_bin_width, length_scaling, grain_arc_length_mean, grain_arc_length_standard_deviation,
+                                grain_arc_length_bin_width, length_scaling(), grain_arc_length_mean, grain_arc_length_standard_deviation,
                                 grain_arc_length_y_max, filepath_grain_arc_length.c_str());
         plot.draw_histogram_log(length_unit,"Relative occurrence","Grain longest boundary length distribution", grain_longest_arc_length_histogram,
-                                grain_longest_arc_length_bin_width, length_scaling, grain_longest_arc_length_mean,
+                                grain_longest_arc_length_bin_width, length_scaling(), grain_longest_arc_length_mean,
                                 grain_longest_arc_length_standard_deviation, grain_longest_arc_length_y_max, filepath_grain_longest_arc_length.c_str());
         plot.draw_histogram_log_log("Dislocation density difference in m^(-2)", dislocation_title,
                                     "Estimation of dislocation density difference at grain boundaries", dislocation_density_histogram,
@@ -2195,23 +2203,23 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         std::ofstream nr_percentage_filled_grains_file(filepath_nr_percentage_filled.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream grain_perimeter_ratio_file(filepath_grain_perimeter_ratio.c_str(), std::ios_base::out | std::ios_base::app);
 
-        grainsize_all_file <<filename<<" "<<grain_size_mean*area_scaling<<" "<<grain_size_standard_deviation*area_scaling<< "\n";
-        grainsize_fit_file <<filename<<" "<<grain_size_max_x*area_scaling<<" "<<grain_size_stdabw_low*area_scaling<<" "<<
-                                            grain_size_stdabw_high*area_scaling<< "\n";
+        grainsize_all_file <<filename<<" "<<grain_size_mean*area_scaling()<<" "<<grain_size_standard_deviation*area_scaling()<< "\n";
+        grainsize_fit_file <<filename<<" "<<grain_size_max_x*area_scaling()<<" "<<grain_size_stdabw_low*area_scaling()<<" "<<
+                                            grain_size_stdabw_high*area_scaling()<< "\n";
 
         grainsize_step_file <<filename<<" ";
         for(int step=0; step<grain_region_values.size(); step++) grainsize_step_file
-            <<grain_region_values[step]*area_scaling<<" "<<grain_region_errors[step]*area_scaling<<" ";
+            <<grain_region_values[step]*area_scaling()<<" "<<grain_region_errors[step]*area_scaling()<<" ";
         grainsize_step_file << "\n";
 
         grainsize_percent_file <<filename<<" ";
         for (int p=0; p<grain_percent_values.size(); p++) grainsize_percent_file
-            <<grain_percent_values[p]*area_scaling<<" "<<grain_percent_errors[p]*area_scaling<<" ";
+            <<grain_percent_values[p]*area_scaling()<<" "<<grain_percent_errors[p]*area_scaling()<<" ";
         grainsize_percent_file<< "\n";
 
         grainsize_quantile_file <<filename<<" ";
         for (int q=0; q<grain_quantile_values.size(); q++) grainsize_quantile_file
-            <<grain_quantile_values[q]*area_scaling<<" "<<grain_quantile_errors[q]*area_scaling<<" ";
+            <<grain_quantile_values[q]*area_scaling()<<" "<<grain_quantile_errors[q]*area_scaling()<<" ";
         grainsize_quantile_file << "\n";
 
         grainsize_bin_file <<filename<<" ";
@@ -2237,22 +2245,22 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         grain_perimeter_ratio_file << filename << " " << grain_perimeter_ratio_mean << " " << grain_perimeter_ratio_standard_deviation << "\n";        
 
         grainshape_file <<filename<<" "<<grain_roundness_mean<<" "<<grain_roundness_standard_deviation<< "\n";
-        grain_equivradius_file <<filename<<" "<<grain_equiv_radius_mean*length_scaling<<" "<<grain_equiv_radius_standard_deviation*length_scaling<< "\n";
+        grain_equivradius_file <<filename<<" "<<grain_equiv_radius_mean*length_scaling()<<" "<<grain_equiv_radius_standard_deviation*length_scaling()<< "\n";
         grain_boxshape_file <<filename<<" "<<grain_box_flattening_mean<<" "<<grain_box_flattening_standard_deviation<< "\n";
-        grain_boxwidth_file <<filename<<" "<<grain_box_width_mean*length_scaling<<" "<<grain_box_width_standard_deviation*length_scaling<< "\n";
-        grain_boxheight_file <<filename<<" "<<grain_box_height_mean*length_scaling<<" "<<grain_box_height_standard_deviation*length_scaling<< "\n";
-        grain_ellipselong_file <<filename<<" "<<grain_ellipse_long_axis_mean*length_scaling<<" "<<grain_ellipse_long_axis_standard_deviation*length_scaling<<
+        grain_boxwidth_file <<filename<<" "<<grain_box_width_mean*length_scaling()<<" "<<grain_box_width_standard_deviation*length_scaling()<< "\n";
+        grain_boxheight_file <<filename<<" "<<grain_box_height_mean*length_scaling()<<" "<<grain_box_height_standard_deviation*length_scaling()<< "\n";
+        grain_ellipselong_file <<filename<<" "<<grain_ellipse_long_axis_mean*length_scaling()<<" "<<grain_ellipse_long_axis_standard_deviation*length_scaling()<<
             "\n";
         grain_ellipseshape_file <<filename<<" "<<grain_ellipse_flattening_mean<<" "<<grain_ellipse_flattening_standard_deviation<< "\n";
         grain_ellipseangle_file <<filename<<" "<<grain_ellipse_long_axis_angle_mean<<" "<<grain_ellipse_long_axis_angle_standard_deviation<< "\n";
-        grainwidth_file <<filename<<" "<<grain_area_width_mean*length_scaling<<" "<<grain_area_width_standard_deviation*length_scaling<< "\n";
-        grainheight_file <<filename<<" "<<grain_area_height_mean*length_scaling<<" "<<grain_area_height_standard_deviation*length_scaling<< "\n";
+        grainwidth_file <<filename<<" "<<grain_area_width_mean*length_scaling()<<" "<<grain_area_width_standard_deviation*length_scaling()<< "\n";
+        grainheight_file <<filename<<" "<<grain_area_height_mean*length_scaling()<<" "<<grain_area_height_standard_deviation*length_scaling()<< "\n";
         grainflattening_file <<filename<<" "<<grain_area_flattening_mean<<" "<<grain_area_flattening_standard_deviation<< "\n";
         nr_grainarcs_file <<filename<<" "<<grain_arc_number_max_x<<" "<<grain_arc_number_standard_deviation<< "\n";
         nr_neighbors_file <<filename<<" "<<grain_neighbors_max_x<<" "<<grain_neighbors_standard_deviation<< "\n";
-        length_grainarcs_file <<filename<<" "<<grain_arc_length_mean*length_scaling<<" "<<grain_arc_length_standard_deviation*length_scaling<< "\n";
-        longest_grainarcs_file <<filename<<" "<<grain_longest_arc_length_mean*length_scaling<<" "<<
-            grain_longest_arc_length_standard_deviation*length_scaling<< "\n";
+        length_grainarcs_file <<filename<<" "<<grain_arc_length_mean*length_scaling()<<" "<<grain_arc_length_standard_deviation*length_scaling()<< "\n";
+        longest_grainarcs_file <<filename<<" "<<grain_longest_arc_length_mean*length_scaling()<<" "<<
+            grain_longest_arc_length_standard_deviation*length_scaling()<< "\n";
         dihedral_angles_file <<filename<<" "<<dihedral_angle_mean<<" "<<dihedral_angle_standard_deviation<< "\n";
         dihedral_angles2_file <<filename<<" "<<dihedral_angle2_mean<<" "<<dihedral_angle2_standard_deviation<< "\n";
         dislocation_densities_file <<filename<<" "<<dislocation_density_mean<<" "<<dislocation_density_standard_deviation<< "\n";
@@ -2348,7 +2356,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         if (bubble_area_size[area]>bubble_size_min) 
         {
             bubble_size_histogram[(int)bubble_bin_width*log10(bubble_area_size[area])]++;
-            bubble_size_values.push_back(bubble_area_size[area]/area_scaling);
+            bubble_size_values.push_back(bubble_area_size[area]/area_scaling());
         }
     }
     calculate_mean_standard_deviation(bubble_size_values, bubble_size_mean, bubble_size_standard_deviation);
@@ -2432,7 +2440,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
     filepath_bubble_grain_neighbors.append(".bubble_grain_neighbors.svg");
     filepath_grain_center_of_mass.append(".grain_center_of_mass.svg");
 
-    plot.draw_histogram_log(area_unit,"Relative occurrence","Bubble size distribution", bubble_size_histogram, bubble_bin_width, area_scaling,
+    plot.draw_histogram_log(area_unit,"Relative occurrence","Bubble size distribution", bubble_size_histogram, bubble_bin_width, area_scaling(),
                             bubble_size_mean, bubble_size_standard_deviation, bubble_size_y_max, filepath_bubble_size.c_str());
     plot.draw_histogram("Number of neighboring grains","Relative occurrence","Number of grain neighbors distribution",
                         bubble_grain_neighbors_histogram, bubble_grain_neighbors_bin_width, 1.0f, bubble_grain_neighbors_mean,
@@ -3085,6 +3093,10 @@ void double_grain_size(std::string path_results, std::string suffix1, std::strin
 
     //initialise plplot class
     plplot plot = plplot();
+
+    //scaling from pixels to length
+    float length_scaling=193.5;//one mm is 193.5 Pixels
+    float area_scaling=37444.0;//one mm is 193.5 Pixels
 
     //scaling from pixels to length
     std::string length_unit="Length in mm (";

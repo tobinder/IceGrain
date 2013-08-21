@@ -37,10 +37,18 @@
 #pragma once
 #include <time.h>
 
-void analyze(std::string filepath_list, std::string path_rf_predictions, std::string path_parameters, std::string param_file, ParameterFile paramFile,
-             int minimal_grain_size, int minimal_bubble_distance, std::string path_plots, int mode, int combo1, int spin, int combo2,
-             std::string path_to_ws_image, bool correct_suffix)
+void analyze(std::string filepath_list, std::string path_rf_predictions, std::string path_parameters, std::string param_file,
+             ParameterFile paramFile, int minimal_grain_size, int minimal_bubble_distance, std::string path_plots, int mode,
+             int combo1, int spin, int combo2, std::string path_to_ws_image, bool correct_suffix)
 {
+    Parameter<float> length_scaling;
+    length_scaling.assign("", "length_scaling", 193.5f);
+    length_scaling.load(paramFile,"config");
+
+    Parameter<float> area_scaling;
+    area_scaling.assign("", "area_scaling", 37444.0f);
+    area_scaling.load(paramFile,"config");
+
     //initialise plplot class
     plplot plot = plplot();
 
@@ -306,7 +314,7 @@ void analyze(std::string filepath_list, std::string path_rf_predictions, std::st
 
                 for(int area=0; area<nr_areas; area++) 
                 {
-                    grain_size_values.back().push_back((float)grain_area_size[area]/area_scaling);
+                    grain_size_values.back().push_back((float)grain_area_size[area]/area_scaling());
                 }
             }                                   
 
@@ -1216,7 +1224,7 @@ void analyze(std::string filepath_list, std::string path_rf_predictions, std::st
 
                     if (!inner_boundary) grain_boundary_length.back()[boundary]=0.0f;
                     else for(int arc=0; arc<grain_boundary_index[boundary].size(); arc++)
-                        grain_boundary_length.back()[boundary]+=arcs[fabs(grain_boundary_index[boundary][arc])-1].size()/length_scaling;
+                        grain_boundary_length.back()[boundary]+=arcs[fabs(grain_boundary_index[boundary][arc])-1].size()/length_scaling();
                 }                                
             }
 
@@ -1328,7 +1336,7 @@ void analyze(std::string filepath_list, std::string path_rf_predictions, std::st
 
                     if (!inner_boundary) grain_boundary_length.back()[boundary]=0.0f;
                     else for(int arc=0; arc<grain_boundary_index[boundary].size(); arc++)
-                        grain_boundary_length.back()[boundary]+=arcs[fabs(grain_boundary_index[boundary][arc])-1].size()/length_scaling;
+                        grain_boundary_length.back()[boundary]+=arcs[fabs(grain_boundary_index[boundary][arc])-1].size()/length_scaling();
                 }  
             }
 
@@ -2318,8 +2326,9 @@ void analyze(std::string filepath_list, std::string path_rf_predictions, std::st
     temp_list_file.close();
 }
 
-void new_depth_profiles(std::string filepath_list, std::string path_rf_predictions, std::string param_file, int minimal_bubble_distance,
-    std::string path_results, bool correct_suffix, int low_grain_size, int high_grain_size, int grain_size_step, float depth_bin_width)
+void new_depth_profiles(std::string filepath_list, std::string path_rf_predictions, std::string param_file, ParameterFile paramFile,
+    int minimal_bubble_distance, std::string path_results, bool correct_suffix, int low_grain_size, int high_grain_size,
+    int grain_size_step, float depth_bin_width)
 {
     if(depth_bin_width<=0.0f)
     {
@@ -2349,17 +2358,25 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
         return;
     }
 
+    Parameter<float> length_scaling;
+    length_scaling.assign("", "length_scaling", 193.5f);
+    length_scaling.load(paramFile,"config");
+
+    Parameter<float> area_scaling;
+    area_scaling.assign("", "area_scaling", 37444.0f);
+    area_scaling.load(paramFile,"config");
+
     //scaling from pixels to length
     std::string length_unit="Length in mm (";
     char length_pixels[20];
-    sprintf(length_pixels, "%.0f", length_scaling);
+    sprintf(length_pixels, "%.0f", length_scaling());
     length_unit.append(length_pixels);
     length_unit.append(" pixels)");
 
     //scaling from pixels to area
     std::string area_unit="Size in mm^2 (";
     char area_pixels[20];
-    sprintf(area_pixels, "%.0f", area_scaling);
+    sprintf(area_pixels, "%.0f", area_scaling());
     area_unit.append(area_pixels);
     area_unit.append(" pixels)");
 
@@ -2553,7 +2570,7 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
                             {
                                 grain_size_histogram[depth/depth_bin_width][(int)grain_bin_width*log10(grain_area_size[area])]++;
                                 param_entry entry;
-                                entry.size=grain_area_size[area]/area_scaling;
+                                entry.size=grain_area_size[area]/area_scaling();
                                 entry.flat=grain_area_width[area]/grain_area_height[area];
                                 entry.round=grain_roundness[area];
                                 entry.boxflat=grain_box_flattening[area];
@@ -2856,7 +2873,7 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
                 float fit_mu, fit_sigma, stdabw_low, stdabw_high;
 
                 plot.draw_histogram_left_lognorm(area_unit, "Relative occurrence","Grain size distribution", grain_size_histogram[bin], grain_bin_width,
-                    area_scaling, grain_size_start_mu, grain_size_start_sigma, grain_size_max_x[bin], stdabw_low, stdabw_high, grain_size_y_max, fit_mu,
+                    area_scaling(), grain_size_start_mu, grain_size_start_sigma, grain_size_max_x[bin], stdabw_low, stdabw_high, grain_size_y_max, fit_mu,
                     fit_sigma, filepath_grain_size_fit.c_str());
 
                 remove(filepath_grain_size_fit.c_str());

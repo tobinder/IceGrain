@@ -40,7 +40,7 @@ void grain_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsi
     std::vector<point> grain_area_center_mass, std::vector<int> grain_areas, std::vector<float> grain_roundness, std::vector<float> grain_box_flattening,
     std::vector<float> grain_box_width, std::vector<float> grain_box_height, std::vector< std::vector<float> > ellipse_params, std::vector<float> ellipse_long_axis,
     std::vector<float> ellipse_flattening, std::vector<float> ellipse_long_axis_angle, std::vector<float> grain_arc_number, std::vector<float> grain_neighbors,
-    std::vector<float> grain_longest_arc_length);
+    std::vector<float> grain_longest_arc_length, float length_scaling, float area_scaling);
 
 void show_ellipse_box(cimg_library::CImg<unsigned char> & image, int selected_grain, int unmarked, float angle, area_range & range, FitEllipse fitEllipse,
     std::vector<point> & ellipse_points, std::vector< std::vector<point> > arcs, int dim_x, int dim_y, std::vector< std::vector<int> > grain_arc_index,
@@ -51,7 +51,8 @@ void print_grain(float scaling, int dim_x, int dim_y, cimg_library::CImg<unsigne
 
 void boundary_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsigned char> & output_men, int selected_boundary, bool only_inner_boundaries,
     std::vector<bool> inner_boundary, std::string boundary_string, int unmarked, color_type * color, float scaling,
-    std::vector< std::vector<int> > grain_boundary_index, std::vector< std::vector<point> > grain_boundary_pixels, std::vector<float> turning_point);
+    std::vector< std::vector<int> > grain_boundary_index, std::vector< std::vector<point> > grain_boundary_pixels, std::vector<float> turning_point,
+    float length_scaling);
 
 void print_boundary(float scaling, int dim_x, int dim_y, cimg_library::CImg<unsigned char> output_men, cimg_library::CImg<unsigned char> image, int posx, int posy,
     std::string filepath_plots, int unmarked, std::string boundary_string, int selected_boundary, std::vector< std::vector<float> > grain_boundary_curvs, plplot plot,
@@ -96,6 +97,14 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
     Parameter<int> display_y;
     display_y.assign("", "display_y", 600);
     display_y.load(paramFile,"config");
+
+    Parameter<float> length_scaling;
+    length_scaling.assign("", "length_scaling", 193.5f);
+    length_scaling.load(paramFile,"config");
+
+    Parameter<float> area_scaling;
+    area_scaling.assign("", "area_scaling", 37444.0f);
+    area_scaling.load(paramFile,"config");
 
     std::string filepath_new_classification=path_rf_predictions;
     filepath_new_classification.append(param_file_name.c_str());
@@ -424,7 +433,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             grain_menu(men, output_men, selected_grain, only_inner_grains, inner_grain_areas, grain_string, mark, color, diff_x, diff_y, scaling,
                 arcs, dim_x, dim_y, grain_area_size, grain_arc_index, grain_area_center_mass, grain_areas, grain_roundness,
                 grain_box_flattening, grain_box_width, grain_box_height, ellipse_params, ellipse_long_axis, ellipse_flattening, ellipse_long_axis_angle,
-                grain_arc_number, grain_neighbors, grain_longest_arc_length);
+                grain_arc_number, grain_neighbors, grain_longest_arc_length, length_scaling(), area_scaling());
 
             area_range range;
             range.x_low=dim_x;
@@ -487,7 +496,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             grain_menu(men, output_men, selected_grain, only_inner_grains, inner_grain_areas, grain_string, unmarked, color, diff_x, diff_y, scaling,
                 arcs, dim_x, dim_y, grain_area_size, grain_arc_index, grain_area_center_mass, grain_areas, grain_roundness,
                 grain_box_flattening, grain_box_width, grain_box_height, ellipse_params, ellipse_long_axis, ellipse_flattening, ellipse_long_axis_angle,
-                grain_arc_number, grain_neighbors, grain_longest_arc_length);
+                grain_arc_number, grain_neighbors, grain_longest_arc_length, length_scaling(), area_scaling());
 
             main_menu.display(men);
             canvas.display(selectionDisplay);
@@ -887,7 +896,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             std::string boundary_string(Str.str());
 
             boundary_menu(men, output_men, selected_boundary, only_inner_boundaries, inner_boundary, boundary_string, mark, color, scaling,
-                grain_boundary_index, grain_boundary_pixels, turning_point);
+                grain_boundary_index, grain_boundary_pixels, turning_point, length_scaling());
 
             //print unmarked
             print_boundary(scaling, canvas.dimx(), canvas.dimy(), output_men, unmarked_image, posx, posy, filepath_plots, true, boundary_string,
@@ -948,7 +957,7 @@ void view(std::string filepath_to_feature_file, std::string path_to_image, std::
             std::string boundary_string(Str.str());
 
             boundary_menu(men, output_men, selected_boundary, only_inner_boundaries, inner_boundary, boundary_string, unmarked, color, scaling,
-                grain_boundary_index, grain_boundary_pixels, turning_point);
+                grain_boundary_index, grain_boundary_pixels, turning_point, length_scaling());
 
             main_menu.display(men);
 
@@ -2918,7 +2927,7 @@ void grain_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsi
     std::vector<point> grain_area_center_mass, std::vector<int> grain_areas, std::vector<float> grain_roundness, std::vector<float> grain_box_flattening,
     std::vector<float> grain_box_width, std::vector<float> grain_box_height, std::vector< std::vector<float> > ellipse_params, std::vector<float> ellipse_long_axis,
     std::vector<float> ellipse_flattening, std::vector<float> ellipse_long_axis_angle, std::vector<float> grain_arc_number, std::vector<float> grain_neighbors,
-    std::vector<float> grain_longest_arc_length)
+    std::vector<float> grain_longest_arc_length, float length_scaling, float area_scaling)
 {
     if (only_inner_grains) men.draw_text(2,0,"Only inner grains - Change selection or print!",color[1],0,1,11,1,1);
     else men.draw_text(2,0,"Change selection or print!",color[1],0,1,11,1,1);
@@ -3355,7 +3364,8 @@ void print_grain(float scaling, int dim_x, int dim_y, cimg_library::CImg<unsigne
 
 void boundary_menu(cimg_library::CImg<unsigned char> & men, cimg_library::CImg<unsigned char> & output_men, int selected_boundary, bool only_inner_boundaries,
     std::vector<bool> inner_boundary, std::string boundary_string, int unmarked, color_type * color, float scaling,
-    std::vector< std::vector<int> > grain_boundary_index, std::vector< std::vector<point> > grain_boundary_pixels, std::vector<float> turning_point)
+    std::vector< std::vector<int> > grain_boundary_index, std::vector< std::vector<point> > grain_boundary_pixels, std::vector<float> turning_point,
+    float length_scaling)
 {
     if (only_inner_boundaries) men.draw_text(2,0,"Only inner boundaries - Change selection or print!",color[1],0,1,11,1,1);
     else men.draw_text(2,0,"Change selection or print!",color[1],0,1,11,1,1);

@@ -202,16 +202,17 @@ void lin_depth_profile(std::string path_results, int* bagnr, int nr_depths, int 
     filepath_parameter_combined_out.resize(filepath_parameter_combined_out.size()-3);
     filepath_parameter_combined_out.append("svg");
 
-    if(minimal_bubble_distance==0 && parameter_values.size()>0) plot.draw_depth_errors(x.c_str(), y.c_str(), title.c_str(), parameter_depths,
-                                                             parameter_values, parameter_errors, parameter_errors, y_minimal,
-                                                             filepath_parameter_out.c_str());
+    if(minimal_bubble_distance==0 && parameter_values.size()>0) plot.draw_depth_errors(x.c_str(), y.c_str(), title.c_str(),
+                                                             parameter_depths, parameter_values, parameter_errors, parameter_errors,
+                                                             y_minimal, filepath_parameter_out.c_str());
     else if(parameter_values_relax.size()>0) plot.draw_depth_errors(x.c_str(), y.c_str(), title.c_str(), parameter_depths_relax,
                                                              parameter_values_relax, parameter_errors_relax, parameter_errors_relax,
                                                              y_minimal, filepath_parameter_out.c_str());
     if(parameter_values.size()>0 && parameter_values_relax.size()>0) plot.draw_depth_errors(x.c_str(), y.c_str(), title.c_str(),
                                                              parameter_depths, parameter_values, parameter_errors, parameter_errors,
                                                              parameter_depths_relax, parameter_values_relax, parameter_errors_relax,
-                                                             parameter_errors_relax, y_minimal, filepath_parameter_combined_out.c_str());
+                                                             parameter_errors_relax, y_minimal,
+                                                             filepath_parameter_combined_out.c_str());
 
     delete depth;
 };
@@ -368,21 +369,24 @@ void new_lin_depth_profile(std::string path_results, int* bagnr, int nr_depths, 
     else if(parameter_values_relax.size()>0) plot.draw_depth(x.c_str(), y.c_str(), title.c_str(), parameter_depths_relax,
                                                              parameter_values_relax, y_minimal, filepath_parameter_out.c_str());
     if(parameter_values.size()>0 && parameter_values_relax.size()>0) plot.draw_depth(x.c_str(), y.c_str(), title.c_str(),
-                                                             parameter_depths, parameter_values,parameter_depths_relax, parameter_values_relax,
-                                                             y_minimal, filepath_parameter_combined_out.c_str());
+                                                             parameter_depths, parameter_values,parameter_depths_relax,
+                                                             parameter_values_relax, y_minimal,
+                                                             filepath_parameter_combined_out.c_str());
 
     delete depth;
 };
 
 void depth_profile(std::string path_results, ParameterFile paramFile, float depth_bin_width=0.0f)
 {
-    int bagnr[153] = {186, 226, 266, 304, 306, 346, 386, 426, 466, 506, 508, 521, 546, 586, 606, 656, 706, 756, 806, 846, 906, 956, 1006, 1056, 1105, 1147,
-                       1187, 1227, 1306, 1346, 1375, 1426, 1496, 1546, 1616, 1676, 1766, 1815, 1866, 1885, 1896, 1906, 1946, 1997, 2007, 2028, 2046, 2067,
-                       2068, 2069, 2085, 2106, 2146, 2156, 2204, 2216, 2227, 2235, 2246, 2275, 2283, 2295, 2327, 2336, 2386, 2466, 2506, 2546, 2579, 2580,
-                       2586, 2606, 2646, 2686, 2726, 2766, 2806, 2846, 2926, 3196, 3206, 3214, 3216, 3226, 3237, 3245, 3246, 3249, 3256, 3266, 3276, 3278,
-                       3286, 3293, 3296, 3306, 3307, 3313, 3316, 3326, 3336, 3346, 3356, 3396, 3436, 3451, 3476, 3516, 3556, 3596, 3636, 3676, 3726, 3756,
-                       3796, 3817, 3836, 3849, 3856, 3876, 3906, 3917, 3956, 4006, 4016, 4026, 4077, 4106, 4116, 4126, 4156, 4196, 4236, 4276, 4297, 4299,
-                       4300, 4306, 4316, 4356, 4397, 4441, 4442, 4476, 4514, 4515, 4516, 4517, 4518, 4519, 4520, 4556, 4606};
+    int bagnr[153] = {186, 226, 266, 304, 306, 346, 386, 426, 466, 506, 508, 521, 546, 586, 606, 656, 706, 756, 806, 846, 906, 956,
+                      1006, 1056, 1105, 1147, 1187, 1227, 1306, 1346, 1375, 1426, 1496, 1546, 1616, 1676, 1766, 1815, 1866, 1885,
+                      1896, 1906, 1946, 1997, 2007, 2028, 2046, 2067, 2068, 2069, 2085, 2106, 2146, 2156, 2204, 2216, 2227, 2235,
+                      2246, 2275, 2283, 2295, 2327, 2336, 2386, 2466, 2506, 2546, 2579, 2580, 2586, 2606, 2646, 2686, 2726, 2766,
+                      2806, 2846, 2926, 3196, 3206, 3214, 3216, 3226, 3237, 3245, 3246, 3249, 3256, 3266, 3276, 3278, 3286, 3293,
+                      3296, 3306, 3307, 3313, 3316, 3326, 3336, 3346, 3356, 3396, 3436, 3451, 3476, 3516, 3556, 3596, 3636, 3676,
+                      3726, 3756, 3796, 3817, 3836, 3849, 3856, 3876, 3906, 3917, 3956, 4006, 4016, 4026, 4077, 4106, 4116, 4126,
+                      4156, 4196, 4236, 4276, 4297, 4299, 4300, 4306, 4316, 4356, 4397, 4441, 4442, 4476, 4514, 4515, 4516, 4517,
+                      4518, 4519, 4520, 4556, 4606};
 
    	Parameter<int> nr_depths;
    	nr_depths.assign("", "nr_depths", 125);
@@ -422,20 +426,28 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
     g_size_min.load(paramFile,"config");
     int grain_size_min=g_size_min;
 
+    Parameter<float> length_scaling;
+    length_scaling.assign("", "length_scaling", 193.5f);
+    length_scaling.load(paramFile,"config");
+
+    Parameter<float> area_scaling;
+    area_scaling.assign("", "area_scaling", 37444.0f);
+    area_scaling.load(paramFile,"config");
+
     //initialise plplot class
     plplot plot = plplot();
 
     //scaling from pixels to length
     std::string length_unit="Length in mm (";
     char length_pixels[20];
-    sprintf(length_pixels, "%.0f", length_scaling);
+    sprintf(length_pixels, "%.0f", length_scaling());
     length_unit.append(length_pixels);
     length_unit.append(" pixels)");
 
     //scaling from pixels to area
     std::string area_unit="Size in mm^2 (";
     char area_pixels[20];
-    sprintf(area_pixels, "%.0f", area_scaling);
+    sprintf(area_pixels, "%.0f", area_scaling());
     area_unit.append(area_pixels);
     area_unit.append(" pixels)");
 
@@ -545,29 +557,29 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             "Number of grain neighbors profile", 0.0f, 0, nr_values, nr_values_relax);
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "length_grainarcs", "Grain arc length", "Depth in m", length_unit, "Grain boundary length profile", 0.0f, 5,
-            nr_values, nr_values_relax, length_scaling);
+            nr_values, nr_values_relax, length_scaling());
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "longest_grainarcs", "Grain longest arc length", "Depth in m", length_unit, "Grain longest boundary length profile",
-            0.0f, 6, nr_values, nr_values_relax, length_scaling);
+            0.0f, 6, nr_values, nr_values_relax, length_scaling());
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "dislocation_densities", "Dislocation density differences", "Depth in m",
             "Dislocation density difference in m^(-2)", "Profile of mean dislocation density difference at grain boundaries", 0.0f,
             8, nr_values, nr_values_relax);
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "grain_equivradius", "Equivalent grain radius", "Depth in m", length_unit, "Grain equivalent radius profile", 0.0f,
-            1, nr_values, nr_values_relax, length_scaling);
+            1, nr_values, nr_values_relax, length_scaling());
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "grain_boxshape", "Grain box shape", "Depth in m", "Box flattening factor", "Box flattening profile", 0.9f, 2,
             nr_values, nr_values_relax);
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "grain_boxwidth", "Grain box width", "Depth in m", length_unit, "Grain box width profile", 0.0f, 2, nr_values,
-            nr_values_relax, length_scaling);
+            nr_values_relax, length_scaling());
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "grain_boxheight", "Grain box height", "Depth in m", length_unit, "Grain box height profile", 0.0f, 2, nr_values,
-            nr_values_relax, length_scaling);
+            nr_values_relax, length_scaling());
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "grain_ellipselong", "Grain ellipse long axis", "Depth in m", length_unit, "Ellipse long axis profile", 0.0f, 4,
-            nr_values, nr_values_relax, length_scaling);
+            nr_values, nr_values_relax, length_scaling());
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "grain_ellipseshape", "Grain ellipse shape", "Depth in m", "Ellipse flattening factor",
             "Ellipse flattening profile", 0.9f, 3, nr_values, nr_values_relax);
@@ -579,10 +591,10 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             "Boundary orientation profile", 0.0f, 7, nr_values, nr_values_relax);
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "grainwidth", "Grain width", "Depth in m", length_unit, "Grain width profile", 0.0f, 1, nr_values, nr_values_relax,
-            length_scaling);
+            length_scaling());
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "grainheight", "Grain height", "Depth in m", length_unit, "Grain height profile", 0.0f, 1, nr_values,
-            nr_values_relax, length_scaling);
+            nr_values_relax, length_scaling());
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
             plot, "grainflattening", "Vertical grain flattening", "Depth in m", "Vertical grain flattening factor",
             "Vertical grain flattening profile", 0.9f, 1, nr_values, nr_values_relax);
@@ -676,13 +688,13 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
         std::vector<float> grainsize_bin_profile_depths;
         std::vector<float> grainsize_bin_profile_x_values;
-        for(int bin=0; bin<50; bin++) grainsize_bin_profile_x_values.push_back(((float)bin/grain_bin_width)-log10(area_scaling));
+        for(int bin=0; bin<50; bin++) grainsize_bin_profile_x_values.push_back(((float)bin/grain_bin_width)-log10(area_scaling()));
         std::vector< std::vector<float> > grainsize_bin_profile_values;
 
         std::vector<float> grainradius_bin_profile_depths;
         std::vector<float> grainradius_bin_profile_x_values;
         for(int bin=0; bin<50; bin++)
-            grainradius_bin_profile_x_values.push_back(((float)bin/grain_equiv_radius_bin_width)-log10(length_scaling));
+            grainradius_bin_profile_x_values.push_back(((float)bin/grain_equiv_radius_bin_width)-log10(length_scaling()));
         std::vector< std::vector<float> > grainradius_bin_profile_values;
 
         std::vector<float> grainradius_norm_bin_profile_depths;
@@ -876,14 +888,14 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                     if (iter==0)
                     {
                         grainsize_all_depths.push_back(depth[i]);
-                        grainsize_all_values.push_back(mean_sum/(nr_sum*area_scaling));
-                        grainsize_all_errors.push_back(stdabw_sum/(nr_sum*area_scaling));
+                        grainsize_all_values.push_back(mean_sum/(nr_sum*area_scaling()));
+                        grainsize_all_errors.push_back(stdabw_sum/(nr_sum*area_scaling()));
                     }
                     else
                     {
                         grainsize_all_depths_relax.push_back(depth[i]);
-                        grainsize_all_values_relax.push_back(mean_sum/(nr_sum*area_scaling));
-                        grainsize_all_errors_relax.push_back(stdabw_sum/(nr_sum*area_scaling));
+                        grainsize_all_values_relax.push_back(mean_sum/(nr_sum*area_scaling()));
+                        grainsize_all_errors_relax.push_back(stdabw_sum/(nr_sum*area_scaling()));
                     }
 
                     grainsize_all_file.close();
@@ -892,7 +904,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                     if (iter==iterations-1)
                     {
                         grainsize_combined_depths[0].push_back(depth[i]);
-                        grainsize_combined_values[0].push_back(mean_sum/(nr_sum*area_scaling));
+                        grainsize_combined_values[0].push_back(mean_sum/(nr_sum*area_scaling()));
                     }
                 }
 
@@ -945,16 +957,16 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                     if (iter==0)
                     {
                         grainsize_fit_depths.push_back(depth[i]);
-                        grainsize_fit_values.push_back(mean_sum/(nr_sum*area_scaling));
-                        grainsize_fit_errors_low.push_back(stdabw_low_sum/(nr_sum*area_scaling));
-                        grainsize_fit_errors_high.push_back(std::min(1000.0f,stdabw_high_sum/(nr_sum*area_scaling)));
+                        grainsize_fit_values.push_back(mean_sum/(nr_sum*area_scaling()));
+                        grainsize_fit_errors_low.push_back(stdabw_low_sum/(nr_sum*area_scaling()));
+                        grainsize_fit_errors_high.push_back(std::min(1000.0f,stdabw_high_sum/(nr_sum*area_scaling())));
                     }
                     else
                     {
                         grainsize_fit_depths_relax.push_back(depth[i]);
-                        grainsize_fit_values_relax.push_back(mean_sum/(nr_sum*area_scaling));
-                        grainsize_fit_errors_low_relax.push_back(stdabw_low_sum/(nr_sum*area_scaling));
-                        grainsize_fit_errors_high_relax.push_back(std::min(1000.0f,stdabw_high_sum/(nr_sum*area_scaling)));
+                        grainsize_fit_values_relax.push_back(mean_sum/(nr_sum*area_scaling()));
+                        grainsize_fit_errors_low_relax.push_back(stdabw_low_sum/(nr_sum*area_scaling()));
+                        grainsize_fit_errors_high_relax.push_back(std::min(1000.0f,stdabw_high_sum/(nr_sum*area_scaling())));
                     }
 
                     grainsize_fit_file.close();
@@ -1097,8 +1109,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                             if(s+1>grainsize_step_values.size()) grainsize_step_values.resize(s+1);
                             if(s+1>grainsize_step_errors.size()) grainsize_step_errors.resize(s+1);
                             grainsize_step_depths[s].push_back(depth[i]);
-                            grainsize_step_values[s].push_back(mean_sum[s]/(nr_sum*area_scaling));
-                            grainsize_step_errors[s].push_back(stdabw_sum[s]/(nr_sum*area_scaling));
+                            grainsize_step_values[s].push_back(mean_sum[s]/(nr_sum*area_scaling()));
+                            grainsize_step_errors[s].push_back(stdabw_sum[s]/(nr_sum*area_scaling()));
                         }
                         else
                         {
@@ -1106,12 +1118,12 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                             if(s+1>grainsize_step_values_relax.size()) grainsize_step_values_relax.resize(s+1);
                             if(s+1>grainsize_step_errors_relax.size()) grainsize_step_errors_relax.resize(s+1);
                             grainsize_step_depths_relax[s].push_back(depth[i]);
-                            grainsize_step_values_relax[s].push_back(mean_sum[s]/(nr_sum*area_scaling));
-                            grainsize_step_errors_relax[s].push_back(stdabw_sum[s]/(nr_sum*area_scaling));
+                            grainsize_step_values_relax[s].push_back(mean_sum[s]/(nr_sum*area_scaling()));
+                            grainsize_step_errors_relax[s].push_back(stdabw_sum[s]/(nr_sum*area_scaling()));
                         }
                         if (iter==iterations-1)
                         {
-                            grainsize_step_profile_values.back().push_back(mean_sum[s]/(nr_sum*area_scaling));
+                            grainsize_step_profile_values.back().push_back(mean_sum[s]/(nr_sum*area_scaling()));
                         }
                     }
 
@@ -1121,7 +1133,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                     if (iter==iterations-1)
                     {
                         grainsize_combined_depths[1].push_back(depth[i]);
-                        grainsize_combined_values[1].push_back(mean_sum[1]/(nr_sum*area_scaling));
+                        grainsize_combined_values[1].push_back(mean_sum[1]/(nr_sum*area_scaling()));
                     }
                 }
 
@@ -1141,10 +1153,6 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 				        grainsize_percent_file>>name;
                         depth_parameter3 entry;
                         entry.name=name;
-
-                        std::string test=name;
-                        test.erase(0,test.size()-3);
-                        if(test!="bmp") break;
 
                         float mean[10];
                         float stdabw[10];
@@ -1203,18 +1211,18 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                         if (iter==0)
                         {
                             grainsize_percent_depths[p].push_back(depth[i]);
-                            grainsize_percent_values[p].push_back(mean_sum[p]/(nr_sum*area_scaling));
-                            grainsize_percent_errors[p].push_back(stdabw_sum[p]/(nr_sum*area_scaling));
+                            grainsize_percent_values[p].push_back(mean_sum[p]/(nr_sum*area_scaling()));
+                            grainsize_percent_errors[p].push_back(stdabw_sum[p]/(nr_sum*area_scaling()));
                         }
                         else
                         {
                             grainsize_percent_depths_relax[p].push_back(depth[i]);
-                            grainsize_percent_values_relax[p].push_back(mean_sum[p]/(nr_sum*area_scaling));
-                            grainsize_percent_errors_relax[p].push_back(stdabw_sum[p]/(nr_sum*area_scaling));
+                            grainsize_percent_values_relax[p].push_back(mean_sum[p]/(nr_sum*area_scaling()));
+                            grainsize_percent_errors_relax[p].push_back(stdabw_sum[p]/(nr_sum*area_scaling()));
                         }
                         if (iter==iterations-1)
                         {
-                            grainsize_percent_profile_values.back().push_back(mean_sum[p]/(nr_sum*area_scaling));
+                            grainsize_percent_profile_values.back().push_back(mean_sum[p]/(nr_sum*area_scaling()));
                         }
                     }
 
@@ -1223,9 +1231,9 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
                     if (iter==iterations-1)
                     {
-                        grainsize_percent_profile_values.back().push_back(mean_sum[9]/(nr_sum*area_scaling));
+                        grainsize_percent_profile_values.back().push_back(mean_sum[9]/(nr_sum*area_scaling()));
                         grainsize_combined_depths[2].push_back(depth[i]);
-                        grainsize_combined_values[2].push_back(mean_sum[2]/(nr_sum*area_scaling));
+                        grainsize_combined_values[2].push_back(mean_sum[2]/(nr_sum*area_scaling()));
                     }
                 }
 
@@ -1304,18 +1312,18 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                         if (iter==0)
                         {
                             grainsize_quantile_depths[q].push_back(depth[i]);
-                            grainsize_quantile_values[q].push_back(mean_sum[q]/(nr_sum*area_scaling));
-                            grainsize_quantile_errors[q].push_back(stdabw_sum[q]/(nr_sum*area_scaling));
+                            grainsize_quantile_values[q].push_back(mean_sum[q]/(nr_sum*area_scaling()));
+                            grainsize_quantile_errors[q].push_back(stdabw_sum[q]/(nr_sum*area_scaling()));
                         }
                         else
                         {
                             grainsize_quantile_depths_relax[q].push_back(depth[i]);
-                            grainsize_quantile_values_relax[q].push_back(mean_sum[q]/(nr_sum*area_scaling));
-                            grainsize_quantile_errors_relax[q].push_back(stdabw_sum[q]/(nr_sum*area_scaling));
+                            grainsize_quantile_values_relax[q].push_back(mean_sum[q]/(nr_sum*area_scaling()));
+                            grainsize_quantile_errors_relax[q].push_back(stdabw_sum[q]/(nr_sum*area_scaling()));
                         }
                         if (iter==iterations-1)
                         {
-                            grainsize_quantile_profile_values.back().push_back(mean_sum[q]/(nr_sum*area_scaling));
+                            grainsize_quantile_profile_values.back().push_back(mean_sum[q]/(nr_sum*area_scaling()));
                         }
                     }
 
@@ -1325,7 +1333,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                     if (iter==iterations-1)
                     {
                         grainsize_combined_depths[3].push_back(depth[i]);
-                        grainsize_combined_values[3].push_back(mean_sum[9]/(nr_sum*area_scaling));
+                        grainsize_combined_values[3].push_back(mean_sum[9]/(nr_sum*area_scaling()));
                     }
                 }
 
@@ -2172,12 +2180,14 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
         for (int s=0; s<disl_dens_longest_boundaries_values.size(); s++)
         {
-            std::cout<<"Disl dens diff ("<<(s+1)*boundary_step<<" longest boundaries): "<<disl_dens_longest_boundaries_values[s].size()<<std::endl;
+            std::cout<<"Disl dens diff ("<<(s+1)*boundary_step<<" longest boundaries): "<<
+                disl_dens_longest_boundaries_values[s].size()<<std::endl;
         }
 
         for (int p=0; p<disl_dens_percent_boundaries_values.size(); p++)
         {
-            std::cout<<"Disl dens diff ("<<(p+1)*10<<" percent longest boundaries): "<<disl_dens_percent_boundaries_values[p].size()<<std::endl;
+            std::cout<<"Disl dens diff ("<<(p+1)*10<<" percent longest boundaries): "<<
+                disl_dens_percent_boundaries_values[p].size()<<std::endl;
         }
 
         std::cout<<"Disl dens diff (step depth profile): "<<disl_dens_longest_boundaries_profile_values.size()<<std::endl;
@@ -2185,8 +2195,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
         for (int i=0; i<percentage_filled_grains_values.size(); i++)
         {
-            std::cout<<"Mean grain size percentage filled (parameter "<<i+1<<"/"<<percentage_filled_grains_values.size()<<" in combined profile): "<<
-                percentage_filled_grains_values[i].size()<<std::endl;
+            std::cout<<"Mean grain size percentage filled (parameter "<<i+1<<"/"<<percentage_filled_grains_values.size()<<
+                " in combined profile): "<< percentage_filled_grains_values[i].size()<<std::endl;
         }
 
         std::string filepath_grainsize_all_out=path_results;
@@ -2328,41 +2338,53 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
         filepath_grainsize_percentage_filled_out.append("svg");
 
         if(minimal_bubble_distance==0 && grainsize_all_values.size()>0) plot.draw_depth_errors("Depth in m", area_unit,
-                                                                 "Mean grain size profile (all grains)", grainsize_all_depths, grainsize_all_values,
-                                                                 grainsize_all_errors, grainsize_all_errors, 0.0f, filepath_grainsize_all_out.c_str());
-        else if(grainsize_all_values_relax.size()>0) plot.draw_depth_errors("Depth in m", area_unit, "Mean grain size profile (all grains)",
-                                                                 grainsize_all_depths_relax, grainsize_all_values_relax, grainsize_all_errors_relax,
-                                                                 grainsize_all_errors_relax, 0.0f, filepath_grainsize_all_out.c_str());
+                                                                 "Mean grain size profile (all grains)", grainsize_all_depths,
+                                                                 grainsize_all_values, grainsize_all_errors, grainsize_all_errors,
+                                                                 0.0f, filepath_grainsize_all_out.c_str());
+        else if(grainsize_all_values_relax.size()>0) plot.draw_depth_errors("Depth in m", area_unit,
+                                                                 "Mean grain size profile (all grains)", grainsize_all_depths_relax,
+                                                                 grainsize_all_values_relax, grainsize_all_errors_relax,
+                                                                 grainsize_all_errors_relax, 0.0f,
+                                                                 filepath_grainsize_all_out.c_str());
         if(grainsize_all_values.size()>0 && grainsize_all_values_relax.size()>0) plot.draw_depth_errors("Depth in m", area_unit, 
-                                                                 "Mean grain size profile (all grains)", grainsize_all_depths, grainsize_all_values,
-                                                                 grainsize_all_errors, grainsize_all_errors, grainsize_all_depths_relax,
-                                                                 grainsize_all_values_relax, grainsize_all_errors_relax, grainsize_all_errors_relax, 0.0f,
+                                                                 "Mean grain size profile (all grains)", grainsize_all_depths,
+                                                                 grainsize_all_values, grainsize_all_errors, grainsize_all_errors,
+                                                                 grainsize_all_depths_relax, grainsize_all_values_relax,
+                                                                 grainsize_all_errors_relax, grainsize_all_errors_relax, 0.0f,
                                                                  filepath_grainsize_all_combined_out.c_str());
 
         if(minimal_bubble_distance==0 && grainsize_fit_values.size()>0) plot.draw_depth_errors("Depth in m", area_unit, 
-                                                                 "Grain size profile log-normal fit", grainsize_fit_depths, grainsize_fit_values,
-                                                                 grainsize_fit_errors_low, grainsize_fit_errors_high, 0.0f,
-                                                                 filepath_grainsize_fit_out.c_str());
-        else if(grainsize_fit_values_relax.size()>0) plot.draw_depth_errors("Depth in m", area_unit, "Grain size profile log-normal fit",
-                                                                 grainsize_fit_depths_relax, grainsize_fit_values_relax, grainsize_fit_errors_low_relax,
-                                                                 grainsize_fit_errors_high_relax, 0.0f, filepath_grainsize_fit_out.c_str());
-        if(grainsize_fit_values.size()>0 && grainsize_fit_values_relax.size()>0) plot.draw_depth_errors("Depth in m", area_unit,
-                                                                 "Grain size profile log-normal fit", grainsize_fit_depths, grainsize_fit_values,
-                                                                 grainsize_fit_errors_low, grainsize_fit_errors_high, grainsize_fit_depths_relax,
+                                                                 "Grain size profile log-normal fit", grainsize_fit_depths,
+                                                                 grainsize_fit_values, grainsize_fit_errors_low,
+                                                                 grainsize_fit_errors_high, 0.0f, filepath_grainsize_fit_out.c_str());
+        else if(grainsize_fit_values_relax.size()>0) plot.draw_depth_errors("Depth in m", area_unit,
+                                                                 "Grain size profile log-normal fit", grainsize_fit_depths_relax,
                                                                  grainsize_fit_values_relax, grainsize_fit_errors_low_relax,
-                                                                 grainsize_fit_errors_high_relax, 0.0f, filepath_grainsize_fit_combined_out.c_str());
+                                                                 grainsize_fit_errors_high_relax, 0.0f,
+                                                                 filepath_grainsize_fit_out.c_str());
+        if(grainsize_fit_values.size()>0 && grainsize_fit_values_relax.size()>0) plot.draw_depth_errors("Depth in m", area_unit,
+                                                                 "Grain size profile log-normal fit", grainsize_fit_depths,
+                                                                 grainsize_fit_values, grainsize_fit_errors_low,
+                                                                 grainsize_fit_errors_high, grainsize_fit_depths_relax,
+                                                                 grainsize_fit_values_relax, grainsize_fit_errors_low_relax,
+                                                                 grainsize_fit_errors_high_relax, 0.0f,
+                                                                 filepath_grainsize_fit_combined_out.c_str());
 
-        if(minimal_bubble_distance==0 && corr_ellipse_box_flattening_values.size()>0) plot.draw_depth("Depth in m", "Pearson correlation",
-                                                                 "Correlation ellipse box flattening profile", corr_ellipse_box_flattening_depths,
+        if(minimal_bubble_distance==0 && corr_ellipse_box_flattening_values.size()>0) plot.draw_depth("Depth in m",
+                                                                 "Pearson correlation", "Correlation ellipse box flattening profile",
+                                                                 corr_ellipse_box_flattening_depths,
                                                                  corr_ellipse_box_flattening_values, 0.0f,
                                                                  filepath_corr_ellipse_box_flattening_out.c_str());
         else if(corr_ellipse_box_flattening_values_relax.size()>0) plot.draw_depth("Depth in m", "Pearson correlation",
                                                                  "Corelation ellipse box flattening profile",
-                                                                 corr_ellipse_box_flattening_depths_relax, corr_ellipse_box_flattening_values_relax, 0.0f,
+                                                                 corr_ellipse_box_flattening_depths_relax,
+                                                                 corr_ellipse_box_flattening_values_relax, 0.0f,
                                                                  filepath_corr_ellipse_box_flattening_out.c_str());
-        if(corr_ellipse_box_flattening_values.size()>0 && corr_ellipse_box_flattening_values_relax.size()>0) plot.draw_depth("Depth in m",
-                                                                 "Pearson correlation", "Correlation ellipse box profile", corr_ellipse_box_flattening_depths,
-                                                                 corr_ellipse_box_flattening_values, corr_ellipse_box_flattening_depths_relax,
+        if(corr_ellipse_box_flattening_values.size()>0 && corr_ellipse_box_flattening_values_relax.size()>0) plot.draw_depth(
+                                                                "Depth in m", "Pearson correlation",
+                                                                "Correlation ellipse box profile", corr_ellipse_box_flattening_depths,
+                                                                 corr_ellipse_box_flattening_values,
+                                                                 corr_ellipse_box_flattening_depths_relax,
                                                                  corr_ellipse_box_flattening_values_relax, 0.0f,
                                                                  filepath_corr_ellipse_box_flattening_combined_out.c_str());
 
@@ -2384,8 +2406,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_out.append("svg");
 
             if(grainsize_step_values[st].size()>0) plot.draw_depth_errors("Depth in m", area_unit, titel, grainsize_step_depths[st],
-                                                                 grainsize_step_values[st], grainsize_step_errors[st], grainsize_step_errors[st], 0.0f,
-                                                                 filepath_out.c_str());
+                                                                 grainsize_step_values[st], grainsize_step_errors[st],
+                                                                 grainsize_step_errors[st], 0.0f, filepath_out.c_str());
         }
         else
         for (int st=0; st<grainsize_step_values_relax.size(); st++)
@@ -2411,16 +2433,19 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_grainsize_step_combined_out.resize(filepath_grainsize_step_combined_out.size()-3);
             filepath_grainsize_step_combined_out.append("svg");
 
-            if(grainsize_step_values_relax[st].size()>0) plot.draw_depth_errors("Depth in m", area_unit, titel, grainsize_step_depths_relax[st],
-                                                                 grainsize_step_values_relax[st], grainsize_step_errors_relax[st],
-                                                                 grainsize_step_errors_relax[st],0.0f, filepath_out.c_str());
+            if(grainsize_step_values_relax[st].size()>0) plot.draw_depth_errors("Depth in m", area_unit, titel,
+                                                                 grainsize_step_depths_relax[st], grainsize_step_values_relax[st],
+                                                                 grainsize_step_errors_relax[st], grainsize_step_errors_relax[st],
+                                                                 0.0f, filepath_out.c_str());
 
             if(grainsize_step_values.size()>0)
-                if(grainsize_step_values[st].size()>0 && grainsize_step_values_relax[st].size()>0) plot.draw_depth_errors("Depth in m", area_unit, 
-                                                                 titel, grainsize_step_depths[st], grainsize_step_values[st], grainsize_step_errors[st],
+                if(grainsize_step_values[st].size()>0 && grainsize_step_values_relax[st].size()>0) plot.draw_depth_errors(
+                                                                "Depth in m", area_unit, titel, grainsize_step_depths[st],
+                                                                 grainsize_step_values[st], grainsize_step_errors[st],
                                                                  grainsize_step_errors[st], grainsize_step_depths_relax[st],
                                                                  grainsize_step_values_relax[st], grainsize_step_errors_relax[st],
-                                                                 grainsize_step_errors_relax[st], 0.0f, filepath_grainsize_step_combined_out.c_str());
+                                                                 grainsize_step_errors_relax[st], 0.0f,
+                                                                 filepath_grainsize_step_combined_out.c_str());
         }
 
         if(minimal_bubble_distance==0)
@@ -2440,9 +2465,10 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_out.resize(filepath_out.size()-3);
             filepath_out.append("svg");
 
-            if(minimal_bubble_distance==0 && grainsize_percent_values[p].size()>0) plot.draw_depth_errors("Depth in m", area_unit, titel,
-                                                                 grainsize_percent_depths[p], grainsize_percent_values[p], grainsize_percent_errors[p],
-                                                                 grainsize_percent_errors[p], 0.0f, filepath_out.c_str());
+            if(minimal_bubble_distance==0 && grainsize_percent_values[p].size()>0) plot.draw_depth_errors("Depth in m", area_unit,
+                                                                 titel, grainsize_percent_depths[p], grainsize_percent_values[p],
+                                                                 grainsize_percent_errors[p], grainsize_percent_errors[p], 0.0f,
+                                                                 filepath_out.c_str());
         }
         else
         for (int p=0; p<grainsize_percent_values_relax.size(); p++)
@@ -2468,16 +2494,19 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_grainsize_percent_combined_out.resize(filepath_grainsize_percent_combined_out.size()-3);
             filepath_grainsize_percent_combined_out.append("svg");
 
-            if(grainsize_percent_values_relax[p].size()>0) plot.draw_depth_errors("Depth in m", area_unit, titel, grainsize_percent_depths_relax[p],
+            if(grainsize_percent_values_relax[p].size()>0) plot.draw_depth_errors("Depth in m", area_unit, titel,
+                                                                 grainsize_percent_depths_relax[p],
                                                                  grainsize_percent_values_relax[p], grainsize_percent_errors_relax[p],
                                                                  grainsize_percent_errors_relax[p], 0.0f, filepath_out.c_str());
 
             if(grainsize_percent_values.size()>0)
-                if(grainsize_percent_values[p].size()>0 && grainsize_percent_values_relax[p].size()>0) plot.draw_depth_errors("Depth in m", area_unit, 
-                                                                 titel, grainsize_percent_depths[p], grainsize_percent_values[p],
-                                                                 grainsize_percent_errors[p], grainsize_percent_errors[p],
-                                                                 grainsize_percent_depths_relax[p], grainsize_percent_values_relax[p],
-                                                                 grainsize_percent_errors_relax[p], grainsize_percent_errors_relax[p], 0.0f,
+                if(grainsize_percent_values[p].size()>0 && grainsize_percent_values_relax[p].size()>0) plot.draw_depth_errors(
+                                                                 "Depth in m", area_unit, titel, grainsize_percent_depths[p],
+                                                                 grainsize_percent_values[p], grainsize_percent_errors[p],
+                                                                 grainsize_percent_errors[p], grainsize_percent_depths_relax[p],
+                                                                 grainsize_percent_values_relax[p],
+                                                                 grainsize_percent_errors_relax[p],
+                                                                 grainsize_percent_errors_relax[p], 0.0f,
                                                                  filepath_grainsize_percent_combined_out.c_str());
         }
 
@@ -2498,9 +2527,10 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_out.resize(filepath_out.size()-3);
             filepath_out.append("svg");
 
-            if(minimal_bubble_distance==0 && grainsize_quantile_values[q].size()>0) plot.draw_depth_errors("Depth in m", area_unit, titel,
-                                                                 grainsize_quantile_depths[q], grainsize_quantile_values[q], grainsize_quantile_errors[q],
-                                                                 grainsize_quantile_errors[q], 0.0f, filepath_out.c_str());
+            if(minimal_bubble_distance==0 && grainsize_quantile_values[q].size()>0) plot.draw_depth_errors("Depth in m", area_unit,
+                                                                 titel, grainsize_quantile_depths[q], grainsize_quantile_values[q],
+                                                                 grainsize_quantile_errors[q], grainsize_quantile_errors[q], 0.0f,
+                                                                 filepath_out.c_str());
         }
         else
         for (int q=0; q<grainsize_quantile_values_relax.size(); q++)
@@ -2526,16 +2556,20 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_grainsize_quantile_combined_out.resize(filepath_grainsize_quantile_combined_out.size()-3);
             filepath_grainsize_quantile_combined_out.append("svg");
 
-            if(grainsize_quantile_values_relax[q].size()>0) plot.draw_depth_errors("Depth in m", area_unit, titel, grainsize_quantile_depths_relax[q],
-                                                                 grainsize_quantile_values_relax[q], grainsize_quantile_errors_relax[q],
+            if(grainsize_quantile_values_relax[q].size()>0) plot.draw_depth_errors("Depth in m", area_unit, titel,
+                                                                 grainsize_quantile_depths_relax[q],
+                                                                 grainsize_quantile_values_relax[q],
+                                                                 grainsize_quantile_errors_relax[q],
                                                                  grainsize_quantile_errors_relax[q], 0.0f, filepath_out.c_str());
 
             if(grainsize_quantile_values.size()>0)
-                if(grainsize_quantile_values[q].size()>0 && grainsize_quantile_values_relax[q].size()>0) plot.draw_depth_errors("Depth in m", area_unit, 
-                                                                 titel, grainsize_quantile_depths[q], grainsize_quantile_values[q],
-                                                                 grainsize_quantile_errors[q], grainsize_quantile_errors[q],
-                                                                 grainsize_quantile_depths_relax[q], grainsize_quantile_values_relax[q],
-                                                                 grainsize_quantile_errors_relax[q], grainsize_quantile_errors_relax[q], 0.0f,
+                if(grainsize_quantile_values[q].size()>0 && grainsize_quantile_values_relax[q].size()>0) plot.draw_depth_errors(
+                                                                 "Depth in m", area_unit, titel, grainsize_quantile_depths[q],
+                                                                 grainsize_quantile_values[q], grainsize_quantile_errors[q],
+                                                                 grainsize_quantile_errors[q], grainsize_quantile_depths_relax[q],
+                                                                 grainsize_quantile_values_relax[q],
+                                                                 grainsize_quantile_errors_relax[q],
+                                                                 grainsize_quantile_errors_relax[q], 0.0f,
                                                                  filepath_grainsize_quantile_combined_out.c_str());
         }
 
@@ -2566,8 +2600,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             char size_low[10];
             char size_high[10];
             sprintf(bin, "%i", b+1);
-            sprintf(size_low, "%2.1e", pow(10.0f,(float)b/grain_bin_width)/area_scaling);
-            sprintf(size_high, "%2.1e", pow(10.0f,(float)(b+1)/grain_bin_width)/area_scaling);
+            sprintf(size_low, "%2.1e", pow(10.0f,(float)b/grain_bin_width)/area_scaling());
+            sprintf(size_high, "%2.1e", pow(10.0f,(float)(b+1)/grain_bin_width)/area_scaling());
 
             std::string titel="Grain size bin profile (";
             titel.append(size_low);
@@ -2582,12 +2616,14 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_out.resize(filepath_out.size()-3);
             filepath_out.append("svg");
 
-            if(minimal_bubble_distance==0 && grainsize_bin_values[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", titel,
-                                                                 grainsize_bin_depths[b], grainsize_bin_values[b], 0.0f, filepath_out.c_str());
+            if(minimal_bubble_distance==0 && grainsize_bin_values[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence",
+                                                                 titel, grainsize_bin_depths[b], grainsize_bin_values[b], 0.0f,
+                                                                 filepath_out.c_str());
             else
             {
-                if(grainsize_bin_values_relax[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", titel, grainsize_bin_depths_relax[b],
-                                                                 grainsize_bin_values_relax[b], 0.0f, filepath_out.c_str());
+                if(grainsize_bin_values_relax[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", titel,
+                                                                 grainsize_bin_depths_relax[b], grainsize_bin_values_relax[b], 0.0f,
+                                                                 filepath_out.c_str());
 
                 std::string filepath_grainsize_bin_combined_out=filepath_grainsize_bin_out;
                 filepath_grainsize_bin_combined_out.append(bin);
@@ -2597,9 +2633,11 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                 filepath_grainsize_bin_combined_out.append("svg");
 
                 if(grainsize_bin_values.size()>0)
-                    if(grainsize_bin_values[b].size()>0 && grainsize_bin_values_relax[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", 
-                                                                 titel, grainsize_bin_depths[b], grainsize_bin_values[b], grainsize_bin_depths_relax[b],
-                                                                 grainsize_bin_values_relax[b], 0.0f, filepath_grainsize_bin_combined_out.c_str());
+                    if(grainsize_bin_values[b].size()>0 && grainsize_bin_values_relax[b].size()>0) plot.draw_depth("Depth in m",
+                                                                 "Relative occurrence", titel, grainsize_bin_depths[b],
+                                                                 grainsize_bin_values[b], grainsize_bin_depths_relax[b],
+                                                                 grainsize_bin_values_relax[b], 0.0f,
+                                                                 filepath_grainsize_bin_combined_out.c_str());
             }
         }
 
@@ -2630,8 +2668,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             char radius_low[10];
             char radius_high[10];
             sprintf(bin, "%i", b+1);
-            sprintf(radius_low, "%2.1e", pow(10.0f,(float)b/grain_equiv_radius_bin_width)/length_scaling);
-            sprintf(radius_high, "%2.1e", pow(10.0f,(float)(b+1)/grain_equiv_radius_bin_width)/length_scaling);
+            sprintf(radius_low, "%2.1e", pow(10.0f,(float)b/grain_equiv_radius_bin_width)/length_scaling());
+            sprintf(radius_high, "%2.1e", pow(10.0f,(float)(b+1)/grain_equiv_radius_bin_width)/length_scaling());
 
             std::string titel="Grain radius bin profile (";
             titel.append(radius_low);
@@ -2646,12 +2684,14 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_out.resize(filepath_out.size()-3);
             filepath_out.append("svg");
 
-            if(minimal_bubble_distance==0 && grainradius_bin_values[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", titel,
-                                                                 grainradius_bin_depths[b], grainradius_bin_values[b], 0.0f, filepath_out.c_str());
+            if(minimal_bubble_distance==0 && grainradius_bin_values[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence",
+                                                                 titel, grainradius_bin_depths[b], grainradius_bin_values[b], 0.0f,
+                                                                 filepath_out.c_str());
             else
             {
-                if(grainradius_bin_values_relax[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", titel, grainradius_bin_depths_relax[b],
-                                                                 grainradius_bin_values_relax[b], 0.0f, filepath_out.c_str());
+                if(grainradius_bin_values_relax[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", titel,
+                                                                 grainradius_bin_depths_relax[b], grainradius_bin_values_relax[b],
+                                                                 0.0f, filepath_out.c_str());
 
                 std::string filepath_grainradius_bin_combined_out=filepath_grainradius_bin_out;
                 filepath_grainradius_bin_combined_out.append(bin);
@@ -2661,9 +2701,11 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                 filepath_grainradius_bin_combined_out.append("svg");
 
                 if(grainradius_bin_values.size()>0)
-                    if(grainradius_bin_values[b].size()>0 && grainradius_bin_values_relax[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", 
-                                                                 titel, grainradius_bin_depths[b], grainradius_bin_values[b], grainradius_bin_depths_relax[b],
-                                                                 grainradius_bin_values_relax[b], 0.0f, filepath_grainradius_bin_combined_out.c_str());
+                    if(grainradius_bin_values[b].size()>0 && grainradius_bin_values_relax[b].size()>0) plot.draw_depth("Depth in m",
+                                                                 "Relative occurrence", titel, grainradius_bin_depths[b],
+                                                                 grainradius_bin_values[b], grainradius_bin_depths_relax[b],
+                                                                 grainradius_bin_values_relax[b], 0.0f,
+                                                                 filepath_grainradius_bin_combined_out.c_str());
             }
         }
 
@@ -2710,11 +2752,13 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_out.resize(filepath_out.size()-3);
             filepath_out.append("svg");
 
-            if(minimal_bubble_distance==0 && grainradius_norm_bin_values[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", titel,
-                                                                 grainradius_norm_bin_depths[b], grainradius_norm_bin_values[b], 0.0f, filepath_out.c_str());
+            if(minimal_bubble_distance==0 && grainradius_norm_bin_values[b].size()>0) plot.draw_depth("Depth in m",
+                                                                 "Relative occurrence", titel, grainradius_norm_bin_depths[b],
+                                                                 grainradius_norm_bin_values[b], 0.0f, filepath_out.c_str());
             else
             {
-                if(grainradius_norm_bin_values_relax[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", titel, grainradius_norm_bin_depths_relax[b],
+                if(grainradius_norm_bin_values_relax[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", titel,
+                                                                 grainradius_norm_bin_depths_relax[b],
                                                                  grainradius_norm_bin_values_relax[b], 0.0f, filepath_out.c_str());
 
                 std::string filepath_grainradius_norm_bin_combined_out=filepath_grainradius_norm_bin_out;
@@ -2725,9 +2769,11 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                 filepath_grainradius_norm_bin_combined_out.append("svg");
 
                 if(grainradius_norm_bin_values.size()>0)
-                    if(grainradius_norm_bin_values[b].size()>0 && grainradius_norm_bin_values_relax[b].size()>0) plot.draw_depth("Depth in m", "Relative occurrence", 
-                                                                 titel, grainradius_norm_bin_depths[b], grainradius_norm_bin_values[b],
-                                                                 grainradius_norm_bin_depths_relax[b],grainradius_norm_bin_values_relax[b], 0.0f,
+                    if(grainradius_norm_bin_values[b].size()>0 && grainradius_norm_bin_values_relax[b].size()>0) plot.draw_depth(
+                                                                 "Depth in m", "Relative occurrence", titel,
+                                                                 grainradius_norm_bin_depths[b], grainradius_norm_bin_values[b],
+                                                                 grainradius_norm_bin_depths_relax[b],
+                                                                 grainradius_norm_bin_values_relax[b], 0.0f,
                                                                  filepath_grainradius_norm_bin_combined_out.c_str());
             }
         }
@@ -2738,39 +2784,54 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
         std::string x_axis="Largest grains * ";
         x_axis.append(step);
 
-        if(grainsize_step_profile_values.size()>0) plot.draw_depth_3d(x_axis, "Depth in m", area_unit, "Largest grains profile (absolute)",
+        if(grainsize_step_profile_values.size()>0) plot.draw_depth_3d(x_axis, "Depth in m", area_unit,
+                                                                 "Largest grains profile (absolute)",
                                                                  grainsize_step_profile_x_values, grainsize_step_profile_depths,
-                                                                 grainsize_step_profile_values, filepath_grainsize_step_profile_out.c_str());
+                                                                 grainsize_step_profile_values,
+                                                                 filepath_grainsize_step_profile_out.c_str());
         if(grainsize_percent_profile_values.size()>0) plot.draw_depth_3d("Largest grains", "Depth in m", area_unit,
                                                                  "Largest grains profile (relative)",
                                                                  grainsize_percent_profile_x_values, grainsize_percent_profile_depths,
-                                                                 grainsize_percent_profile_values, filepath_grainsize_percent_profile_out.c_str());
-        if(grainsize_quantile_profile_values.size()>0) plot.draw_depth_3d("Quantile 1-", "Depth in m", area_unit, "Grain size quantiles",
-                                                                 grainsize_quantile_profile_x_values, grainsize_quantile_profile_depths,
-                                                                 grainsize_quantile_profile_values, filepath_grainsize_quantile_profile_out.c_str());
-        if(grainsize_bin_profile_values.size()>0) plot.draw_depth_3d(area_unit, "Depth in m", "Relative occurrence", "Grain size profile",
-                                                                 grainsize_bin_profile_x_values, grainsize_bin_profile_depths,
-                                                                 grainsize_bin_profile_values, filepath_grainsize_bin_profile_out.c_str());
-        if(grainradius_bin_profile_values.size()>0) plot.draw_depth_3d(length_unit, "Depth in m", "Relative occurrence", "Grain radius profile",
-                                                                 grainradius_bin_profile_x_values, grainradius_bin_profile_depths,
-                                                                 grainradius_bin_profile_values, filepath_grainradius_bin_profile_out.c_str());
-        if(grainradius_norm_bin_profile_values.size()>0) plot.draw_depth_3d("Normalized grain radius", "Depth in m", "Relative occurrence",
-                                                                 "Normalized grain radius profile", grainradius_norm_bin_profile_x_values,
-                                                                 grainradius_norm_bin_profile_depths, grainradius_norm_bin_profile_values,
+                                                                 grainsize_percent_profile_values,
+                                                                 filepath_grainsize_percent_profile_out.c_str());
+        if(grainsize_quantile_profile_values.size()>0) plot.draw_depth_3d("Quantile 1-", "Depth in m", area_unit,
+                                                                 "Grain size quantiles", grainsize_quantile_profile_x_values,
+                                                                 grainsize_quantile_profile_depths,
+                                                                 grainsize_quantile_profile_values,
+                                                                 filepath_grainsize_quantile_profile_out.c_str());
+        if(grainsize_bin_profile_values.size()>0) plot.draw_depth_3d(area_unit, "Depth in m", "Relative occurrence",
+                                                                 "Grain size profile", grainsize_bin_profile_x_values,
+                                                                 grainsize_bin_profile_depths, grainsize_bin_profile_values,
+                                                                 filepath_grainsize_bin_profile_out.c_str());
+        if(grainradius_bin_profile_values.size()>0) plot.draw_depth_3d(length_unit, "Depth in m", "Relative occurrence",
+                                                                 "Grain radius profile", grainradius_bin_profile_x_values,
+                                                                 grainradius_bin_profile_depths, grainradius_bin_profile_values,
+                                                                 filepath_grainradius_bin_profile_out.c_str());
+        if(grainradius_norm_bin_profile_values.size()>0) plot.draw_depth_3d("Normalized grain radius", "Depth in m",
+                                                                 "Relative occurrence", "Normalized grain radius profile",
+                                                                 grainradius_norm_bin_profile_x_values,
+                                                                 grainradius_norm_bin_profile_depths,
+                                                                 grainradius_norm_bin_profile_values,
                                                                  filepath_grainradius_norm_bin_profile_out.c_str());
-        if(grain_neighbors_bin_profile_values.size()>0) plot.draw_depth_3d("Number of grain neighbors", "Depth in m", "Relative occurrence",
-                                                                 "Number of grain neighbors profile", grain_neighbors_bin_profile_x_values,
-                                                                 grain_neighbors_bin_profile_depths, grain_neighbors_bin_profile_values,
+        if(grain_neighbors_bin_profile_values.size()>0) plot.draw_depth_3d("Number of grain neighbors", "Depth in m",
+                                                                 "Relative occurrence", "Number of grain neighbors profile",
+                                                                 grain_neighbors_bin_profile_x_values,
+                                                                 grain_neighbors_bin_profile_depths,
+                                                                 grain_neighbors_bin_profile_values,
                                                                  filepath_grain_neighbors_bin_profile_out.c_str());
 
-        if(grainsize_combined_values.size()>0) plot.draw_depth_nofit("Depth in m", area_unit, "Different grain size parameters", grainsize_combined_depths,
-                                                                 grainsize_combined_values, filepath_grainsize_combined_out.c_str());
+        if(grainsize_combined_values.size()>0) plot.draw_depth_nofit("Depth in m", area_unit, "Different grain size parameters",
+                                                                 grainsize_combined_depths, grainsize_combined_values,
+                                                                 filepath_grainsize_combined_out.c_str());
 
-        if(dihedral_angles_values.size()>0) plot.draw_depth("Depth in m", "Dihedral angle standard deviation [degree]", "Dihedral angle standard deviation profile",
-                                                                 dihedral_angles_depths, dihedral_angles_errors, 10.0f, filepath_dihedral_angles_out.c_str());
+        if(dihedral_angles_values.size()>0) plot.draw_depth("Depth in m", "Dihedral angle standard deviation [degree]",
+                                                                 "Dihedral angle standard deviation profile",
+                                                                 dihedral_angles_depths, dihedral_angles_errors, 10.0f,
+                                                                 filepath_dihedral_angles_out.c_str());
         if(dihedral_angles2_values.size()>0) plot.draw_depth("Depth in m", "Dihedral angle standard deviation [degree]",
-                                                                "Dihedral angle (2nd version) standard deviation profile", dihedral_angles2_depths,
-                                                                 dihedral_angles2_errors, 10.0f, filepath_dihedral_angles2_out.c_str());
+                                                                "Dihedral angle (2nd version) standard deviation profile",
+                                                                 dihedral_angles2_depths, dihedral_angles2_errors, 10.0f,
+                                                                 filepath_dihedral_angles2_out.c_str());
 
         for (int st=0; st<disl_dens_longest_boundaries_values.size(); st++)
         {
@@ -2788,9 +2849,12 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_out.resize(filepath_out.size()-3);
             filepath_out.append("svg");
 
-            if(disl_dens_longest_boundaries_values[st].size()>0) plot.draw_depth_errors("Depth in m", "Dislocation density difference in m^(-2)", titel,
-                                                                 disl_dens_longest_boundaries_depths[st], disl_dens_longest_boundaries_values[st],
-                                                                 disl_dens_longest_boundaries_errors[st], disl_dens_longest_boundaries_errors[st], 0.0f,
+            if(disl_dens_longest_boundaries_values[st].size()>0) plot.draw_depth_errors("Depth in m",
+                                                                 "Dislocation density difference in m^(-2)", titel,
+                                                                 disl_dens_longest_boundaries_depths[st],
+                                                                 disl_dens_longest_boundaries_values[st],
+                                                                 disl_dens_longest_boundaries_errors[st],
+                                                                 disl_dens_longest_boundaries_errors[st], 0.0f,
                                                                  filepath_out.c_str());
         }
 
@@ -2810,9 +2874,12 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_out.resize(filepath_out.size()-3);
             filepath_out.append("svg");
 
-            if(disl_dens_percent_boundaries_values[p].size()>0) plot.draw_depth_errors("Depth in m", "Dislocation density difference in m^(-2)", titel,
-                                                                disl_dens_percent_boundaries_depths[p], disl_dens_percent_boundaries_values[p],
-                                                                disl_dens_percent_boundaries_errors[p], disl_dens_percent_boundaries_errors[p], 0.0f,
+            if(disl_dens_percent_boundaries_values[p].size()>0) plot.draw_depth_errors("Depth in m",
+                                                                 "Dislocation density difference in m^(-2)", titel,
+                                                                disl_dens_percent_boundaries_depths[p],
+                                                                disl_dens_percent_boundaries_values[p],
+                                                                disl_dens_percent_boundaries_errors[p],
+                                                                disl_dens_percent_boundaries_errors[p], 0.0f,
                                                                 filepath_out.c_str());
         }
 
@@ -2821,14 +2888,18 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
         x_axis="Longest boundaries * ";
         x_axis.append(step);
 
-        if(disl_dens_longest_boundaries_profile_values.size()>0) plot.draw_depth_3d(x_axis, "Depth in m", "Dislocation density difference in m^(-2)",
+        if(disl_dens_longest_boundaries_profile_values.size()>0) plot.draw_depth_3d(x_axis, "Depth in m",
+                                                                 "Dislocation density difference in m^(-2)",
                                                                  "Disl. dens. diff. at longest boundaries profile (absolute)",
-                                                                 disl_dens_longest_boundaries_profile_x_values, disl_dens_longest_boundaries_profile_depths,
+                                                                 disl_dens_longest_boundaries_profile_x_values,
+                                                                 disl_dens_longest_boundaries_profile_depths,
                                                                  disl_dens_longest_boundaries_profile_values,
                                                                  filepath_disl_dens_longest_boundaries_profile_out.c_str());
-        if(disl_dens_percent_boundaries_profile_values.size()>0) plot.draw_depth_3d("Longest boundaries", "Depth in m", "Dislocation density difference in m^(-2)",
+        if(disl_dens_percent_boundaries_profile_values.size()>0) plot.draw_depth_3d("Longest boundaries", "Depth in m",
+                                                                 "Dislocation density difference in m^(-2)",
                                                                  "Disl. dens. diff. at longest boundaries profile (relative)",
-                                                                 disl_dens_percent_boundaries_profile_x_values, disl_dens_percent_boundaries_profile_depths,
+                                                                 disl_dens_percent_boundaries_profile_x_values,
+                                                                 disl_dens_percent_boundaries_profile_depths,
                                                                  disl_dens_percent_boundaries_profile_values,
                                                                  filepath_disl_dens_percent_boundaries_profile_out.c_str());
 
@@ -2864,18 +2935,40 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                 if(minimal_bubble_distance==0)
                     for (int k=0; k<nr_values[i].size(); k++)
                     {
-                        nr_grains_histogram[depth[i]/depth_bin_width]+=nr_values[i][k].nr[0];
-                        nr_boundaries_histogram[depth[i]/depth_bin_width]+=nr_values[i][k].nr[8];
-                        nr_junctions_histogram[depth[i]/depth_bin_width]+=nr_values[i][k].nr[9];
-                        nr_images_histogram[depth[i]/depth_bin_width]++;
+                        bool other_entry=false;
+
+                        //check for multiple entries for same image
+                        for(int j=k+1; j<nr_values[i].size() && !other_entry; j++)
+                        {
+                            if(nr_values[i][k].name.compare(nr_values[i][j].name)==0) other_entry=true;
+                        }
+
+                        if (!other_entry)
+                        {
+                            nr_grains_histogram[depth[i]/depth_bin_width]+=nr_values[i][k].nr[0];
+                            nr_boundaries_histogram[depth[i]/depth_bin_width]+=nr_values[i][k].nr[8];
+                            nr_junctions_histogram[depth[i]/depth_bin_width]+=nr_values[i][k].nr[9];
+                            nr_images_histogram[depth[i]/depth_bin_width]++;
+                        }
                     }
                 else if(i<67)
                     for (int k=0; k<nr_values_relax[i].size(); k++)
                     {
-                        nr_grains_histogram[depth[i]/depth_bin_width]+=nr_values_relax[i][k].nr[0];
-                        nr_boundaries_histogram[depth[i]/depth_bin_width]+=nr_values_relax[i][k].nr[8];
-                        nr_junctions_histogram[depth[i]/depth_bin_width]+=nr_values_relax[i][k].nr[9];
-                        nr_images_histogram[depth[i]/depth_bin_width]++;
+                        bool other_entry=false;
+
+                        //check for multiple entries for same image
+                        for(int j=k+1; j<nr_values[i].size() && !other_entry; j++)
+                        {
+                            if(nr_values[i][k].name.compare(nr_values[i][j].name)==0) other_entry=true;
+                        }
+
+                        if (!other_entry)
+                        {
+                            nr_grains_histogram[depth[i]/depth_bin_width]+=nr_values_relax[i][k].nr[0];
+                            nr_boundaries_histogram[depth[i]/depth_bin_width]+=nr_values_relax[i][k].nr[8];
+                            nr_junctions_histogram[depth[i]/depth_bin_width]+=nr_values_relax[i][k].nr[9];
+                            nr_images_histogram[depth[i]/depth_bin_width]++;
+                        }
                     }
             }
 
@@ -2901,13 +2994,14 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             filepath_nr_boundaries.append("svg");
             filepath_nr_junctions.append("svg");
 
-            plot.draw_histogram("Depth in m", "Relative occurence", "Grain depth distribution", nr_grains_histogram, depth_bin_width, 1.0f, 0.0f, filepath_nr_grains);
-            plot.draw_histogram("Depth in m", "Relative occurence", "Boundary depth distribution", nr_boundaries_histogram, depth_bin_width, 1.0f, 0.0f,
-                                filepath_nr_boundaries);
-            plot.draw_histogram("Depth in m", "Relative occurence", "Junctions depth distribution", nr_junctions_histogram, depth_bin_width, 1.0f, 0.0f,
-                                filepath_nr_junctions);
-            plot.draw_histogram("Depth in m", "Relative occurence", "Images depth distribution", nr_images_histogram, depth_bin_width, 1.0f, 0.0f,
-                                filepath_nr_images);
+            plot.draw_histogram("Depth in m", "Relative occurence", "Grain depth distribution", nr_grains_histogram, depth_bin_width,
+                                1.0f, 0.0f, filepath_nr_grains);
+            plot.draw_histogram("Depth in m", "Relative occurence", "Boundary depth distribution", nr_boundaries_histogram,
+                                depth_bin_width, 1.0f, 0.0f, filepath_nr_boundaries);
+            plot.draw_histogram("Depth in m", "Relative occurence", "Junctions depth distribution", nr_junctions_histogram,
+                                depth_bin_width, 1.0f, 0.0f, filepath_nr_junctions);
+            plot.draw_histogram("Depth in m", "Relative occurence", "Images depth distribution", nr_images_histogram,
+                                depth_bin_width, 1.0f, 0.0f,filepath_nr_images);
 
             //************
             //New profiles
@@ -3006,30 +3100,30 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                 "Grain roundness profile", 0.35f, 1, nr_values, nr_values_relax, depth_max, depth_bin_width);
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "length_grainarcs", "grain arc length", "Depth in m", length_unit, "Grain boundary length profile",
-                0.0f, 5, nr_values, nr_values_relax, depth_max, depth_bin_width, length_scaling);
+                0.0f, 5, nr_values, nr_values_relax, depth_max, depth_bin_width, length_scaling());
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "longest_grainarcs", "grain longest arc length", "Depth in m", length_unit,
                 "Grain longest boundary length profile", 0.0f, 6, nr_values, nr_values_relax, depth_max, depth_bin_width,
-                length_scaling);
+                length_scaling());
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "dislocation_densities", "dislocation density differences", "Depth in m",
                 "Dislocation density difference in m^(-2)", "Profile of mean dislocation density difference at grain boundaries",
                 0.0f, 8, nr_values, nr_values_relax, depth_max, depth_bin_width);
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "grain_equivradius", "equivalent grain radius", "Depth in m", length_unit,
-                "Grain equivalent radius profile", 0.0f, 1, nr_values, nr_values_relax, depth_max, depth_bin_width, length_scaling);
+                "Grain equivalent radius profile", 0.0f, 1, nr_values, nr_values_relax, depth_max, depth_bin_width, length_scaling());
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "grain_boxshape", "grain box shape", "Depth in m", "Box flattening factor", "Box flattening profile",
                 0.9f, 2, nr_values, nr_values_relax, depth_max, depth_bin_width);
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "grain_boxwidth", "grain box width", "Depth in m", length_unit, "Grain box width profile", 0.0f, 2,
-                nr_values, nr_values_relax, depth_max, depth_bin_width, length_scaling);
+                nr_values, nr_values_relax, depth_max, depth_bin_width, length_scaling());
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "grain_boxheight", "grain box height", "Depth in m", length_unit, "Grain box height profile", 0.0f, 2,
-                nr_values, nr_values_relax, depth_max, depth_bin_width, length_scaling);
+                nr_values, nr_values_relax, depth_max, depth_bin_width, length_scaling());
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "grain_ellipselong", "grain ellipse long axis", "Depth in m", length_unit,
-                "Ellipse long axis profile", 0.0f, 4, nr_values, nr_values_relax, depth_max, depth_bin_width, length_scaling);
+                "Ellipse long axis profile", 0.0f, 4, nr_values, nr_values_relax, depth_max, depth_bin_width, length_scaling());
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "grain_ellipseshape", "grain ellipse shape", "Depth in m", "Ellipse flattening factor",
                 "Ellipse flattening profile", 0.9f, 3, nr_values, nr_values_relax, depth_max, depth_bin_width);
@@ -3041,10 +3135,10 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                 "Boundary orientation profile", 0.0f, 7, nr_values, nr_values_relax, depth_max, depth_bin_width);
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "grainwidth", "grain width", "Depth in m", length_unit, "Grain width profile", 0.0f, 1, nr_values,
-                nr_values_relax, depth_max, depth_bin_width, length_scaling);
+                nr_values_relax, depth_max, depth_bin_width, length_scaling());
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "grainheight", "grain height", "Depth in m", length_unit, "Grain height profile", 0.0f, 1, nr_values,
-                nr_values_relax, depth_max, depth_bin_width, length_scaling);
+                nr_values_relax, depth_max, depth_bin_width, length_scaling());
             new_lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min,
                 s.str(), plot, "grainflattening", "vertical grain flattening", "Depth in m", "Vertical grain flattening factor",
                 "Vertical grain flattening profile", 0.9f, 1, nr_values, nr_values_relax, depth_max, depth_bin_width);
@@ -3104,18 +3198,20 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
             std::vector<float> grainsize_bin_profile_depths((size_t)(1+depth_max/depth_bin_width));
             std::vector<float> grainsize_bin_profile_x_values;
-            for(int bin=0; bin<50; bin++) grainsize_bin_profile_x_values.push_back(((float)bin/grain_bin_width)-log10(area_scaling));
+            for(int bin=0; bin<50; bin++) grainsize_bin_profile_x_values.push_back
+                (((float)bin/grain_bin_width)-log10(area_scaling()));
             std::vector< std::vector<float> > grainsize_bin_profile_values((size_t)(1+depth_max/depth_bin_width));
 
             std::vector<float> grainradius_bin_profile_depths((size_t)(1+depth_max/depth_bin_width));
             std::vector<float> grainradius_bin_profile_x_values;
             for(int bin=0; bin<50; bin++)
-                grainradius_bin_profile_x_values.push_back(((float)bin/grain_equiv_radius_bin_width)-log10(length_scaling));
+                grainradius_bin_profile_x_values.push_back(((float)bin/grain_equiv_radius_bin_width)-log10(length_scaling()));
             std::vector< std::vector<float> > grainradius_bin_profile_values((size_t)(1+depth_max/depth_bin_width));
 
             std::vector<float> grainradius_norm_bin_profile_depths((size_t)(1+depth_max/depth_bin_width));
             std::vector<float> grainradius_norm_bin_profile_x_values;
-            for(int bin=0; bin<100; bin++) grainradius_norm_bin_profile_x_values.push_back((float)bin*grain_equiv_radius_norm_bin_width);
+            for(int bin=0; bin<100; bin++) grainradius_norm_bin_profile_x_values.push_back
+                ((float)bin*grain_equiv_radius_norm_bin_width);
             std::vector< std::vector<float> > grainradius_norm_bin_profile_values((size_t)(1+depth_max/depth_bin_width));
 
             std::vector<int> grain_neighbors_bin_sum((size_t)(1+depth_max/depth_bin_width),0);
@@ -3239,7 +3335,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                                 if(!other_entry && entries[k].name.compare(nr_values[i][k].name)==0)//nr of values found
                                 {
                                     grainsize_all_values[depth[i]/depth_bin_width]+=
-                                        entries[k].mean*(float)nr_values[i][k].nr[0]/area_scaling;
+                                        entries[k].mean*(float)nr_values[i][k].nr[0]/area_scaling();
                                     grainsize_all_sum[depth[i]/depth_bin_width]+=nr_values[i][k].nr[0];
                                 }
                             }
@@ -3248,7 +3344,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                                 if(!other_entry && entries[k].name.compare(nr_values_relax[i][k].name)==0)//nr of values found
                                 {
                                     grainsize_all_values_relax[depth[i]/depth_bin_width]+=
-                                        entries[k].mean*(float)nr_values_relax[i][k].nr[0]/area_scaling;
+                                        entries[k].mean*(float)nr_values_relax[i][k].nr[0]/area_scaling();
                                     grainsize_all_sum_relax[depth[i]/depth_bin_width]+=nr_values_relax[i][k].nr[0];
                                 }
                             }
@@ -3316,18 +3412,19 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                                     for(int s=0; s<min_step_nr; s++)
                                     {
                                         grainsize_step_values[s].resize((size_t)(1+depth_max/depth_bin_width));
-                                        grainsize_step_values[s][depth[i]/depth_bin_width]+=entries[k].mean[s]/area_scaling;
+                                        grainsize_step_values[s][depth[i]/depth_bin_width]+=entries[k].mean[s]/area_scaling();
 
                                         grainsize_step_sum[s][depth[i]/depth_bin_width]++;
                                     }
                                 }
                                 else
                                 {
-                                    if (min_step_nr>grainsize_step_values_relax.size()) grainsize_step_values_relax.resize(min_step_nr);
+                                    if (min_step_nr>grainsize_step_values_relax.size())
+                                        grainsize_step_values_relax.resize(min_step_nr);
                                     for(int s=0; s<min_step_nr; s++)
                                     {
                                         grainsize_step_values_relax[s].resize((size_t)(1+depth_max/depth_bin_width));
-                                        grainsize_step_values_relax[s][depth[i]/depth_bin_width]+=entries[k].mean[s]/area_scaling;
+                                        grainsize_step_values_relax[s][depth[i]/depth_bin_width]+=entries[k].mean[s]/area_scaling();
 
                                         grainsize_step_sum_relax[s][depth[i]/depth_bin_width]++;
                                     }
@@ -3340,7 +3437,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
                                     for(int s=0; s<min_step_nr; s++)
                                     {
-                                        grainsize_step_profile_values[depth[i]/depth_bin_width][s]+=entries[k].mean[s]/area_scaling;
+                                        grainsize_step_profile_values[depth[i]/depth_bin_width][s]+=entries[k].mean[s]/area_scaling();
                                     }
                                 }
                             }
@@ -3505,7 +3602,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                                 }
                                 else
                                 {
-                                    if (min_bin_nr>grainradius_bin_values_relax.size()) grainradius_bin_values_relax.resize(min_bin_nr);
+                                    if (min_bin_nr>grainradius_bin_values_relax.size())
+                                        grainradius_bin_values_relax.resize(min_bin_nr);
                                     for(int bin=0; bin<min_bin_nr; bin++)
                                     {
                                         grainradius_bin_values_relax[bin].resize((size_t)(1+depth_max/depth_bin_width));
@@ -3596,7 +3694,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                                 }
                                 else
                                 {
-                                    if (min_bin_nr>grainradius_norm_bin_values_relax.size()) grainradius_norm_bin_values_relax.resize(min_bin_nr);
+                                    if (min_bin_nr>grainradius_norm_bin_values_relax.size())
+                                        grainradius_norm_bin_values_relax.resize(min_bin_nr);
                                     for(int bin=0; bin<min_bin_nr; bin++)
                                     {
                                         grainradius_norm_bin_values_relax[bin].resize((size_t)(1+depth_max/depth_bin_width));
@@ -3859,7 +3958,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
                         if(!other_entry)
                         {
-                            if (min_step_nr>disl_dens_longest_boundaries_values.size()) disl_dens_longest_boundaries_values.resize(min_step_nr);
+                            if (min_step_nr>disl_dens_longest_boundaries_values.size())
+                                disl_dens_longest_boundaries_values.resize(min_step_nr);
                             for(int s=0; s<min_step_nr; s++)
                             {
                                 disl_dens_longest_boundaries_values[s].resize((size_t)(1+depth_max/depth_bin_width));
@@ -4035,7 +4135,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                 int count=0;
                 for (int bin=0; bin<grainsize_step_values[grainsize_step].size(); bin++)
                 {
-                    if(grainsize_step_sum[grainsize_step][count]>0.0f) grainsize_step_values[grainsize_step][bin]/=grainsize_step_sum[grainsize_step][count];
+                    if(grainsize_step_sum[grainsize_step][count]>0.0f)
+                        grainsize_step_values[grainsize_step][bin]/=grainsize_step_sum[grainsize_step][count];
                     else
                     {
                         grainsize_step_depths[grainsize_step].erase(grainsize_step_depths[grainsize_step].begin()+bin);
@@ -4084,7 +4185,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
                 for(int bin=0; bin<grainsize_bin_values_relax[grainsize_bin].size(); bin++)
                 {
-                    if(grainsize_bin_sum_relax[bin]>0.0f) grainsize_bin_values_relax[grainsize_bin][bin]/=grainsize_bin_sum_relax[bin];
+                    if(grainsize_bin_sum_relax[bin]>0.0f)
+                        grainsize_bin_values_relax[grainsize_bin][bin]/=grainsize_bin_sum_relax[bin];
                     grainsize_bin_depths_relax[grainsize_bin][bin]=(bin+0.5f)*depth_bin_width;
                 }
             }
@@ -4195,7 +4297,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
                 for(int bin=0; bin<grainradius_bin_values_relax[grainradius_bin].size(); bin++)
                 {
-                    if(grainradius_bin_sum_relax[bin]>0.0f) grainradius_bin_values_relax[grainradius_bin][bin]/=grainradius_bin_sum_relax[bin];
+                    if(grainradius_bin_sum_relax[bin]>0.0f)
+                        grainradius_bin_values_relax[grainradius_bin][bin]/=grainradius_bin_sum_relax[bin];
                     grainradius_bin_depths_relax[grainradius_bin][bin]=(bin+0.5f)*depth_bin_width;
                 }
             }
@@ -4266,7 +4369,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
                 for(int bin=0; bin<grainradius_norm_bin_values[grainradius_norm_bin].size(); bin++)
                 {
-                    if(grainradius_norm_bin_sum[bin]>0.0f) grainradius_norm_bin_values[grainradius_norm_bin][bin]/=grainradius_norm_bin_sum[bin];
+                    if(grainradius_norm_bin_sum[bin]>0.0f)
+                        grainradius_norm_bin_values[grainradius_norm_bin][bin]/=grainradius_norm_bin_sum[bin];
                     grainradius_norm_bin_depths[grainradius_norm_bin][bin]=(bin+0.5f)*depth_bin_width;
                 }
             }
@@ -4275,11 +4379,13 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
             for(int grainradius_norm_bin=0; grainradius_norm_bin<grainradius_norm_bin_values_relax.size(); grainradius_norm_bin++)
             {
-                grainradius_norm_bin_depths_relax[grainradius_norm_bin].resize(grainradius_norm_bin_values_relax[grainradius_norm_bin].size());
+                grainradius_norm_bin_depths_relax[grainradius_norm_bin].resize
+                    (grainradius_norm_bin_values_relax[grainradius_norm_bin].size());
 
                 for(int bin=0; bin<grainradius_norm_bin_values_relax[grainradius_norm_bin].size(); bin++)
                 {
-                    if(grainradius_norm_bin_sum_relax[bin]>0.0f) grainradius_norm_bin_values_relax[grainradius_norm_bin][bin]/=grainradius_norm_bin_sum_relax[bin];
+                    if(grainradius_norm_bin_sum_relax[bin]>0.0f)
+                        grainradius_norm_bin_values_relax[grainradius_norm_bin][bin]/=grainradius_norm_bin_sum_relax[bin];
                     grainradius_norm_bin_depths_relax[grainradius_norm_bin][bin]=(bin+0.5f)*depth_bin_width;
                 }
             }
@@ -4296,7 +4402,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                 {
                     if(grainradius_norm_bin_sum_relax[bin]>0.0f)
                     {
-                        for(int grainradius_norm_bin=0; grainradius_norm_bin<grainradius_norm_bin_profile_values[bin].size(); grainradius_norm_bin++)
+                        for(int grainradius_norm_bin=0; grainradius_norm_bin<grainradius_norm_bin_profile_values[bin].size();
+                            grainradius_norm_bin++)
                             grainradius_norm_bin_profile_values[bin][grainradius_norm_bin]/=grainradius_norm_bin_sum_relax[bin];
                     }
                     else
@@ -4314,7 +4421,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                 {
                     if(grainradius_norm_bin_sum[bin]>0.0f)
                     {
-                        for(int grainradius_norm_bin=0; grainradius_norm_bin<grainradius_norm_bin_profile_values[bin].size(); grainradius_norm_bin++)
+                        for(int grainradius_norm_bin=0; grainradius_norm_bin<grainradius_norm_bin_profile_values[bin].size();
+                            grainradius_norm_bin++)
                             grainradius_norm_bin_profile_values[bin][grainradius_norm_bin]/=grainradius_norm_bin_sum[bin];
                     }
                     else
@@ -4330,7 +4438,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             {
                 if(grainradius_norm_bin_sum[bin]>0.0f)
                 {
-                    for(int grainradius_norm_bin=0; grainradius_norm_bin<grainradius_norm_bin_profile_values[bin].size(); grainradius_norm_bin++)
+                    for(int grainradius_norm_bin=0; grainradius_norm_bin<grainradius_norm_bin_profile_values[bin].size();
+                        grainradius_norm_bin++)
                         grainradius_norm_bin_profile_values[bin][grainradius_norm_bin]/=grainradius_norm_bin_sum[bin];
                 }
                 else
@@ -4351,7 +4460,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             {
                 if(grain_neighbors_bin_sum[bin]>0.0f)
                 {
-                    for(int grain_neighbors_bin=0; grain_neighbors_bin<grain_neighbors_bin_profile_values[bin].size(); grain_neighbors_bin++)
+                    for(int grain_neighbors_bin=0; grain_neighbors_bin<grain_neighbors_bin_profile_values[bin].size();
+                        grain_neighbors_bin++)
                         grain_neighbors_bin_profile_values[bin][grain_neighbors_bin]/=grain_neighbors_bin_sum[bin];
                 }
                 else
@@ -4462,7 +4572,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
 
                 for (int bin=0; bin<percentage_filled_grains_values[p].size(); bin++)
                 {
-                    if(percentage_filled_grains_sum[p][bin]>0.0f) percentage_filled_grains_values[p][bin]/=percentage_filled_grains_sum[p][bin];
+                    if(percentage_filled_grains_sum[p][bin]>0.0f)
+                        percentage_filled_grains_values[p][bin]/=percentage_filled_grains_sum[p][bin];
                     else
                     {
                         percentage_filled_grains_depths[p].erase(percentage_filled_grains_depths[p].begin()+bin);
@@ -4567,7 +4678,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             if(minimal_bubble_distance==0)
             for (int st=0; st<grainsize_step_values.size(); st++)
             {
-                char step[5];
+                char step[6];
                 sprintf(step, "%i", (st+1)*grain_step);
 
                 std::string titel="Mean grain size profile (";
@@ -4587,7 +4698,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             else
             for (int st=0; st<grainsize_step_values_relax.size(); st++)
             {
-                char step[5];
+                char step[6];
                 sprintf(step, "%i", (st+1)*grain_step);
 
                 std::string titel="Mean grain size profile (";
@@ -4644,8 +4755,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                 char size_low[10];
                 char size_high[10];
                 sprintf(bin, "%i", b+1);
-                sprintf(size_low, "%2.1e", pow(10.0f,(float)b/grain_bin_width)/area_scaling);
-                sprintf(size_high, "%2.1e", pow(10.0f,(float)(b+1)/grain_bin_width)/area_scaling);
+                sprintf(size_low, "%2.1e", pow(10.0f,(float)b/grain_bin_width)/area_scaling());
+                sprintf(size_high, "%2.1e", pow(10.0f,(float)(b+1)/grain_bin_width)/area_scaling());
 
                 std::string titel="Grain size bin profile (";
                 titel.append(size_low);
@@ -4709,8 +4820,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                 char radius_low[10];
                 char radius_high[10];
                 sprintf(bin, "%i", b+1);
-                sprintf(radius_low, "%2.1e", pow(10.0f,(float)b/grain_equiv_radius_bin_width)/length_scaling);
-                sprintf(radius_high, "%2.1e", pow(10.0f,(float)(b+1)/grain_equiv_radius_bin_width)/length_scaling);
+                sprintf(radius_low, "%2.1e", pow(10.0f,(float)b/grain_equiv_radius_bin_width)/length_scaling());
+                sprintf(radius_high, "%2.1e", pow(10.0f,(float)(b+1)/grain_equiv_radius_bin_width)/length_scaling());
 
                 std::string titel="Grain radius bin profile (";
                 titel.append(radius_low);

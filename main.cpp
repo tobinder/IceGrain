@@ -64,22 +64,12 @@
  * - <a href="http://plplot.sourceforge.net/">plplot</a> is a library to create plots without using additional programs like GNUplot or \b Matlab.
  */
 #include <cgp/cgp_config.hxx>
-
 #include <vigra/edgedetection.hxx>
 
-const int nr_of_classes=3;
-const float length_scaling=193.5; //LASM: one mm is 193.5 Pixels
-const float area_scaling=37444.0; //LASM: one mm is 193.5 Pixels
-//const float length_scaling=50.0;  //FA: one mm is 50 Pixels
-//const float area_scaling=2500.0;  //FA: one mm is 50 Pixels
-//const float length_scaling=20.0;  //GRIP/NorthGRIP: one mm is 20 Pixels
-//const float area_scaling=400.0;   //GRIP/NorthGRIP: one mm is 20 Pixels
-
-#include "inc/ParameterFile.hxx"
-//Static class attribute 
-std::string ParameterFile::filepath = "";
-
 #include "inc/ParameteredObject.hxx"
+#include "inc/ParameterFile.hxx"
+std::string ParameterFile::filepath = ""; //Static class attribute 
+const int nr_of_classes=3;
 
 #include "path_functions.h"
 #include "boundary_data_structure.h"
@@ -295,7 +285,8 @@ int main(int argc, char *argv[])
             filepath_boundary_features_loop.append(".bin");
 
             extract_boundary_probabilities(filepath_boundary_features_loop,path_watershed,path_boundary_rf(),path_rf_predictions,
-                                           path_rf_predictions,argv[argc-4],paramFile,path_thumbs,get_path(argv[i]), originalImageExists);
+                                           path_rf_predictions,argv[argc-4],paramFile,path_thumbs,get_path(argv[i]),
+                                           originalImageExists);
             i++;
         }
     }
@@ -522,7 +513,8 @@ int main(int argc, char *argv[])
             filepath_boundary_features.append(folder.c_str());
             filepath_boundary_features.append(get_filename(argv[i]));
             filepath_boundary_features.append(".bin");
-            correct_prediction(filepath_boundary_features, path_image, path_watershed, path_rf_predictions, argv[argc-2], paramFile, 2);
+            correct_prediction(filepath_boundary_features, path_image, path_watershed, path_rf_predictions, argv[argc-2], paramFile,
+                2);
             i++;
         }
     }
@@ -635,7 +627,8 @@ int main(int argc, char *argv[])
             filepath_boundary_features.append(get_filename(argv[i]));
             filepath_boundary_features.append(".bin");
 
-            do_statistics(filepath_boundary_features,path_watershed,path_rf_predictions,path_plots,path_results,argv[argc-2],paramFile);
+            do_statistics(filepath_boundary_features,path_watershed,path_rf_predictions,path_plots,path_results,
+                argv[argc-2],paramFile);
             i++;
         }
     }
@@ -659,8 +652,29 @@ int main(int argc, char *argv[])
        	path_results.assign("", "path_results", "statistics-results/");
         path_results.load(paramFile,"config");
 
-        //single_depth_profile(path_results, paramFile);
         depth_profile(path_results, paramFile, 22);
+    }
+
+    /*
+    OPTION -single-depth-profile
+    */
+    else if (command_line_option=="-depth-profile")
+    {
+        std::cout<<"Option -single-depth-profile"<<std::endl;
+
+        ParameterFile paramFile;
+
+        if( !paramFile.load("parameters.txt") )//default parameter file
+        {
+            std::cout<<"Error: Parameter file could not be found!"<<std::endl;
+            return 0;
+        }
+
+       	Parameter<std::string> path_results;
+       	path_results.assign("", "path_results", "statistics-results/");
+        path_results.load(paramFile,"config");
+
+        single_depth_profile(path_results, paramFile);
     }
 
     /*
@@ -687,7 +701,7 @@ int main(int argc, char *argv[])
         low_grain_size.save(paramFile,"config");
 
        	Parameter<int> high_grain_size;
-       	high_grain_size.assign("", "high_grain_size", 20000);
+       	high_grain_size.assign("", "high_grain_size", 2000);
         high_grain_size=atoi(argv[argc-6]);
         high_grain_size.save(paramFile,"config");
 
@@ -707,6 +721,47 @@ int main(int argc, char *argv[])
         grain_step.save(paramFile,"config");
 
         depth_profile(argv[argc-2], paramFile, atof(argv[argc-9]));
+    }
+
+    /*
+    OPTION -single-depth-profile-gui
+    */
+    else if (command_line_option=="-single-depth-profile-gui")
+    {
+        ParameterFile paramFile;
+
+        if( !paramFile.load(argv[argc-1]) )//parameter file defined in gui
+        {
+            std::cout<<"Error: Parameter file could not be found!"<<std::endl;
+            return 0;
+        }
+
+        Parameter<int> low_grain_size;
+        low_grain_size.assign("", "low_grain_size", 0);
+        low_grain_size=atoi(argv[argc-7]);
+        low_grain_size.save(paramFile,"config");
+
+       	Parameter<int> high_grain_size;
+       	high_grain_size.assign("", "high_grain_size", 2000);
+        high_grain_size=atoi(argv[argc-6]);
+        high_grain_size.save(paramFile,"config");
+
+       	Parameter<int> grain_size_step;
+       	grain_size_step.assign("", "grain_size_step", 5000);
+        grain_size_step=atoi(argv[argc-5]);
+        grain_size_step.save(paramFile,"config");
+
+       	Parameter<int> min_bubble_distance;
+       	min_bubble_distance.assign("", "min_bubble_distance", 0);
+        min_bubble_distance=atoi(argv[argc-4]);
+        min_bubble_distance.save(paramFile,"config");
+
+       	Parameter<int> grain_step;
+       	grain_step.assign("", "grain_step", 100);
+        grain_step=atoi(argv[argc-3]);
+        grain_step.save(paramFile,"config");
+
+        single_depth_profile(argv[argc-2], paramFile, atof(argv[argc-8]));
     }
 
     /*
@@ -809,8 +864,8 @@ int main(int argc, char *argv[])
         int mode=1;
         int start_value=0;
 
-        view(argv[argc-2],path_image,path_watershed,path_rf_predictions,path_plots,path_results,"parameters.txt", paramFile, minimal_grain_size,
-             minimal_bubble_distance, mode, start_value);
+        view(argv[argc-2],path_image,path_watershed,path_rf_predictions,path_plots,path_results,"parameters.txt", paramFile,
+            minimal_grain_size, minimal_bubble_distance, mode, start_value);
     }
 
     /*
@@ -849,8 +904,8 @@ int main(int argc, char *argv[])
         filepath_boundary_features.append(get_filename(argv[2]));
         filepath_boundary_features.append(".bin");
 
-        view(filepath_boundary_features, path_image, path_watershed, path_rf_predictions, path_plots, path_results, argv[argc-2], paramFile, low_grain_size,
-             minimal_bubble_distance, mode, start_value);
+        view(filepath_boundary_features, path_image, path_watershed, path_rf_predictions, path_plots, path_results, argv[argc-2],
+            paramFile, low_grain_size, minimal_bubble_distance, mode, start_value);
 
     }
 
@@ -881,8 +936,8 @@ int main(int argc, char *argv[])
         std::string path_watershed=argv[13];
         bool correct_suffix=atoi(argv[14]);
 
-        analyze(filepath_list, path_rf_predictions, path_results, argv[7], paramFile, low_grain_size, minimal_bubble_distance, path_plots, mode, combo1, spin,
-            combo2, path_watershed, correct_suffix);
+        analyze(filepath_list, path_rf_predictions, path_results, argv[7], paramFile, low_grain_size, minimal_bubble_distance,
+            path_plots, mode, combo1, spin, combo2, path_watershed, correct_suffix);
     }
 
     /*
@@ -890,6 +945,14 @@ int main(int argc, char *argv[])
     */
     else if (command_line_option=="-new-depth-profile")
     {
+        ParameterFile paramFile;
+
+        if( !paramFile.load(argv[7]) )//parameter file defined in gui
+        {
+            std::cout<<"Error: Parameter file could not be found!"<<std::endl;
+            return 0;
+        }
+
         std::string filepath_list=argv[2];
         std::string path_rf_predictions=argv[3];
         std::string path_results=argv[4];
@@ -901,9 +964,14 @@ int main(int argc, char *argv[])
         int grain_size_step=atoi(argv[10]);
         float depth_bin_width=atof(argv[11]);
 
-        new_depth_profiles(filepath_list, path_rf_predictions, argv[7], minimal_bubble_distance, path_results, correct_suffix, low_grain_size,
-            high_grain_size, grain_size_step, depth_bin_width);
+        new_depth_profiles(filepath_list, path_rf_predictions, argv[7], paramFile, minimal_bubble_distance, path_results,
+            correct_suffix, low_grain_size, high_grain_size, grain_size_step, depth_bin_width);
     }
+
+    else
+    {
+         std::cout<<"-WRONG OPTION!!!!"<<std::endl;
+    }   
 
     return 0;
 }
