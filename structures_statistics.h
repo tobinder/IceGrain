@@ -145,6 +145,9 @@ void junctions_and_outer_circle(size_t nr_areas,
                 if(distance<min_bubble_distance[area] || min_bubble_distance[area]==-1) min_bubble_distance[area]=distance;
             }
 
+            //if there are no bubbles
+            if (bubble_area_center_mass.size()==0) min_bubble_distance[area]=minimal_bubble_distance;
+
             //if grain is closer to bubble than threshold and smaller than close_bubble_grain_size
             if(min_bubble_distance[area]<minimal_bubble_distance && areas[area].size()<close_bubble_grain_size)
             {
@@ -359,6 +362,9 @@ void junctions_and_outer_circle(size_t nr_areas,
                                           + square(grain_area_center_mass[area].y-bubble_area_center_mass[bubble].y));
                         if(distance<min_bubble_distance[area] || min_bubble_distance[area]==-1) min_bubble_distance[area]=distance;
                     }
+
+                    //if there are no bubbles
+                    if (bubble_area_center_mass.size()==0) min_bubble_distance[area]=minimal_bubble_distance;
 
                     //if grain is closer to bubble than threshold and smaller than close_bubble_grain_size
                     if(min_bubble_distance[area]<minimal_bubble_distance && areas[area].size()<close_bubble_grain_size)
@@ -822,6 +828,9 @@ void junctions_and_outer_circle(size_t nr_areas,
                     if(distance<min_bubble_distance[area] || min_bubble_distance[area]==-1) min_bubble_distance[area]=distance;
                 }
             }
+
+            //if there are no bubbles
+            if (bubble_area_center_mass.size()==0) min_bubble_distance[area]=minimal_bubble_distance;
 
             //if grain is closer to bubble than threshold and smaller than close_bubble_grain_size
             if(min_bubble_distance[area]<minimal_bubble_distance && areas[area].size()<close_bubble_grain_size)
