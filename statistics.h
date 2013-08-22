@@ -1152,7 +1152,8 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                     grain_box_flattening_values2.push_back(grain_box_flattening_values[area_index]);
 
                     //Grain perimeter ratio
-                    grain_perimeter_ratio_values[area_index] = std::min(1.0f,perimeterLength/grain_perimeter[grain_areas[area_index]]);
+                    grain_perimeter[grain_areas[area_index]] = std::max(perimeterLength,grain_perimeter[grain_areas[area_index]]);
+                    grain_perimeter_ratio_values[area_index] = perimeterLength/grain_perimeter[grain_areas[area_index]];
                     if(grain_perimeter_ratio_values[area_index] > grain_perimeter_ratio_max)
                     {                        
                         grain_perimeter_ratio_histogram.resize((int)(perimeterLength/(grain_perimeter[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))+1);
