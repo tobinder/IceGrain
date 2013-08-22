@@ -388,8 +388,8 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
     float grain_arc_length_y_max=0.0f;
 
     //grain longest arc length histogram
-    int grain_longest_arc_length_min=0;
-    int grain_longest_arc_length_max=0;
+    float grain_longest_arc_length_min=0.0f;
+    float grain_longest_arc_length_max=0.0f;
     float grain_longest_arc_length_bin_width=9.0f;
     std::vector<int> grain_longest_arc_length_histogram;
     std::vector<float> & grain_longest_arc_length_values = para.grain_longest_arc_length;
@@ -516,9 +516,9 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
     std::vector<bool> & grain_junction = para.grain_junction;
     grain_junction.resize(one_boundings.shape(0),false);
     std::vector<std::vector<int> > arc_junctions(two_boundings.shape(0));
-    std::vector<int> grain_perimeter(nr_areas,0);
+    std::vector<float> grain_perimeter(nr_areas,0.0f);
     std::vector<int> min_bubble_distance(nr_areas);
-    std::vector<int> grain_longest_arc_length(nr_areas);
+    std::vector<float> grain_longest_arc_length(nr_areas);
     std::vector< std::vector<float> > grain_junction_angles(nr_areas);
     std::vector< std::vector<float> > grain_junction_angles2(nr_areas);
     std::vector< std::vector<point> > grain_boundary_pixels;
@@ -838,7 +838,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                 (float)std::max(1, area_ranges[area].y_high-area_ranges[area].y_low);
 
             //grain roundness
-            float roundness_factor=(float)(4.0f*PI*grain_area_size[area])/(float)(grain_perimeter[area]*grain_perimeter[area]);
+            float roundness_factor=(float)(4.0f*PI*grain_area_size[area])/(grain_perimeter[area]*grain_perimeter[area]);
 
             if (roundness_factor>grain_roundness_max)
             {
@@ -1152,13 +1152,13 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                     grain_box_flattening_values2.push_back(grain_box_flattening_values[area_index]);
 
                     //Grain perimeter ratio
-                    grain_perimeter_ratio_values[area_index] = perimeterLength/(float)grain_perimeter[grain_areas[area_index]];                
+                    grain_perimeter_ratio_values[area_index] = std::min(1.0f,perimeterLength/grain_perimeter[grain_areas[area_index]]);
                     if(grain_perimeter_ratio_values[area_index] > grain_perimeter_ratio_max)
                     {                        
-                        grain_perimeter_ratio_histogram.resize((int)(perimeterLength/((float)grain_perimeter[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))+1);
+                        grain_perimeter_ratio_histogram.resize((int)(perimeterLength/(grain_perimeter[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))+1);
                         grain_perimeter_ratio_max = grain_perimeter_ratio_values[area_index];
                     }
-                    grain_perimeter_ratio_histogram[(int)(perimeterLength/((float)grain_perimeter[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))]++;                
+                    grain_perimeter_ratio_histogram[(int)(perimeterLength/(grain_perimeter[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))]++;
                 }
             }
         }
@@ -1357,7 +1357,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         grain_neighbors_values.clear();
         grain_neighbors_values2.clear();
 
-        grain_longest_arc_length_max=0;
+        grain_longest_arc_length_max=0.0f;
         grain_longest_arc_length_histogram.clear();
         grain_longest_arc_length_values.clear();
         grain_longest_arc_length_values2.clear();
@@ -1397,7 +1397,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             if (border_contact)//grains with contact to border can not handled correctly
             {
                 neighbors.clear();
-                grain_longest_arc_length[area]=0;
+                grain_longest_arc_length[area]=0.0f;
             }
 
             int nr_arcs=(int)neighbors.size();

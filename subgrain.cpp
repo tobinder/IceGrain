@@ -547,9 +547,9 @@ void find_subgrains(std::string filepath_to_feature_file,std::string path_to_ima
         std::vector< std::vector<int> > grain_area_junctions(nr_areas);
         std::vector<bool> grain_junction(one_boundings.shape(0),false);
         std::vector<std::vector<int> > arc_junctions(two_boundings.shape(0));
-        std::vector<int> grain_perimeter(nr_areas,0);
+        std::vector<float> grain_perimeter(nr_areas,0.0f);
         std::vector<int> min_bubble_distance(nr_areas);
-        std::vector<int> grain_longest_arc_length(nr_areas);
+        std::vector<float> grain_longest_arc_length(nr_areas);
         std::vector< std::vector<float> > grain_junction_angles(nr_areas);
         std::vector< std::vector<float> > grain_junction_angles2(nr_areas);
         std::vector< std::vector<int> > grain_junction_index(junctions.size());

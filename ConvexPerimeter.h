@@ -229,7 +229,7 @@ std::vector<point> ConvexPerimeter::sortByX(std::vector<point> points)
     //Sort by x-coordinate
     for(int i = 0; i < sorted.size(); i++)
     {
-        for(int j = i; j < sorted.size(); j++)
+        for(int j = i+1; j < sorted.size(); j++)
         {
             if(sorted[j].x < sorted[i].x)
             {
@@ -243,7 +243,7 @@ std::vector<point> ConvexPerimeter::sortByX(std::vector<point> points)
     //Sort sorted x-coordinates by their y-coordinates
     for(int k = 0; k < sorted.size(); k++)
     {
-        for(int l = k; l < sorted.size(); l++)
+        for(int l = k+1; l < sorted.size(); l++)
         {
             if(sorted[k].x == sorted[l].x)
             {
@@ -252,6 +252,11 @@ std::vector<point> ConvexPerimeter::sortByX(std::vector<point> points)
                     point temp = sorted[k];
                     sorted[k] = sorted[l];
                     sorted[l] = temp;
+                }
+                else if(sorted[l].y == sorted[k].y)
+                {
+                    sorted.erase(sorted.begin()+l);
+                    l--;
                 }
             }
         }

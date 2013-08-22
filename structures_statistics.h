@@ -60,9 +60,9 @@ void junctions_and_outer_circle(size_t nr_areas,
                                 std::vector< std::vector<int> > & grain_area_junctions,
                                 std::vector<bool> & grain_junction,
                                 std::vector<std::vector<int> > arc_junctions,
-                                std::vector<int> & grain_perimeter,
+                                std::vector<float> & grain_perimeter,
                                 std::vector<int> & min_bubble_distance,
-                                std::vector<int> & grain_longest_arc_length,
+                                std::vector<float> & grain_longest_arc_length,
                                 std::vector< std::vector<float> > & grain_junction_angles,
                                 std::vector< std::vector<float> > & grain_junction_angles2,
                                 std::vector< std::vector<point> > & grain_boundary_pixels,
@@ -121,8 +121,8 @@ void junctions_and_outer_circle(size_t nr_areas,
     //fill close bubble areas vector if selected
     for (int area=0; area<nr_areas; area++)
     {
-        grain_longest_arc_length[area]=0;
-        grain_perimeter[area]=0;
+        grain_longest_arc_length[area]=0.0f;
+        grain_perimeter[area]=0.0f;
         grain_junction_angles[area].clear();
         grain_junction_angles2[area].clear();
 
@@ -275,7 +275,7 @@ void junctions_and_outer_circle(size_t nr_areas,
             std::vector< std::vector<int> > this_grain_arcs;
             std::vector<int> segment_index;
             this_grain_arcs.push_back(segment_index);
-            grain_longest_arc_length[area]=0;
+            grain_longest_arc_length[area]=0.0f;
 
             //to make the detection of an outer circle 100% safe junction_used is set true for all inner junctions
             vigra::BasicImage<bool> temp_img(area_ranges[area].x_high-area_ranges[area].x_low+3, area_ranges[area].y_high-area_ranges[area].y_low+3);
@@ -990,9 +990,9 @@ void initialize_structures(seg & segment,
                            std::vector<int> & close_bubble_areas,
                            std::vector< std::vector<int> > & grain_area_junctions,
                            std::vector<std::vector<int> > & arc_junctions,
-                           std::vector<int> & grain_perimeter,
+                           std::vector<float> & grain_perimeter,
                            std::vector<int> & min_bubble_distance,
-                           std::vector<int> & grain_longest_arc_length,
+                           std::vector<float> & grain_longest_arc_length,
                            std::vector< std::vector<float> > & grain_junction_angles,
                            std::vector< std::vector<float> > & grain_junction_angles2,
                            std::vector< std::vector<point> > & grain_boundary_pixels,
@@ -1164,9 +1164,9 @@ void update_structures(seg & segment,
                        std::vector<int> & close_bubble_areas,
                        std::vector< std::vector<int> > & grain_area_junctions,
                        std::vector<std::vector<int> > & arc_junctions,
-                       std::vector<int> & grain_perimeter,
+                       std::vector<float> & grain_perimeter,
                        std::vector<int> & min_bubble_distance,
-                       std::vector<int> & grain_longest_arc_length,
+                       std::vector<float> & grain_longest_arc_length,
                        std::vector< std::vector<float> > & grain_junction_angles,
                        std::vector< std::vector<float> > & grain_junction_angles2,
                        std::vector< std::vector<point> > & grain_boundary_pixels,
