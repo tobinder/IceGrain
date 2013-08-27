@@ -2279,7 +2279,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
             std::vector< std::vector<float> > grainsize_step_depths;
             std::vector< std::vector<float> > grainsize_step_values;
             std::vector< std::vector<float> > grainsize_step_sum(500);
-            for(int s=0; s<500; s++) grainsize_step_sum[s].resize((size_t)(1+depth_max/depth_bin_width),0.0f);
+            for(int st=0; st<500; st++) grainsize_step_sum[st].resize((size_t)(1+depth_max/depth_bin_width),0.0f);
 
             std::vector< std::vector<float> > grainsize_bin_depths;
             std::vector< std::vector<float> > grainsize_bin_values;
@@ -2295,7 +2295,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
 
             std::vector<float> grainsize_step_profile_depths((size_t)(1+depth_max/depth_bin_width));
             std::vector<float> grainsize_step_profile_x_values;
-            for(int s=0; s<500; s++) grainsize_step_profile_x_values.push_back(s+1);
+            for(int st=0; st<500; st++) grainsize_step_profile_x_values.push_back(st+1);
             std::vector< std::vector<float> > grainsize_step_profile_values((size_t)(1+depth_max/depth_bin_width));
 
             std::vector<float> grainsize_bin_profile_depths((size_t)(1+depth_max/depth_bin_width));
@@ -2333,11 +2333,11 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
             std::vector< std::vector<float> > disl_dens_longest_boundaries_depths;
             std::vector< std::vector<float> > disl_dens_longest_boundaries_values;
             std::vector< std::vector<float> > disl_dens_longest_boundaries_sum(500);
-            for(int s=0; s<500; s++) disl_dens_longest_boundaries_sum[s].resize((size_t)(1+depth_max/depth_bin_width),0.0f);
+            for(int st=0; st<500; st++) disl_dens_longest_boundaries_sum[st].resize((size_t)(1+depth_max/depth_bin_width),0.0f);
 
             std::vector<float> disl_dens_longest_boundaries_profile_depths((size_t)(1+depth_max/depth_bin_width));
             std::vector<float> disl_dens_longest_boundaries_profile_x_values;
-            for(int s=0; s<500; s++) disl_dens_longest_boundaries_profile_x_values.push_back(s+1);
+            for(int st=0; st<500; st++) disl_dens_longest_boundaries_profile_x_values.push_back(st+1);
             std::vector< std::vector<float> > disl_dens_longest_boundaries_profile_values((size_t)(1+depth_max/depth_bin_width));
 
             std::vector< std::vector<float> > percentage_filled_grains_depths;

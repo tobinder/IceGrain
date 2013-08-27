@@ -2393,9 +2393,13 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
     {
         std::vector<float> grainsize_fit_depths;
         std::vector<float> grainsize_fit_values;
+        std::vector<float> grainsize_fit_errors_low;
+        std::vector<float> grainsize_fit_errors_high;
 
         std::vector<float> grainsize_fit_depths_relax;
         std::vector<float> grainsize_fit_values_relax;
+        std::vector<float> grainsize_fit_errors_low_relax;
+        std::vector<float> grainsize_fit_errors_high_relax;
 
         std::vector<std::vector<float> > percent_depths(9);
         std::vector<std::vector<float> > grainsize_percent_values(9);
@@ -2448,6 +2452,7 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
 
         std::vector<float> grainsize_5_largest_depths;
         std::vector<float> grainsize_5_largest_values;
+        std::vector<float> grainsize_5_largest_errors;
 
         std::vector<std::vector<float> > disl_dens_percent_boundaries_depths(10);
         std::vector<std::vector<float> > disl_dens_percent_boundaries_values(10);
@@ -2663,6 +2668,7 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
                         grainsize_median_values.resize(1+depth_max/depth_bin_width);
                         grainsize_5_largest_depths.resize(1+depth_max/depth_bin_width);
                         grainsize_5_largest_values.resize(1+depth_max/depth_bin_width);
+                        grainsize_5_largest_errors.resize(1+depth_max/depth_bin_width);
                     }
                 }
                 else
@@ -2871,6 +2877,7 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
 
                         grainsize_5_largest_values[bin]=mean;
                         grainsize_5_largest_depths[bin]=(bin+0.5f)*depth_bin_width;
+                        grainsize_5_largest_errors[bin]=standard_deviation;
                     }
                 }
 
@@ -2889,11 +2896,16 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
                 {
                     grainsize_fit_depths.push_back((bin+0.5f)*depth_bin_width);
                     grainsize_fit_values.push_back(grain_size_max_x[bin]);
+                    grainsize_fit_errors_low.push_back(stdabw_low);
+                    grainsize_fit_errors_high.push_back(std::min(1000.0f,stdabw_high));
                 }
                 else
                 {
                     grainsize_fit_depths_relax.push_back((bin+0.5f)*depth_bin_width);
                     grainsize_fit_values_relax.push_back(grain_size_max_x[bin]);
+                    grainsize_fit_errors_low_relax.push_back(stdabw_low);
+                    grainsize_fit_errors_high_relax.push_back(std::min(1000.0f,stdabw_high));
+
                 }
             }
 
@@ -3015,15 +3027,18 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
         filepath_disl_dens_percent_boundaries_profile_out.append("new_disl_dens_percent_profile");
         filepath_disl_dens_percent_boundaries_profile_out.append(s.str());
 
-        if(minimal_bubble_distance==0 && grainsize_fit_values.size()>0) plot.draw_depth("Depth in m", area_unit, "Grain size profile log-normal fit",
-                                                                 grainsize_fit_depths, grainsize_fit_values, 0.0f, filepath_grainsize_fit_out.c_str());
-        else if(grainsize_fit_values_relax.size()>0) plot.draw_depth("Depth in m", area_unit, "Grain size profile log-normal fit",
-                                                                 grainsize_fit_depths_relax, grainsize_fit_values_relax, 0.0f,
-                                                                 filepath_grainsize_fit_out.c_str());
-        if(grainsize_fit_values.size()>0 && grainsize_fit_values_relax.size()>0) plot.draw_depth("Depth in m", area_unit,
+        if(minimal_bubble_distance==0 && grainsize_fit_values.size()>0) plot.draw_depth_errors("Depth in m", area_unit, 
                                                                  "Grain size profile log-normal fit", grainsize_fit_depths, grainsize_fit_values,
-                                                                 grainsize_fit_depths_relax, grainsize_fit_values_relax, 0.0f,
-                                                                 filepath_grainsize_fit_combined_out.c_str());
+                                                                 grainsize_fit_errors_low, grainsize_fit_errors_high, 0.0f,
+                                                                 filepath_grainsize_fit_out.c_str());
+        else if(grainsize_fit_values_relax.size()>0) plot.draw_depth_errors("Depth in m", area_unit, "Grain size profile log-normal fit",
+                                                                 grainsize_fit_depths_relax, grainsize_fit_values_relax, grainsize_fit_errors_low_relax,
+                                                                 grainsize_fit_errors_high_relax, 0.0f, filepath_grainsize_fit_out.c_str());
+        if(grainsize_fit_values.size()>0 && grainsize_fit_values_relax.size()>0) plot.draw_depth_errors("Depth in m", area_unit,
+                                                                 "Grain size profile log-normal fit", grainsize_fit_depths, grainsize_fit_values,
+                                                                 grainsize_fit_errors_low, grainsize_fit_errors_high, grainsize_fit_depths_relax,
+                                                                 grainsize_fit_values_relax, grainsize_fit_errors_low_relax,
+                                                                 grainsize_fit_errors_high_relax, 0.0f, filepath_grainsize_fit_combined_out.c_str());
 
         if(minimal_bubble_distance==0)
         for (int p=0; p<grainsize_percent_values.size(); p++)
@@ -3590,8 +3605,9 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
                                                                  filepath_grainsize_median_combined_out.c_str());
         }
 
-        if(grainsize_5_largest_values.size()>0) plot.draw_depth("Depth in m", area_unit, "Mean grain size profile (5 largest grains)", grainsize_5_largest_depths,
-                                                                 grainsize_5_largest_values, 0.0f, filepath_grainsize_5_largest_out.c_str());
+        if(grainsize_5_largest_values.size()>0) plot.draw_depth_errors("Depth in m", area_unit, "Mean grain size profile (5 largest grains)",
+                                                                 grainsize_5_largest_depths, grainsize_5_largest_values, grainsize_5_largest_errors,
+                                                                 grainsize_5_largest_errors,  0.0f, filepath_grainsize_5_largest_out.c_str());
 
         for (int p=0; p<disl_dens_percent_boundaries_values.size(); p++)
         {

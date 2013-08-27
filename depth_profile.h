@@ -1093,48 +1093,51 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                         }
                     }
 
-                    if (iter==iterations-1)
+                    if (nr_sum>0)
                     {
-                        grainsize_step_profile_depths.push_back(depth[i]);
-
-                        std::vector<float> new_entry;
-                        grainsize_step_profile_values.push_back(new_entry);
-                    }
-
-                    for(int s=0; s<min_step_nr; s++)
-                    {
-                        if (iter==0)
-                        {
-                            if(s+1>grainsize_step_depths.size()) grainsize_step_depths.resize(s+1);
-                            if(s+1>grainsize_step_values.size()) grainsize_step_values.resize(s+1);
-                            if(s+1>grainsize_step_errors.size()) grainsize_step_errors.resize(s+1);
-                            grainsize_step_depths[s].push_back(depth[i]);
-                            grainsize_step_values[s].push_back(mean_sum[s]/(nr_sum*area_scaling()));
-                            grainsize_step_errors[s].push_back(stdabw_sum[s]/(nr_sum*area_scaling()));
-                        }
-                        else
-                        {
-                            if(s+1>grainsize_step_depths_relax.size()) grainsize_step_depths_relax.resize(s+1);
-                            if(s+1>grainsize_step_values_relax.size()) grainsize_step_values_relax.resize(s+1);
-                            if(s+1>grainsize_step_errors_relax.size()) grainsize_step_errors_relax.resize(s+1);
-                            grainsize_step_depths_relax[s].push_back(depth[i]);
-                            grainsize_step_values_relax[s].push_back(mean_sum[s]/(nr_sum*area_scaling()));
-                            grainsize_step_errors_relax[s].push_back(stdabw_sum[s]/(nr_sum*area_scaling()));
-                        }
                         if (iter==iterations-1)
                         {
-                            grainsize_step_profile_values.back().push_back(mean_sum[s]/(nr_sum*area_scaling()));
+                            grainsize_step_profile_depths.push_back(depth[i]);
+
+                            std::vector<float> new_entry;
+                            grainsize_step_profile_values.push_back(new_entry);
+                        }
+
+                        for(int s=0; s<min_step_nr; s++)
+                        {
+                            if (iter==0)
+                            {
+                                if(s+1>grainsize_step_depths.size()) grainsize_step_depths.resize(s+1);
+                                if(s+1>grainsize_step_values.size()) grainsize_step_values.resize(s+1);
+                                if(s+1>grainsize_step_errors.size()) grainsize_step_errors.resize(s+1);
+                                grainsize_step_depths[s].push_back(depth[i]);
+                                grainsize_step_values[s].push_back(mean_sum[s]/(nr_sum*area_scaling()));
+                                grainsize_step_errors[s].push_back(stdabw_sum[s]/(nr_sum*area_scaling()));
+                            }
+                            else
+                            {
+                                if(s+1>grainsize_step_depths_relax.size()) grainsize_step_depths_relax.resize(s+1);
+                                if(s+1>grainsize_step_values_relax.size()) grainsize_step_values_relax.resize(s+1);
+                                if(s+1>grainsize_step_errors_relax.size()) grainsize_step_errors_relax.resize(s+1);
+                                grainsize_step_depths_relax[s].push_back(depth[i]);
+                                grainsize_step_values_relax[s].push_back(mean_sum[s]/(nr_sum*area_scaling()));
+                                grainsize_step_errors_relax[s].push_back(stdabw_sum[s]/(nr_sum*area_scaling()));
+                            }
+                            if (iter==iterations-1)
+                            {
+                                grainsize_step_profile_values.back().push_back(mean_sum[s]/(nr_sum*area_scaling()));
+                            }
+                        }
+
+                        if (iter==iterations-1)
+                        {
+                            grainsize_combined_depths[1].push_back(depth[i]);
+                            grainsize_combined_values[1].push_back(mean_sum[1]/(nr_sum*area_scaling()));
                         }
                     }
 
                     grainsize_step_file.close();
                     temp_grainsize_step_file.close();
-
-                    if (iter==iterations-1)
-                    {
-                        grainsize_combined_depths[1].push_back(depth[i]);
-                        grainsize_combined_values[1].push_back(mean_sum[1]/(nr_sum*area_scaling()));
-                    }
                 }
 
                 //grain size percent

@@ -1740,7 +1740,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
 
         char percent_in_histogram[20];
         sprintf(percent_in_histogram, "%1.2f", dislocation_in_histogram);
-            std::string dislocation_title="Relative occurrence x";
+        std::string dislocation_title="Relative occurrence x";
         dislocation_title.append(percent_in_histogram);
 
         plot.draw_values_errors(x_axis, y_axis, "Largest grains distribution", grain_region_values, grain_region_errors, filepath_largest_grains.c_str());
