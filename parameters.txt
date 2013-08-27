@@ -29,9 +29,10 @@ config.grain_step 50
 config.min_bubble_distance 0 #200
 config.close_bubble_grain_size 5000
 config.grain_size_min 4 #2000
+config.percentage_grains 0.95
 
 #PARAMETERS FOR DEPTH PROFILES
-config.nr_depths 113 #55
+config.nr_depths 125 #55
 
 #PARAMETERS FOR CORRECTION WINDOW
 config.display_x 900
