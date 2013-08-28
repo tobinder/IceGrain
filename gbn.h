@@ -507,6 +507,15 @@ void gbn::load_final_structure(std::string filepath_new_classification)
         H5Dclose(dataset_id);
     }
 
+    if(nr_new_areas>=10000)
+    {
+        //Close the file
+        H5Fclose(file_save);
+
+        std::cout<<"Error: Number of grains is too high, reduce the segmentation resp. prob map manually!"<<std::endl;
+        exit(-1);
+    }
+
     {
         //dataset for bubble size    
         hid_t dataset_id = H5Dopen(file_save, "bubble_size", H5P_DEFAULT);
