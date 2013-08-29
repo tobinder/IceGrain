@@ -41,7 +41,7 @@ float get_depth(std::string name)
     std::string core=name;
     core.erase(4,core.size()-3);
 
-    if(core!="NGRI" && core!="GRIP" && core!="EDML")
+    if(core!="NGRI" && core!="GRIP" && core!="EDML" && core!="KCI-")
     {
         std::cout<<"Error: Depth not defined for "<<name<<std::endl;
     }
@@ -62,6 +62,21 @@ float get_depth(std::string name)
             name.erase(0,4);
             name.erase(4,name.size()-3);
             depth=atof(name.c_str());
+        }
+        else if(core=="KCI-")
+        {
+            if(name=="KCI-35_01-120719.bmp") depth=29.79f;
+            else if(name=="KCI-44_02-120718.bmp") depth=37.30f;
+            else if(name=="KCI-46_x1-120725.bmp") depth=39.82f;
+            else if(name=="KCI-49_02-120719.bmp") depth=41.74f;
+            else if(name=="KCI-52_x1-120725.bmp") depth=45.07f;
+            else if(name=="KCI-54_02-120719.bmp") depth=45.91f;
+            else if(name=="KCI-56_x1-120726.bmp") depth=48.42f;
+            else if(name=="KCI-58_05-120718.bmp") depth=49.35f;
+            else if(name=="KCI-61_x1-120726.bmp") depth=52.32f;
+            else if(name=="KCI-64_06-120719.bmp") depth=53.87f;
+            else if(name=="KCI-64_12-120720.bmp") depth=53.97f;
+            else std::cout<<"Error: Depth not defined for "<<name<<std::endl;
         }
     }
 

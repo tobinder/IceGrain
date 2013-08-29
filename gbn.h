@@ -215,7 +215,7 @@ void gbn::save_final_structure(std::string dest_path)
             dims[1] = 1; 
             hid_t dataspace_id = H5Screate_simple(2, dims, NULL);
 
-            char buffer [5];
+            char buffer [6];
             sprintf (buffer, "%d", j);
 
             //dataset for arcs
@@ -385,7 +385,7 @@ void gbn::save_final_structure(std::string dest_path)
             dims[1] = 1; 
             hid_t dataspace_id = H5Screate_simple(2, dims, NULL);
 
-            char buffer [5];
+            char buffer [6];
             sprintf (buffer, "%d", j);
 
             //dataset for arcs
@@ -507,15 +507,6 @@ void gbn::load_final_structure(std::string filepath_new_classification)
         H5Dclose(dataset_id);
     }
 
-    if(nr_new_areas>=10000)
-    {
-        //Close the file
-        H5Fclose(file_save);
-
-        std::cout<<"Error: Number of grains is too high, reduce the segmentation resp. prob map manually!"<<std::endl;
-        exit(-1);
-    }
-
     {
         //dataset for bubble size    
         hid_t dataset_id = H5Dopen(file_save, "bubble_size", H5P_DEFAULT);
@@ -624,7 +615,7 @@ void gbn::load_final_structure(std::string filepath_new_classification)
         {
             if (grain_area_size[j-1]==0) continue;
 
-            char buffer [5];
+            char buffer [6];
             sprintf (buffer, "%d", j);
 
             //dataset for arcs
@@ -670,7 +661,7 @@ void gbn::load_final_structure(std::string filepath_new_classification)
             if (bubble_area_size[j-1]==0) continue;
             else found_bubble_areas.push_back(j);
 
-            char buffer [5];
+            char buffer [6];
             sprintf (buffer, "%d", j);
 
             //dataset for arcs
