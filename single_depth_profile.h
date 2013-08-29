@@ -366,7 +366,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
             "turning_points", "Number of turning points", "Depth in m", "Nr of turning points",
             "Grain boundary turning points profile", 0.0f);
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
-            "grain_perimeter_ratio", "Grain perimeter ratio", "Depth in m", "Perimter ratio", "Perimeter ratio profile", 0.7f);
+            "grain_perimeter_ratio", "Grain perimeter ratio", "Depth in m", "Perimeter ratio", "Perimeter ratio profile", 0.7f);
 
         std::vector<float> grainsize_all_depths;
         std::vector<float> grainsize_all_values;
@@ -2269,7 +2269,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                 "turning_points", "Number of turning points", "Depth in m", "Nr of turning points",
                 "Grain boundary turning points profile", 0.0f, 9, nr_values, depth_max, depth_bin_width);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
-                "grain_perimeter_ratio", "Grain perimeter ratio", "Depth in m", "Perimter ratio", "Perimeter ratio profile", 0.7f, 1,
+                "grain_perimeter_ratio", "Grain perimeter ratio", "Depth in m", "Perimeter ratio", "Perimeter ratio profile", 0.7f, 1,
                 nr_values, depth_max, depth_bin_width);
 
             std::vector<float> grainsize_all_depths((size_t)(1+depth_max/depth_bin_width));
