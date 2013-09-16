@@ -658,7 +658,7 @@ int main(int argc, char *argv[])
     /*
     OPTION -single-depth-profile
     */
-    else if (command_line_option=="-depth-profile")
+    else if (command_line_option=="-single-depth-profile")
     {
         std::cout<<"Option -single-depth-profile"<<std::endl;
 
@@ -674,7 +674,7 @@ int main(int argc, char *argv[])
        	path_results.assign("", "path_results", "statistics-results/");
         path_results.load(paramFile,"config");
 
-        single_depth_profile(path_results, paramFile);
+        single_depth_profile(path_results, paramFile, 10);
     }
 
     /*

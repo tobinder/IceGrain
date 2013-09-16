@@ -34,7 +34,7 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-float get_depth(std::string name)
+float get_depth(std::string name, float max_depth=0.0f)
 {
     float depth=0.0f;
 
@@ -80,12 +80,14 @@ float get_depth(std::string name)
         }
     }
 
+
+    if (max_depth>0.0f && depth>max_depth) depth=0.0f;
     return depth;
 }
 
 void single_lin_depth_profile(std::string path_results, int minimal_bubble_distance, int minimal_grain_size, int grain_size_min,
     std::string str, plplot plot, std::string filename, std::string overview_name, std::string x, std::string y, std::string title,
-    float y_minimal, float scaling=1.0f)
+    float y_minimal, float max_depth, float scaling=1.0f)
 {
     std::vector<float> parameter_depths;
     std::vector<float> parameter_values;
@@ -135,7 +137,7 @@ void single_lin_depth_profile(std::string path_results, int minimal_bubble_dista
                 if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
             }
 
-            float depth=get_depth(entries[k].name);
+            float depth=get_depth(entries[k].name, max_depth);
 
             if (!other_entry && depth>0.0f)
             {
@@ -164,7 +166,7 @@ void single_lin_depth_profile(std::string path_results, int minimal_bubble_dista
 void single_new_lin_depth_profile(std::string path_results, int minimal_bubble_distance, int minimal_grain_size, int grain_size_min,
     std::string str, plplot plot, std::string filename, std::string overview_name, std::string x, std::string y, std::string title,
     float y_minimal, int nr_values_selection, std::vector<depth_numbers> nr_values, int depth_max, float depth_bin_width,
-    float scaling=1.0f)
+    float max_depth, float scaling=1.0f)
 {
     std::vector<float> parameter_depths((size_t)(1+depth_max/depth_bin_width));
     std::vector<float> parameter_values((size_t)(1+depth_max/depth_bin_width),0.0f);
@@ -213,7 +215,7 @@ void single_new_lin_depth_profile(std::string path_results, int minimal_bubble_d
                 if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
             }
 
-            int depth_bin=get_depth(entries[k].name)/depth_bin_width;
+            int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
             //nr of values found
             if(!other_entry && depth_bin>0 && entries[k].name.compare(nr_values[k].name)==0 && nr_values_selection>0)
@@ -297,6 +299,10 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
     area_scaling.assign("", "area_scaling", 37444.0f);
     area_scaling.load(paramFile,"config");
 
+    Parameter<float> max_depth;
+    max_depth.assign("", "max_depth", 2500.0f);
+    max_depth.load(paramFile,"config");
+
     //initialise plplot class
     plplot plot = plplot();
 
@@ -333,55 +339,59 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
         s << ".txt";
 
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
-            "grainshape", "Grain shape", "Depth in m", "Roundness factor (4pi*Area/Perimeter^2)", "Grain roundness profile", 0.28f);
+            "grainshape", "Grain shape", "Depth in m", "Roundness factor (4pi*Area/Perimeter^2)", "Grain roundness profile", 0.28f,
+            max_depth);
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "nr_grainarcs", "Number of grain boundaries", "Depth in m", "Nr of grain boundaries",
-            "Number of grain boundaries profile", 0.0f);
+            "Number of grain boundaries profile", 0.0f, max_depth);
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "nr_neighbors", "Number of grain neighbors", "Depth in m", "Nr of grain neighbors", "Number of grain neighbors profile",
-             0.0f);
+             0.0f, max_depth);
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
-            "length_grainarcs", "Grain arc length", "Depth in m", length_unit, "Grain boundary length profile", 0.0f,
+            "length_grainarcs", "Grain arc length", "Depth in m", length_unit, "Grain boundary length profile", 0.0f, max_depth,
             length_scaling());
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "longest_grainarcs", "Grain longest arc length", "Depth in m", length_unit, "Grain longest boundary length profile",
-            0.0f, length_scaling());
+            0.0f, max_depth, length_scaling());
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "dislocation_densities", "Dislocation density differences", "Depth in m", "Dislocation density difference in m^(-2)",
-            "Profile of mean dislocation density difference at grain boundaries", 0.0f);
+            "Profile of mean dislocation density difference at grain boundaries", max_depth, 0.0f);
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "grain_equivradius", "Equivalent grain radius", "Depth in m", length_unit, "Grain equivalent radius profile", 0.0f,
+            max_depth, length_scaling());
+        single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
+            "grain_boxshape", "Grain box shape", "Depth in m", "Box flattening factor", "Box flattening profile", 0.9f, max_depth);
+        single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
+            "grain_boxwidth", "Grain box width", "Depth in m", length_unit, "Grain box width profile", 0.0f, max_depth,
             length_scaling());
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
-            "grain_boxshape", "Grain box shape", "Depth in m", "Box flattening factor", "Box flattening profile", 0.9f);
+            "grain_boxheight", "Grain box height", "Depth in m", length_unit, "Grain box height profile", 0.0f, max_depth,
+            length_scaling());
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
-            "grain_boxwidth", "Grain box width", "Depth in m", length_unit, "Grain box width profile", 0.0f, length_scaling());
-        single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
-            "grain_boxheight", "Grain box height", "Depth in m", length_unit, "Grain box height profile", 0.0f, length_scaling());
-        single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
-            "grain_ellipselong", "Grain ellipse long axis", "Depth in m", length_unit, "Ellipse long axis profile", 0.0f,
+            "grain_ellipselong", "Grain ellipse long axis", "Depth in m", length_unit, "Ellipse long axis profile", 0.0f, max_depth,
             length_scaling());
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "grain_ellipseshape", "Grain ellipse shape", "Depth in m", "Ellipse flattening factor",
-            "Ellipse flattening profile", 0.9f);
+            "Ellipse flattening profile", 0.9f, max_depth);
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "grain_ellipseangle", "Grain ellipse orientation", "Depth in m", "Ellipse long axis angle",
-            "Ellipse long axis angle profile", 0.0f);
+            "Ellipse long axis angle profile", 0.0f, max_depth);
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "boundary_orientation", "Boundary orientation", "Depth in m", "Boundary orientation",
-            "Boundary orientation profile", 0.0f);
+            "Boundary orientation profile", 0.0f, max_depth);
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
-            "grainwidth", "Grain width", "Depth in m", length_unit, "Grain width profile", 0.0f, length_scaling());
+            "grainwidth", "Grain width", "Depth in m", length_unit, "Grain width profile", 0.0f, max_depth, length_scaling());
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
-            "grainheight", "Grain height", "Depth in m", length_unit, "Grain height profile", 0.0f, length_scaling());
+            "grainheight", "Grain height", "Depth in m", length_unit, "Grain height profile", 0.0f, max_depth, length_scaling());
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "grainflattening", "Vertical grain flattening", "Depth in m", "Vertical grain flattening factor",
-            "Vertical grain flattening profile", 0.9f);
+            "Vertical grain flattening profile", 0.9f, max_depth);
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "turning_points", "Number of turning points", "Depth in m", "Nr of turning points",
-            "Grain boundary turning points profile", 0.0f);
+            "Grain boundary turning points profile", 0.0f, max_depth);
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
-            "grain_perimeter_ratio", "Grain perimeter ratio", "Depth in m", "Perimeter ratio", "Perimeter ratio profile", 0.7f);
+            "grain_perimeter_ratio", "Grain perimeter ratio", "Depth in m", "Perimeter ratio", "Perimeter ratio profile", 0.7f,
+            max_depth);
 
         std::vector<float> grainsize_all_depths;
         std::vector<float> grainsize_all_values;
@@ -562,7 +572,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -611,7 +621,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -656,7 +666,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -717,7 +727,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -792,7 +802,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -853,6 +863,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                 }
 
                 if(!end) entries.push_back(entry);
+                if(entry.mean.size()==0) break;
 	        }
 
             //check for multiple entries for same image
@@ -865,7 +876,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -939,7 +950,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -1018,7 +1029,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -1097,7 +1108,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -1176,7 +1187,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if(!other_entry && depth>0.0f)
                 {
@@ -1238,7 +1249,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -1287,7 +1298,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -1353,7 +1364,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if(!other_entry && depth>0.0f)
                 {
@@ -1429,7 +1440,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if(!other_entry && depth>0.0f)
                 {
@@ -1502,7 +1513,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(entries[k].name);
+                float depth=get_depth(entries[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -2120,7 +2131,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     if(nr_values[k].name.compare(nr_values[j].name)==0) other_entry=true;
                 }
 
-                float depth=get_depth(nr_values[k].name);
+                float depth=get_depth(nr_values[k].name, max_depth);
 
                 if (!other_entry && depth>0.0f)
                 {
@@ -2231,61 +2242,62 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
 
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grainshape", "Grain shape", "Depth in m", "Roundness factor (4pi*Area/Perimeter^2)", "Grain roundness profile",
-                0.28f, 1, nr_values, depth_max, depth_bin_width);
+                0.28f, 1, nr_values, depth_max, depth_bin_width, max_depth);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "nr_grainarcs", "Number of grain boundaries", "Depth in m", "Nr of grain boundaries",
-                "Number of grain boundaries profile", 0.0f, 0, nr_values, depth_max, depth_bin_width);
+                "Number of grain boundaries profile", 0.0f, 0, nr_values, depth_max, depth_bin_width, max_depth);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "nr_neighbors", "Number of grain neighbors", "Depth in m", "Nr of grain neighbors",
-                "Number of grain neighbors profile", 0.0f, 0, nr_values, depth_max, depth_bin_width);
+                "Number of grain neighbors profile", 0.0f, 0, nr_values, depth_max, depth_bin_width, max_depth);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "length_grainarcs", "Grain arc length", "Depth in m", length_unit, "Grain boundary length profile", 0.0f, 5,
-                nr_values, depth_max, depth_bin_width, length_scaling());
+                nr_values, depth_max, depth_bin_width, max_depth, length_scaling());
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "longest_grainarcs", "Grain longest arc length", "Depth in m", length_unit, "Grain longest boundary length profile",
-                0.0f, 6, nr_values, depth_max, depth_bin_width, length_scaling());
+                0.0f, 6, nr_values, depth_max, depth_bin_width, max_depth, length_scaling());
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "dislocation_densities", "Dislocation density differences", "Depth in m", "Dislocation density difference in m^(-2)",
-                "Profile of mean dislocation density difference at grain boundaries", 0.0f, 8, nr_values, depth_max, depth_bin_width);
+                "Profile of mean dislocation density difference at grain boundaries", 0.0f, 8, nr_values, depth_max, depth_bin_width,
+                max_depth);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grain_equivradius", "Equivalent grain radius", "Depth in m", length_unit, "Grain equivalent radius profile", 0.0f,
-                1, nr_values, depth_max, depth_bin_width, length_scaling());
+                1, nr_values, depth_max, depth_bin_width, max_depth, length_scaling());
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grain_boxshape", "Grain box shape", "Depth in m", "Box flattening factor", "Box flattening profile", 0.9f, 2,
-                nr_values, depth_max, depth_bin_width);
+                nr_values, depth_max, depth_bin_width, max_depth);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grain_boxwidth", "Grain box width", "Depth in m", length_unit, "Grain box width profile", 0.0f, 2, nr_values,
-                depth_max, depth_bin_width, length_scaling());
+                depth_max, depth_bin_width, max_depth, length_scaling());
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grain_boxheight", "Grain box height", "Depth in m", length_unit, "Grain box height profile", 0.0f, 2, nr_values,
-                depth_max, depth_bin_width, length_scaling());
+                depth_max, depth_bin_width, max_depth, length_scaling());
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grain_ellipselong", "Grain ellipse long axis", "Depth in m", length_unit, "Ellipse long axis profile", 0.0f, 4,
-                nr_values, depth_max, depth_bin_width, length_scaling());
+                nr_values, depth_max, depth_bin_width, max_depth, length_scaling());
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grain_ellipseshape", "Grain ellipse shape", "Depth in m", "Ellipse flattening factor",
-                "Ellipse flattening profile", 0.9f, 3, nr_values, depth_max, depth_bin_width);
+                "Ellipse flattening profile", 0.9f, 3, nr_values, depth_max, depth_bin_width, max_depth);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grain_ellipseangle", "Grain ellipse orientation", "Depth in m", "Ellipse long axis angle",
-                "Ellipse long axis angle profile", 0.0f, 2, nr_values, depth_max, depth_bin_width);
+                "Ellipse long axis angle profile", 0.0f, 2, nr_values, depth_max, depth_bin_width, max_depth);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "boundary_orientation", "Boundary orientation", "Depth in m", "Boundary orientation",
-                "Boundary orientation profile", 0.0f, 7, nr_values, depth_max, depth_bin_width);
+                "Boundary orientation profile", 0.0f, 7, nr_values, depth_max, depth_bin_width, max_depth);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grainwidth", "Grain width", "Depth in m", length_unit, "Grain width profile", 0.0f, 1, nr_values, depth_max,
-                depth_bin_width, length_scaling());
+                depth_bin_width, max_depth, length_scaling());
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grainheight", "Grain height", "Depth in m", length_unit, "Grain height profile", 0.0f, 1, nr_values, depth_max,
-                depth_bin_width, length_scaling());
+                depth_bin_width, max_depth, length_scaling());
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grainflattening", "Vertical grain flattening", "Depth in m", "Vertical grain flattening factor",
-                "Vertical grain flattening profile", 0.9f, 1, nr_values, depth_max, depth_bin_width);
+                "Vertical grain flattening profile", 0.9f, 1, nr_values, depth_max, depth_bin_width, max_depth);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "turning_points", "Number of turning points", "Depth in m", "Nr of turning points",
-                "Grain boundary turning points profile", 0.0f, 9, nr_values, depth_max, depth_bin_width);
+                "Grain boundary turning points profile", 0.0f, 9, nr_values, depth_max, depth_bin_width, max_depth);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "grain_perimeter_ratio", "Grain perimeter ratio", "Depth in m", "Perimeter ratio", "Perimeter ratio profile", 0.7f, 1,
-                nr_values, depth_max, depth_bin_width);
+                nr_values, depth_max, depth_bin_width, max_depth);
 
             std::vector<float> grainsize_all_depths((size_t)(1+depth_max/depth_bin_width));
             std::vector<float> grainsize_all_values((size_t)(1+depth_max/depth_bin_width),0.0f);
@@ -2419,7 +2431,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                         if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                     }
 
-                    int depth_bin=get_depth(entries[k].name)/depth_bin_width;
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
                     if(!other_entry && depth_bin>0 && entries[k].name.compare(nr_values[k].name)==0)//nr of values found
                     {
@@ -2482,7 +2494,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                         if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                     }
 
-                    int depth_bin=get_depth(entries[k].name)/depth_bin_width;
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
                     if(!other_entry && depth_bin>0)
                     {
@@ -2558,7 +2570,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                         if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                     }
 
-                    int depth_bin=get_depth(entries[k].name)/depth_bin_width;
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
                     if(!other_entry && depth_bin>0)
                     {
@@ -2634,7 +2646,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                         if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                     }
 
-                    int depth_bin=get_depth(entries[k].name)/depth_bin_width;
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
                     if(!other_entry && depth_bin>0)
                     {
@@ -2710,7 +2722,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                         if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                     }
 
-                    int depth_bin=get_depth(entries[k].name)/depth_bin_width;
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
                     if(!other_entry && depth_bin>0)
                     {
@@ -2786,7 +2798,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                         if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                     }
 
-                    int depth_bin=get_depth(entries[k].name)/depth_bin_width;
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
                     if(!other_entry && depth_bin>0)
                     {
@@ -2839,7 +2851,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                         if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                     }
 
-                    int depth_bin=get_depth(entries[k].name)/depth_bin_width;
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
                     if(!other_entry && depth_bin>0 && entries[k].name.compare(nr_values[k].name)==0)//nr of values found
                     {
@@ -2886,7 +2898,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                         if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                     }
 
-                    int depth_bin=get_depth(entries[k].name)/depth_bin_width;
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
                     if(!other_entry && depth_bin>0 && entries[k].name.compare(nr_values[k].name)==0)//nr of values found
                     {
@@ -2953,7 +2965,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                         if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                     }
 
-                    int depth_bin=get_depth(entries[k].name)/depth_bin_width;
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
                     if(!other_entry && depth_bin>0)
                     {
@@ -3030,7 +3042,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                         if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
                     }
 
-                    int depth_bin=get_depth(entries[k].name)/depth_bin_width;
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
                     if(!other_entry && depth_bin>0 && entries[k].name.compare(nr_values2[k].name)==0)//nr of values found
                     {
