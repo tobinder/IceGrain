@@ -1,6 +1,6 @@
 /*! \file boundary_data_structure.h
- *  \brief Boundary data structure.
- */
+ * \brief Data structure for boundaries.
+ */ 
 // IceGrain: Extraction and parameterization of grain boundary networks of ice
 //
 // Copyright (c) 2013 Tobias Binder.
@@ -43,10 +43,15 @@
  */
 struct point
 {
-    int x; /*!< x-coordinate*/
-    int y; /*!< y-coordinate*/
+    int x; /*!< x-coordinate */
+    int y; /*!< y-coordinate */
 };
 
+/*! \fn calculatePhi(std::vector<point>* list, std::vector<float>* phi)
+ * \brief Calculate from a list of points the angle of each point's normal.
+ * \param list List of points
+ * \param phi Vector the angle information is written into
+ */
 // Berechne aus einer parametrisierten Kurve (in form von Punkten in einer Liste) den Winkel
 // der lokalen Normalen für jeden Kurvenpunkt
 void calculatePhi(std::vector<point>* list, std::vector<float>* phi)
@@ -210,23 +215,28 @@ void calculatePhi(std::vector<point>* list, std::vector<float>* phi)
             for(int j=2; j<size-2; j++) 
                 (*phi)[j] = ( temp[j+2]+ temp[j+1]*4.0f+ temp[j]*6.0f+ temp[j-1]*4.0f+ temp[j-2] ) / 16.0f;
         }
-
-        //now resize to original arc length
-        int j=0;
-        while(phi->size()<2*size-1)
-        {
-            float mean=((*phi)[j]+(*phi)[j+1])/2.0f;
-            j++;
-            phi->insert(phi->begin()+j, mean);
-            j++;
-        }
-
-        pback = (*phi).back();
-
-        while(phi->size()<list->size()) (*phi).push_back(pback);
     }
+
+    //now resize to original arc length
+    int j=0;
+    while(phi->size()<2*size-1)
+    {
+        float mean=((*phi)[j]+(*phi)[j+1])/2.0f;
+        j++;
+        phi->insert(phi->begin()+j, mean);
+        j++;
+    }
+
+    float pback = (*phi).back();
+
+    while(phi->size()<list->size()) (*phi).push_back(pback);
 }
 
+/*! \fn calculateCurv( std::vector<float>* phi, std::vector<float>* curv )
+ * \brief Calculate the local curvature from the local normals.
+ * \param phi Vector containing the angle information
+ * \param curv Vector the local curvature is written into
+ */
 // calculate the local curvature from the local normals
 void calculateCurv( std::vector<float>* phi, std::vector<float>* curv )
 {
@@ -265,6 +275,9 @@ void calculateCurv( std::vector<float>* phi, std::vector<float>* curv )
     }
 }
 
+/*! \fn sort_two_cell(std::vector<point> & this_arc, std::vector<point> & this_arc_sorted,int x_center,int y_center)
+ * \brief Sort two cells.
+ */
 void sort_two_cell(std::vector<point> & this_arc, std::vector<point> & this_arc_sorted,int x_center,int y_center)
 {
     //first we search the point next to the center point
