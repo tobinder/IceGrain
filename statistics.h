@@ -418,7 +418,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
     float dihedral_angle2_y_max=0.0f;
 
     //dislocation density histogram
-    float dislocation_density_scaling=1.0f/82814814815850.0f;
+    float dislocation_density_scaling=length_scaling/16024666666867000.0f;
     float curvature_min=0.005f;
     float curvature_max=0.0f;
     float dislocation_density_bin_width=20.0f;
