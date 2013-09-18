@@ -2387,7 +2387,7 @@ void new_depth_profiles(std::string filepath_list, std::string path_rf_predictio
     float grain_size_start_sigma=0.4f;
     float grain_size_y_max=0.0f;
 
-    float dislocation_density_scaling=1.0f/82814814815850.0f;
+    float dislocation_density_scaling=length_scaling/16024666666867000.0f;
 
     for(int minimal_grain_size=low_grain_size; minimal_grain_size<high_grain_size+1; minimal_grain_size+=grain_size_step)
     {
