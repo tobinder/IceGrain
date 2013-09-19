@@ -994,6 +994,16 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             //Fit convex perimeter to grain boundary pixels
             float perimeterLength = convPerimeter.fit(all_boundary_pixels);
 
+            //Grain perimeter ratio
+            grain_perimeter2[grain_areas[area_index]] = std::max(perimeterLength,grain_perimeter2[grain_areas[area_index]]);
+            grain_perimeter_ratio_values[area_index] = perimeterLength/grain_perimeter2[grain_areas[area_index]];
+            if(grain_perimeter_ratio_values[area_index] > grain_perimeter_ratio_max)
+            {                        
+                grain_perimeter_ratio_histogram.resize((int)(perimeterLength/(grain_perimeter2[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))+1);
+                grain_perimeter_ratio_max = grain_perimeter_ratio_values[area_index];
+            }
+            grain_perimeter_ratio_histogram[(int)(perimeterLength/(grain_perimeter2[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))]++;
+
             if(fabs(1.0f-grain_ellipse_params[area_index][5])<0.1f)//ellipse fitting gave result
             {
                 float axis_1=2.0f*sqrt((2.0f*(grain_ellipse_params[area_index][0]*(grain_ellipse_params[area_index][4]/2.0f)*
@@ -1153,16 +1163,6 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                     }
                     grain_box_flattening_histogram[(int)(grain_box_width_values[area_index]/(grain_box_height_values[area_index]*grain_box_flattening_bin_width))]++;
                     grain_box_flattening_values2.push_back(grain_box_flattening_values[area_index]);
-
-                    //Grain perimeter ratio
-                    grain_perimeter2[grain_areas[area_index]] = std::max(perimeterLength,grain_perimeter2[grain_areas[area_index]]);
-                    grain_perimeter_ratio_values[area_index] = perimeterLength/grain_perimeter2[grain_areas[area_index]];
-                    if(grain_perimeter_ratio_values[area_index] > grain_perimeter_ratio_max)
-                    {                        
-                        grain_perimeter_ratio_histogram.resize((int)(perimeterLength/(grain_perimeter2[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))+1);
-                        grain_perimeter_ratio_max = grain_perimeter_ratio_values[area_index];
-                    }
-                    grain_perimeter_ratio_histogram[(int)(perimeterLength/(grain_perimeter2[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))]++;
                 }
             }
         }
@@ -1470,7 +1470,6 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                 dihedral_angle2_histogram[(int)(grain_junction_angles2[area][junction]/dihedral_angle2_bin_width)]++;
                 dihedral_angle2_values.push_back(grain_junction_angles2[area][junction]/angle_scaling);
             }
-
 
             //values for hdf5 parameter file
             if (grain_area_size[area]>grain_size_min)
