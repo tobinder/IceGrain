@@ -517,6 +517,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
     grain_junction.resize(one_boundings.shape(0),false);
     std::vector<std::vector<int> > arc_junctions(two_boundings.shape(0));
     std::vector<float> grain_perimeter(nr_areas,0.0f);
+    std::vector<float> grain_perimeter2(nr_areas,0.0f);
     std::vector<int> min_bubble_distance(nr_areas);
     std::vector<float> grain_longest_arc_length(nr_areas);
     std::vector< std::vector<float> > grain_junction_angles(nr_areas);
@@ -551,6 +552,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                           grain_area_junctions,
                           arc_junctions,
                           grain_perimeter,
+                          grain_perimeter2,
                           min_bubble_distance,
                           grain_longest_arc_length,
                           grain_junction_angles,
@@ -618,6 +620,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                               grain_area_junctions,
                               arc_junctions,
                               grain_perimeter,
+                              grain_perimeter2,
                               min_bubble_distance,
                               grain_longest_arc_length,
                               grain_junction_angles,
@@ -1152,14 +1155,14 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                     grain_box_flattening_values2.push_back(grain_box_flattening_values[area_index]);
 
                     //Grain perimeter ratio
-                    grain_perimeter[grain_areas[area_index]] = std::max(perimeterLength,grain_perimeter[grain_areas[area_index]]);
-                    grain_perimeter_ratio_values[area_index] = perimeterLength/grain_perimeter[grain_areas[area_index]];
+                    grain_perimeter2[grain_areas[area_index]] = std::max(perimeterLength,grain_perimeter2[grain_areas[area_index]]);
+                    grain_perimeter_ratio_values[area_index] = perimeterLength/grain_perimeter2[grain_areas[area_index]];
                     if(grain_perimeter_ratio_values[area_index] > grain_perimeter_ratio_max)
                     {                        
-                        grain_perimeter_ratio_histogram.resize((int)(perimeterLength/(grain_perimeter[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))+1);
+                        grain_perimeter_ratio_histogram.resize((int)(perimeterLength/(grain_perimeter2[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))+1);
                         grain_perimeter_ratio_max = grain_perimeter_ratio_values[area_index];
                     }
-                    grain_perimeter_ratio_histogram[(int)(perimeterLength/(grain_perimeter[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))]++;
+                    grain_perimeter_ratio_histogram[(int)(perimeterLength/(grain_perimeter2[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))]++;
                 }
             }
         }

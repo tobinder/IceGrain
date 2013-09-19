@@ -61,6 +61,7 @@ void junctions_and_outer_circle(size_t nr_areas,
                                 std::vector<bool> & grain_junction,
                                 std::vector<std::vector<int> > arc_junctions,
                                 std::vector<float> & grain_perimeter,
+                                std::vector<float> & grain_perimeter2,
                                 std::vector<int> & min_bubble_distance,
                                 std::vector<float> & grain_longest_arc_length,
                                 std::vector< std::vector<float> > & grain_junction_angles,
@@ -123,6 +124,7 @@ void junctions_and_outer_circle(size_t nr_areas,
     {
         grain_longest_arc_length[area]=0.0f;
         grain_perimeter[area]=0.0f;
+        grain_perimeter2[area]=0.0f;
         grain_junction_angles[area].clear();
         grain_junction_angles2[area].clear();
 
@@ -158,6 +160,7 @@ void junctions_and_outer_circle(size_t nr_areas,
             for(int a=0; a<grain_arc_index[area][0].size(); a++)
             {
                 grain_perimeter[area]+=get_length(arcs[grain_arc_index[area][0][a]]);
+                grain_perimeter2[area]+=get_length(arcs[grain_arc_index[area][0][a]]);
             }
 
             grain_longest_arc_length[area]=grain_perimeter[area];//length of single segment is perimeter
@@ -376,6 +379,7 @@ void junctions_and_outer_circle(size_t nr_areas,
                     for(int a=0; a<reduced_grain_arc_index.size(); a++)
                     {
                         grain_perimeter[area]+=get_length(arcs[reduced_grain_arc_index[a]]);
+                        grain_perimeter2[area]+=get_length(arcs[reduced_grain_arc_index[a]]);
                     }
 
                     grain_longest_arc_length[area]=grain_perimeter[area];//length of single segment is perimeter
@@ -615,6 +619,9 @@ void junctions_and_outer_circle(size_t nr_areas,
 
                         //save last segment length and clear last segment pixels
                         grain_perimeter[area]+=get_length(last_segment);
+                        if(this_grain.back().size()>0) grain_perimeter2[area]+=get_length(last_segment);//if grain boundary
+                        else grain_perimeter2[area]+=sqrt((last_segment[0].x-last_segment.back().x)*(last_segment[0].x-last_segment.back().x)+
+                            (last_segment[0].y-last_segment.back().y)*(last_segment[0].y-last_segment.back().y));//if bubble boundary
                         if(get_length(last_segment)>grain_longest_arc_length[area]) grain_longest_arc_length[area]=get_length(last_segment);
                         last_segment.clear();
 
@@ -758,6 +765,9 @@ void junctions_and_outer_circle(size_t nr_areas,
             if(grain_junction[junction_back.back()]) grain_junction_angles2[area].push_back(angle2);
 
             grain_perimeter[area]+=get_length(last_segment);
+            if(this_grain.back().size()>0) grain_perimeter2[area]+=get_length(last_segment);//if grain boundary
+            else grain_perimeter2[area]+=sqrt((last_segment[0].x-last_segment.back().x)*(last_segment[0].x-last_segment.back().x)+
+                (last_segment[0].y-last_segment.back().y)*(last_segment[0].y-last_segment.back().y));//if bubble boundary
             if(get_length(last_segment)>grain_longest_arc_length[area]) grain_longest_arc_length[area]=get_length(last_segment);
 
             //if there are unused arcs an inside structure exists
@@ -991,6 +1001,7 @@ void initialize_structures(seg & segment,
                            std::vector< std::vector<int> > & grain_area_junctions,
                            std::vector<std::vector<int> > & arc_junctions,
                            std::vector<float> & grain_perimeter,
+                           std::vector<float> & grain_perimeter2,
                            std::vector<int> & min_bubble_distance,
                            std::vector<float> & grain_longest_arc_length,
                            std::vector< std::vector<float> > & grain_junction_angles,
@@ -1133,6 +1144,7 @@ void initialize_structures(seg & segment,
                                grain_junction,
                                arc_junctions,
                                grain_perimeter,
+                               grain_perimeter2,
                                min_bubble_distance,
                                grain_longest_arc_length,
                                grain_junction_angles,
@@ -1165,6 +1177,7 @@ void update_structures(seg & segment,
                        std::vector< std::vector<int> > & grain_area_junctions,
                        std::vector<std::vector<int> > & arc_junctions,
                        std::vector<float> & grain_perimeter,
+                       std::vector<float> & grain_perimeter2,
                        std::vector<int> & min_bubble_distance,
                        std::vector<float> & grain_longest_arc_length,
                        std::vector< std::vector<float> > & grain_junction_angles,
@@ -1361,6 +1374,7 @@ void update_structures(seg & segment,
     grain_area_junctions.resize(nr_areas);
     for(int j=0; j<one_boundings.shape(0); j++) grain_junction[j]=false;
     grain_perimeter.resize(nr_areas);
+    grain_perimeter2.resize(nr_areas);
     min_bubble_distance.resize(nr_areas);
     grain_longest_arc_length.resize(nr_areas);
     grain_junction_angles.resize(nr_areas);
@@ -1400,6 +1414,7 @@ void update_structures(seg & segment,
                                grain_junction,
                                arc_junctions,
                                grain_perimeter,
+                               grain_perimeter2,
                                min_bubble_distance,
                                grain_longest_arc_length,
                                grain_junction_angles,
