@@ -790,6 +790,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                 }
 
                 if(!end) entries.push_back(entry);
+                if(entry.mean.size()==0) break;
 	        }
 
             //check for multiple entries for same image
@@ -1428,6 +1429,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                 }
 
                 if(!end) entries.push_back(entry);
+                if(entry.mean.size()==0) break;
 	        }
 
             //check for multiple entries for same image
@@ -1501,6 +1503,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                 }
 
                 if(!end) entries.push_back(entry);
+                if(entry.mean.size()==0) break;
 	        }
 
             //check for multiple entries for same image
@@ -3030,6 +3033,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                     }
 
                     if(!end) entries.push_back(entry);
+                    if(entry.mean.size()==0) break;
 	            }
 
                 //check for multiple entries for same image

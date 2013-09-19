@@ -1174,6 +1174,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                         }
 
                         if(!end) entries.push_back(entry);
+                        if(entry.mean.size()==0) break;
 			        }
 
                     std::vector<float> mean_sum(10,0.0f);
@@ -2005,6 +2006,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                     }
 
                     if(!end) entries.push_back(entry);
+                    if(entry.mean.size()==0) break;
 		        }
 
                 std::vector<float> mean_sum(10,0.0f);
@@ -2088,6 +2090,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                     }
 
                     if(!end) entries.push_back(entry);
+                    if(entry.mean.size()==0) break;
 		        }
 
                 std::vector<float> mean_sum(13,0.0f);
@@ -4023,6 +4026,7 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
                         }
 
                         if(!end) entries.push_back(entry);
+                        if(entry.mean.size()==0) break;
 		            }
 
                     //check for multiple entries for same image
