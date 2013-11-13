@@ -34,186 +34,7 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-void remove_subgrain_arc(int arc_count,
-                         marray::Marray<unsigned int> two_boundings,
-                         size_t & nr_areas,
-                         long * & bubble_area_size,
-                         long * & grain_area_size,
-                         std::vector< std::vector<int> > & old_grain_arc_index,
-                         std::vector< std::vector<int> > & bubble_arc_index,
-                         std::vector<size_t> & region_labels,
-                         std::vector<point> & grain_area_center_mass,
-                         std::vector<bool> & grain_arc,
-                         std::vector<bool> & subgrain,
-                         std::vector< std::vector<point> > & areas,
-                         std::vector<int> & found_bubble_areas,
-                         std::vector<int> & arc_state,
-                         std::vector< std::vector<int> > & region_labels_reverse)
-{
-    if(arc_state[arc_count]==1)//grain arc
-    {
-        bool outside=false;
-        int outside_label;
-
-        //these two labels are selected for merging
-        int label_merged = std::min(region_labels[two_boundings(arc_count,0)-1]-1,
-                                    region_labels[two_boundings(arc_count,1)-1]-1);
-        int label_removed = std::max(region_labels[two_boundings(arc_count,0)-1]-1,
-                                     region_labels[two_boundings(arc_count,1)-1]-1);
-
-        //look for arcs of these two labels -> no longer grain arcs
-        for(int y=0;y<(int)two_boundings.shape(0);y++)
-        {
-            if ((region_labels[two_boundings(y,0)-1]-1==label_merged &&
-                    region_labels[two_boundings(y,1)-1]-1==label_removed) ||
-                (region_labels[two_boundings(y,1)-1]-1==label_merged &&
-                    region_labels[two_boundings(y,0)-1]-1==label_removed))
-            {
-                arc_state[y]=0;
-                grain_arc[y]=false;
-                subgrain[y]=true;
-                std::cout<<"remove subgrain arc "<<y<<" as grain arc"<<std::endl;
-            }
-        }
-
-        //grain belongs now to outside -> remove as grain
-        if(bubble_area_size[label_merged]==grain_area_size[label_merged])
-        {
-            outside=true;
-            old_grain_arc_index[label_merged].clear();
-
-            outside_label=label_merged+1;
-
-            std::cout<<"label "<<label_removed+1<<" will be removed and merged with outside label "<<outside_label
-                <<std::endl;
-        }
-        else if(bubble_area_size[label_removed]==grain_area_size[label_removed])
-        {
-            outside=true;
-            old_grain_arc_index[label_removed].clear();
-
-            outside_label=label_removed+1;
-            label_removed=label_merged;
-
-            std::cout<<"label "<<label_removed+1<<" will be removed and merged with outside label "<<outside_label
-                <<std::endl;
-            outside_label--;
-        }
-        else
-        {
-            //combine arc lists
-            std::list<int> combined_grain_arc_list;
-
-            for (int a=0; a<old_grain_arc_index[label_merged].size(); a++)
-                combined_grain_arc_list.push_back(old_grain_arc_index[label_merged][a]);
-            for (int a=0; a<old_grain_arc_index[label_removed].size(); a++)
-                combined_grain_arc_list.push_back(old_grain_arc_index[label_removed][a]);
-
-            //sort combined list und remove double entries
-            combined_grain_arc_list.sort();
-            combined_grain_arc_list.unique();
-
-            //replace arc list of label_merged
-            old_grain_arc_index[label_merged].clear();
-            for (std::list<int>::iterator a=combined_grain_arc_list.begin(); a!=combined_grain_arc_list.end();++a) 
-            {
-                if (arc_state[*a]>0) old_grain_arc_index[label_merged].push_back(*a);//check if arc is bubble or grain arc
-            }
-
-            std::cout<<"label "<<label_removed+1<<" will be removed and merged with label "<<label_merged+1<<std::endl;
-        }
-
-        //erase label_removed -> decrease all labels higher than label_removed by one
-        old_grain_arc_index.erase(old_grain_arc_index.begin()+label_removed);
-        bubble_arc_index.erase(bubble_arc_index.begin()+label_removed);
-
-        for(int l=0; l<region_labels.size(); l++)
-            if (region_labels[l]>label_removed) region_labels[l]--;
-
-        //update areas and area size
-        if (!outside)
-        {
-            for (int p=0; p<areas[label_removed].size(); p++)
-                areas[label_merged].push_back(areas[label_removed][p]);
-            grain_area_size[label_merged]=areas[label_merged].size();
-        }
-
-        //areas.erase(areas.begin()+label_removed);
-        //"erase" doesn't free memory, so swaping is necessary
-        std::vector< std::vector<point> > areas2;
-
-        for (int area=label_removed+1; area<areas.size(); area++)
-            areas2.push_back(areas[area]);
-
-        areas.resize(label_removed);
-
-        for (int area=0; area<areas2.size(); area++)
-            areas.push_back(areas2[area]);
-
-        areas2.clear();
-
-        grain_area_center_mass.erase(grain_area_center_mass.begin()+label_removed);
-        found_bubble_areas.clear();
-        nr_areas--;
-
-        delete grain_area_size;
-        delete bubble_area_size;
-        grain_area_size = new long[nr_areas];
-        bubble_area_size = new long[nr_areas];
-
-        for (int area=0; area<nr_areas; area++)
-        {
-            if (old_grain_arc_index[area].size()>0) grain_area_size[area]=areas[area].size();
-            else grain_area_size[area]=0;
-
-            if (bubble_arc_index[area].size()>0)
-            {
-                bubble_area_size[area]=areas[area].size();
-                found_bubble_areas.push_back(area);
-            }
-            else bubble_area_size[area]=0;
-        }
-
-        if (!outside)
-        {
-            //calculate new center of mass of merged grain
-            long grain_area_x_sum=0;
-            long grain_area_y_sum=0;
-
-            //loop over all pixels with label
-            for (int pixel=0;pixel<areas[label_merged].size();pixel++)
-            {
-                point p=areas[label_merged][pixel];
-                grain_area_x_sum+=p.x;
-                grain_area_y_sum+=p.y;
-            }
-
-            int xx=grain_area_x_sum/grain_area_size[label_merged];
-            int yy=grain_area_y_sum/grain_area_size[label_merged];
-            grain_area_center_mass[label_merged].x=xx;
-            grain_area_center_mass[label_merged].y=yy;
-
-            //update region_labels and region_labels_reverse
-            for(int l=0; l<region_labels_reverse[label_removed].size(); l++)
-            {
-                region_labels_reverse[label_merged].push_back(region_labels_reverse[label_removed][l]);
-                region_labels[region_labels_reverse[label_removed][l]-1]=label_merged+1;
-            }
-
-            region_labels_reverse.erase(region_labels_reverse.begin()+label_removed);
-        }
-        else
-        {
-            //update region_labels and region_labels_reverse
-            for(int l=0; l<region_labels_reverse[label_removed].size(); l++)
-            {
-                region_labels[region_labels_reverse[label_removed][l]-1]=outside_label;
-            }
-
-            region_labels_reverse.erase(region_labels_reverse.begin()+label_removed);
-        }
-    }
-}
+#include "remove_subgrain_arc.cpp"
 
 int get_nr_true(std::vector<bool> bool_vector)
 {
@@ -731,6 +552,7 @@ void find_subgrains(std::string filepath_to_feature_file,std::string path_to_ima
     std::vector<float> mean_grayvalue(nr_grain_boundaries);
     std::vector<float> stdabw_grayvalue(nr_grain_boundaries);
     std::vector<float> quantile_grayvalue(nr_grain_boundaries);
+    //std::vector<float> mean_cross_grayvalue_diff(nr_grain_boundaries);
 
     for (int boundary=0; boundary<nr_grain_boundaries; boundary++)
     {
@@ -739,6 +561,8 @@ void find_subgrains(std::string filepath_to_feature_file,std::string path_to_ima
         std::vector<float> abs_curv;
         std::vector<float> grayvalues;
         float curv_max=0.0f;
+        //float sum_cross_section_diff=0.0f;
+        //int cross_section_pixels=0;
 
         for (int p=0; p<grain_boundary_pixels[boundary].size(); p++)
         {
@@ -750,6 +574,18 @@ void find_subgrains(std::string filepath_to_feature_file,std::string path_to_ima
             grayvalue_sum+=unmarked_image(x,y,0,0);
             grayvalues.push_back(unmarked_image(x,y,0,0));
             if(fabs(grain_boundary_curvs[boundary][p])>curv_max && grain_boundary_pixels[boundary].size()>10) curv_max=fabs(grain_boundary_curvs[boundary][p]);
+            /*
+            for(int k=-2; k<3; k++)
+            {
+                int xx =  (int)(x + cos(grain_boundary_phis[boundary][p])*k);
+                int yy =  (int)(y + sin(grain_boundary_phis[boundary][p])*k);
+
+                if((xx != x || yy != y) && xx >= 0 && xx + 1 < dim_x && yy >= 0 && yy + 1 < dim_y)
+                {
+                    cross_section_pixels++;
+                    sum_cross_section_diff+=(unmarked_image(xx,yy,0,0)-unmarked_image(x,y,0,0));
+                }
+            }*/
         }
 
         mean_abs_curvature[boundary]=curv_sum/(float)grain_boundary_pixels[boundary].size();
@@ -757,6 +593,7 @@ void find_subgrains(std::string filepath_to_feature_file,std::string path_to_ima
         max_abs_curvature[boundary]=curv_max;
         mean_grayvalue[boundary]=(float)grayvalue_sum/(float)grain_boundary_pixels[boundary].size();
         quantile_grayvalue[boundary]=get_quantile(grayvalues,0.75);
+        //mean_cross_grayvalue_diff[boundary]=sum_cross_section_diff/cross_section_pixels;
 
         float grayvalue_stdabw=0.0f;
 
@@ -778,8 +615,9 @@ void find_subgrains(std::string filepath_to_feature_file,std::string path_to_ima
     //if there are high subgrain probabilities classify as subgrain boundary
     for (int boundary=0; boundary<nr_grain_boundaries; boundary++)
     {
-        if ((max_abs_curvature[boundary]>0.06f && mean_grayvalue[boundary]>85.0f*0.6666f) ||
-            quantile_grayvalue[boundary]>85.0f || mean_grayvalue[boundary]>85.0f)
+//        if ((max_abs_curvature[boundary]>0.06f && mean_grayvalue[boundary]>85.0f*0.6666f) ||
+//            quantile_grayvalue[boundary]>85.0f || mean_grayvalue[boundary]>85.0f)
+        if /*(quantile_grayvalue[boundary]>120.0f || */(mean_grayvalue[boundary]>140.0f)
         {
             subgrain_boundaries[boundary]=true;
             remove_subgrain_arc(fabs(grain_boundary_index[boundary][0])-1,
@@ -1064,10 +902,31 @@ void find_subgrains(std::string filepath_to_feature_file,std::string path_to_ima
             // press "t" for trainingset
         		if(selectionDisplay.key==116 || selectionDisplay.key==84)
             {
+                //create trainingset
                 if (get_nr_true(labeled)>0)
                 {
-                    //TODO create trainingset
+                    std::string out_filename=get_filename(filepath_to_ws_image);//TODO set path
+                    out_filename.append(".dat");
 
+                    std::ofstream training_file(out_filename.c_str());
+
+                    training_file << "boundary  label  mean_abs_curv  max_abs_cur  mean_gray  quantile_gray  cross_gray_diff\n";
+
+                    for (int boundary=0; boundary<nr_grain_boundaries; boundary++)
+                    {
+                        if (subgrain_boundaries[boundary])
+                        {
+                            training_file << boundary << " sGB " << mean_abs_curvature[boundary] << " " << max_abs_curvature[boundary] << " " <<
+                                mean_grayvalue[boundary] << " " << quantile_grayvalue[boundary] << /*" " << mean_cross_grayvalue_diff[boundary] <<*/ "\n";
+                        }
+                        else if (labeled[boundary])
+                        {
+                            training_file << boundary << "  GB " << mean_abs_curvature[boundary] << " " << max_abs_curvature[boundary] << " " <<
+                                mean_grayvalue[boundary] << " " << quantile_grayvalue[boundary] << /*" " << mean_cross_grayvalue_diff[boundary] <<*/ "\n";
+                        }
+                    }
+
+                    training_file.close();
                     trainingset=true;
                 }  
             }
