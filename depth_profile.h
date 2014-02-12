@@ -648,8 +648,8 @@ void depth_profile(std::string path_results, ParameterFile paramFile, float dept
             plot, "grain_perimeter_ratio", "Grain perimeter ratio", "Depth in m", "Perimeter ratio", "Perimeter ratio profile", 0.7f,
             1, nr_values, nr_values_relax);
         lin_depth_profile(path_results, bagnr, nr_depths(), minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(),
-            plot, "subGB_densities", "Subgrain boundary density", "Depth in m", "Subgrain boundary density",
-            "Subgrain boundary density profile", 0.0f, 0, nr_values, nr_values_relax);
+            plot, "subGB_densities", "Subgrain boundary density", "Depth in m", "Subgrain boundary density (1/mm)",
+            "Subgrain boundary density profile", 0.0f, 0, nr_values, nr_values_relax, 1.0f/length_scaling());
 
         std::vector<float> grainsize_all_depths;
         std::vector<float> grainsize_all_values;
