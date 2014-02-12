@@ -253,15 +253,12 @@ int addEdge(graphNode** coords, conEdge edge, int rows, int columns)
 }
 
 void find_mosaic_borders(std::vector< std::vector<point> > arcs, std::vector<int> & vertical_arc_index,std::vector<bool> found_bubble_arcs,
-                        marray::Marray<unsigned int> two_boundings, int dim_x, int dim_y, std::string fileName)
+                        marray::Marray<unsigned int> two_boundings, int dim_x, int dim_y, std::string fileName, std::string relativeCoords)
 {
     vigra::BasicImage<bool> border_image(dim_x, dim_y);
         for (int x=0;x<dim_x;x++)
             for (int y=0;y<dim_y;y++)
                 border_image(x,y)=false;
-
-    //load EDML stitching information
-    std::string relativeCoords = "/Volumes/Images/EDML_A/relative_coords/";
 
     std::string filePath=relativeCoords;
     filePath.append(fileName.c_str());

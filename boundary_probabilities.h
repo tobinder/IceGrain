@@ -814,12 +814,25 @@ void extract_boundary_probabilities(std::string filepath_to_feature_file,std::st
     found_border_areas.sort();
     found_border_areas.unique();
 
+    Parameter<bool> vertical_lines;
+    vertical_lines.assign("", "vertical_lines", true);
+    vertical_lines.load(paramFile, "config");
+
+    Parameter<bool> tile_borders;
+    tile_borders.assign("", "tile_borders", false);
+    tile_borders.load(paramFile, "config");
+
+   	Parameter<std::string> relativeCoords;
+   	relativeCoords.assign("", "relativeCoords", "/Volumes/Images/EDML_A/relative_coords/");
+    relativeCoords.load(paramFile,"config");
+
     //REDUCE BOUNDARY PROBABILITY FOR VERTICAL HOUGH LABELED ARCS
     std::vector<int> vertical_arc_index;
-    find_vertical_arcs(arcs,vertical_arc_index,found_bubble_arcs,ws_region_image,dim_x,dim_y);
+    if (vertical_lines()) find_vertical_arcs(arcs,vertical_arc_index,found_bubble_arcs,ws_region_image,dim_x,dim_y);
 
     //REDUCE BOUNDARY PROBABILITY FOR MOSAIC BORDERS
-//    find_mosaic_borders(arcs,vertical_arc_index,found_bubble_arcs,two_boundings,dim_x,dim_y,get_filename(filepath_to_feature_file));
+    if (tile_borders()) find_mosaic_borders(arcs,vertical_arc_index,found_bubble_arcs,two_boundings,dim_x,dim_y,get_filename(filepath_to_feature_file),
+        relativeCoords());
 
     for(int found=0; found<vertical_arc_index.size(); found++)
     {
