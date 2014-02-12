@@ -69,11 +69,15 @@ class plplot
     void draw_depth(std::string, std::string, std::string, std::vector<float>, std::vector<float>, std::vector<float>, std::vector<float>, float, std::string);
     void draw_depth(std::string, std::string, std::string, std::vector< std::vector<float> >, std::vector< std::vector<float> >, std::string);
     void draw_depth_nofit(std::string, std::string, std::string, std::vector< std::vector<float> >, std::vector< std::vector<float> >, std::string);
+    void draw_depth_nofit2(std::string, std::string, std::string, std::vector< std::vector<float> >, std::vector< std::vector<float> >, std::string,
+                          std::vector<float>, float);
     void draw_depth_errors(std::string, std::string, std::string, std::vector<float>, std::vector<float>, std::vector<float>, std::vector<float>,
                            float, std::string);
     void draw_depth_errors(std::string, std::string, std::string, std::vector<float>, std::vector<float>, std::vector<float>, std::vector<float>,
                            std::vector<float>, std::vector<float>, std::vector<float>, std::vector<float>,float, std::string);
     void draw_depth_3d(std::string, std::string, std::string, std::string, std::vector<float>, std::vector<float>, std::vector< std::vector<float> >,
+                       std::string);
+    void draw_depth_color(std::string, std::string, std::string, std::string, std::vector<float>, std::vector<float>, std::vector< std::vector<float> >,
                        std::string);
     void draw_curv_cross(std::string, std::string, std::string, std::vector<int>, std::vector<float>, std::string);
     void draw_correlation(std::string, std::string, std::vector< std::vector<int> >, std::vector< std::vector<float> >, std::vector< std::vector<float> >,
@@ -1590,6 +1594,115 @@ void plplot::draw_depth_nofit(std::string x_axis, std::string y_axis, std::strin
     delete pls;
 }
 
+void plplot::draw_depth_nofit2(std::string x_axis, std::string y_axis, std::string title, std::vector< std::vector<float> > x_values,
+                        std::vector< std::vector<float> > y_values, std::string dest_path, std::vector<float> errors, float y_minimal=0.0f)
+{
+    pls = new plstream();
+
+    plscolbg(255,255,255);//set background white
+    plsdev("svg");//sets output device
+    plsfnam (dest_path.c_str());//output filename
+
+    // Initialize plplot.
+    pls->init();
+
+    float y_high=0;
+    float x_min=1000.0f;
+    float x_max=0;
+
+    for (int j=0; j<y_values.size(); j++)
+    {
+        for(int i=0; i<y_values[j].size(); i++)
+        {
+            if(y_values[j][i]*1.1>y_high) y_high=y_values[j][i]*1.1;
+            if(x_values[j][i]<x_min) x_min=x_values[j][i];
+            if(x_values[j][i]*1.05>x_max) x_max=x_values[j][i]*1.05;
+        }
+    }
+
+    pls->scmap0(black,black,black,1);
+
+    pls->adv(0);
+    pls->vsta();
+    pls->col0(0);
+//    pls->wind( x_min-0.09*x_max, x_max, y_minimal, y_high);
+    pls->wind(0.0, x_max, y_minimal, y_high);
+    if (x_max>4000) pls->box( "bcinst", 0.0, 0, "bcinstv", 0, 0 );
+    else if (x_max>500) pls->box( "bcinst", 250.0, 5.0, "bcinstv", 0, 0 );
+    else pls->box( "bcinst", 50.0, 5.0, "bcinstv", 0, 0 );
+    pls->lab(x_axis.c_str(), y_axis.c_str(), title.c_str());
+
+    pls->scmap1l(true,5,pos,red,red,red,NULL);
+
+    int XPTS = 100;
+    int YPTS = 100;
+    PLFLT **z = new PLFLT *[XPTS];
+    for (int i = 0; i < XPTS; i++ )
+    {
+        z[i] = new PLFLT[YPTS];
+        for(int j = 0; j < YPTS; j++) z[i][j] = 0.0;
+    }
+
+    for(int i=0; i<y_values[2].size(); i++)
+    {
+        int xx=XPTS*x_values[2][i]/x_max;
+
+        PLFLT y_min=y_values[2][i]-errors[i];
+        PLFLT y_max=y_values[2][i]+errors[i];
+
+        int yy1=YPTS*(std::max(y_minimal,(float)y_min)-y_minimal)/(y_high-y_minimal);
+        int yy2=YPTS*(std::min(y_high,(float)y_max)-y_minimal)/(y_high-y_minimal);
+
+        for(int yy = yy1; yy <= yy2 && yy<YPTS; yy++)
+        {
+            z[xx][yy] = 1.0;
+            if(xx>0) z[xx-1][yy] = 1.0;
+            if(xx<XPTS-1) z[xx+1][yy] = 1.0;
+        }
+    }
+
+    PLFLT shade_min = 0.9, shade_max = 1.1, sh_color = 0.65;
+    int   sh_cmap   = 1, sh_width = 0;
+    int   min_color = 0, min_width = 0, max_color = 0, max_width = 0;
+
+    pls->psty(0);
+    pls->shade(z, XPTS, YPTS, NULL, 0, (PLFLT) x_max, (PLFLT) y_minimal, (PLFLT) y_high,
+        shade_min, shade_max, sh_cmap, sh_color, sh_width, min_color, min_width, max_color, max_width,
+        plstream::fill, false, NULL, NULL);
+
+    for (int j=0; j<y_values.size(); j++)
+    {
+        PLFLT * y = new PLFLT[y_values[j].size()];
+        PLFLT * x = new PLFLT[y_values[j].size()];
+
+        for (int i=0; i<y_values[j].size(); i++)
+        {
+            y[i]=y_values[j][i];
+            x[i]=x_values[j][i];
+        }
+
+        if(j==2)
+        {
+            pls->scmap1l(true,5,pos,red,red,red,NULL);
+            pls->col1(0.0);
+            pls->poin( y_values[j].size(), x , y , 0.0 );
+        }
+        else
+        {
+            pls->scmap1l(true,5,pos,red,green,blue,NULL);
+            if(j==0) pls->col1(0.8);
+            if(j==1) pls->col1(0.4);
+            if(j==0) pls->poin( y_values[j].size(), x , y , 2 );
+            if(j==1) pls->poin( y_values[j].size(), x , y , 5 );
+        }
+
+        delete y;
+        delete x;
+    }
+
+    delete pls;
+}
+
 void plplot::draw_depth_errors(std::string x_axis, std::string y_axis, std::string title, std::vector<float> x_values,
                                std::vector<float> y_values, std::vector<float> y_errors_low, std::vector<float> y_errors_high,
                                float y_minimal, std::string dest_path)
@@ -1938,6 +2051,99 @@ void plplot::draw_depth_3d(std::string x_axis, std::string depth_axis, std::stri
     delete x;
     delete z;
     delete depth_values;
+
+    delete pls;
+}
+
+void plplot::draw_depth_color(std::string y_axis, std::string depth_axis, std::string z_axis, std::string title, std::vector<float> y_values,
+                              std::vector<float> depth, std::vector< std::vector<float> > values, std::string dest_path)
+{
+    pls = new plstream();
+
+    plscolbg(255,255,255);//set background white
+    plsdev("svg");//sets output device
+    plsfnam (dest_path.c_str());//output filename
+
+    // Initialize plplot.
+    pls->init();
+
+    int y_min_bin=y_values.size()-1;
+    int y_max_bin=0;
+    for(int depth_index=0; depth_index<depth.size(); depth_index++)
+    {
+        for(int i=0; i<values[depth_index].size(); i++)
+        {
+            if (i<y_min_bin && values[depth_index][i]>0.0f) y_min_bin=i;
+        }
+        if (values[depth_index].size()-1>y_max_bin) y_max_bin=values[depth_index].size()-1;
+    }
+
+    float y_min=y_values[y_min_bin];
+    float y_max=y_values[y_max_bin];
+    int YPTS=1+y_max_bin-y_min_bin;
+
+    float depth_max=depth[0];
+    int min_depth_bin=3000.0f;
+    for(int d1=0; d1<depth.size()-1; d1++)
+    {
+        int depth_bin=depth[d1+1]-depth[d1];
+        if (depth_bin<min_depth_bin) min_depth_bin=std::max(1,depth_bin);
+        if (depth[d1+1]>depth_max) depth_max=depth[d1+1];
+    }
+    int XPTS=1+depth_max/min_depth_bin;
+
+    PLFLT **z = new PLFLT *[XPTS];
+    for (int i = 0; i < XPTS; i++ )
+    {
+        z[i] = new PLFLT[YPTS];
+        for(int j = 0; j < YPTS; j++) z[i][j] = 0.0f;
+    }
+
+    float z_high=0.0f;
+    for(int depth_index=0; depth_index<depth.size(); depth_index++)
+    {
+        int depth_bin=depth[depth_index]/min_depth_bin;
+        for(int i=y_min_bin; i<=y_max_bin && i<values[depth_index].size(); i++)
+        {
+            z[depth_bin][i-y_min_bin] = values[depth_index][i];
+            if (values[depth_index][i]>z_high) z_high=values[depth_index][i];
+        }
+    }
+
+    pls->scmap0(black,black,black,1);
+
+    pls->adv(0);
+    pls->vsta();
+    pls->col0(0);
+    pls->wind( 0.0, depth_max, y_min, y_max);
+    pls->lab(depth_axis.c_str(), y_axis.c_str(), title.c_str());
+
+    pls->spal0( "cmap0_black_on_white.pal" );
+    pls->spal1( "cmap1_blue_yellow.pal", true );
+    pls->scmap0n( 3 );
+
+    int ns = 50;
+    PLFLT *shedge = new PLFLT[ns + 1];
+    for (int i = 0; i < ns + 1; i++ )
+        shedge[i] = z_high * (PLFLT) i / (PLFLT) (ns-1);
+
+    int fill_width = 2, cont_color = 0, cont_width = 0;
+
+    pls->psty(0);
+    pls->shades(z, XPTS, YPTS, NULL, 0, depth_max, y_min, y_max,
+                shedge, ns + 1, fill_width, cont_color, cont_width,
+                plstream::fill, false, NULL, NULL);
+
+    pls->scmap0(black,black,black,1);
+    pls->col0(0);
+    pls->box( "bcinst", 250.0, 5.0, "bcilnstu", 0, 0 );//"bcinstv"
+
+    if (depth_max > 2360)
+    {
+        pls->scmap1l(true,5,pos,pos,pos,pos,NULL);
+        pls->col1(1.0);
+        plfbox(2214.3, y_max, y_min, 0.0);
+    }
 
     delete pls;
 }
