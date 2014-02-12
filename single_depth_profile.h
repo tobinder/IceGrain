@@ -3593,10 +3593,10 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
             if(grainsize_step_profile_values.size()>0) plot.draw_depth_3d(x_axis, "Depth in m", area_unit,
                 "Largest grains profile (absolute)", grainsize_step_profile_x_values, grainsize_step_profile_depths,
                 grainsize_step_profile_values, filepath_grainsize_step_profile_out.c_str());
-            if(grainsize_bin_profile_values.size()>0) plot.draw_depth_3d(area_unit, "Depth in m", "Relative occurrence",
+            if(grainsize_bin_profile_values.size()>0) plot.draw_depth_color(area_unit, "Depth in m", "Relative occurrence",
                 "Grain size profile", grainsize_bin_profile_x_values, grainsize_bin_profile_depths, grainsize_bin_profile_values,
                 filepath_grainsize_bin_profile_out.c_str());
-            if(grainradius_bin_profile_values.size()>0) plot.draw_depth_3d(length_unit, "Depth in m", "Relative occurrence",
+            if(grainradius_bin_profile_values.size()>0) plot.draw_depth_color(length_unit, "Depth in m", "Relative occurrence",
                 "Grain radius profile", grainradius_bin_profile_x_values, grainradius_bin_profile_depths,
                 grainradius_bin_profile_values, filepath_grainradius_bin_profile_out.c_str());
             if(grainradius_norm_bin_profile_values.size()>0) plot.draw_depth_3d("Normalized grain radius", "Depth in m",
