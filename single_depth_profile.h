@@ -34,6 +34,8 @@
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
+#include "EDMLage.data"
+
 float get_depth(std::string name, float max_depth=0.0f)
 {
     float depth=0.0f;
@@ -143,7 +145,8 @@ void single_lin_depth_profile(std::string path_results, int minimal_bubble_dista
             {
                 parameter_depths.push_back(depth);
                 parameter_values.push_back(entries[k].mean/scaling);
-                parameter_errors.push_back(entries[k].stdabw/scaling);
+                if (filename=="subGB_densities") parameter_errors.push_back(0.25);
+                else parameter_errors.push_back(entries[k].stdabw/scaling);
             }
         }
 
@@ -259,6 +262,9 @@ void single_new_lin_depth_profile(std::string path_results, int minimal_bubble_d
 
 void single_depth_profile(std::string path_results, ParameterFile paramFile, float depth_bin_width=0.0f)
 {
+    float * ageb2k = new float[2367];
+    get_age(ageb2k);
+
    	Parameter<int> low_grain_size;
    	low_grain_size.assign("", "low_grain_size", 0);
     low_grain_size.load(paramFile,"config");
@@ -351,11 +357,17 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
             "length_grainarcs", "Grain arc length", "Depth in m", length_unit, "Grain boundary length profile", 0.0f, max_depth,
             length_scaling());
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
+            "length_grainarcs2", "Grain arc length", "Depth in m", length_unit, "Grain boundary length profile", 0.0f, max_depth,
+            length_scaling());
+        single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "longest_grainarcs", "Grain longest arc length", "Depth in m", length_unit, "Grain longest boundary length profile",
             0.0f, max_depth, length_scaling());
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "dislocation_densities", "Dislocation density differences", "Depth in m", "Dislocation density difference in m^(-2)",
-            "Profile of mean dislocation density difference at grain boundaries", max_depth, 0.0f);
+            "Profile of mean dislocation density difference at grain boundaries", 0.0f, max_depth);
+        single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
+            "dislocation_densities2", "Dislocation density differences", "Depth in m", "Dislocation density difference in m^(-2)",
+            "Profile of mean dislocation density difference at grain boundaries", 0.0f, max_depth);
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "grain_equivradius", "Equivalent grain radius", "Depth in m", length_unit, "Grain equivalent radius profile", 0.0f,
             max_depth, length_scaling());
@@ -392,6 +404,9 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
         single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
             "grain_perimeter_ratio", "Grain perimeter ratio", "Depth in m", "Perimeter ratio", "Perimeter ratio profile", 0.7f,
             max_depth);
+        single_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
+            "subGB_densities", "Subgrain boundary density", "Depth in m", "Subgrain boundary density (1/mm)", 
+            "Subgrain boundary density profile", 0.0f, max_depth, 1.0f/length_scaling());
 
         std::vector<float> grainsize_all_depths;
         std::vector<float> grainsize_all_values;
@@ -497,6 +512,16 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
         percentage_filled_grains_depths.resize(4);
         std::vector< std::vector<float> > percentage_filled_grains_values;
         percentage_filled_grains_values.resize(4);
+        std::vector< std::vector<float> > percentage_filled_grains_ages;
+        percentage_filled_grains_ages.resize(4);
+
+        std::vector<float> grain_perimeter_ratio_depths;
+        std::vector<float> grain_perimeter_ratio_values;
+        std::vector<float> grain_perimeter_ratio_errors;
+
+        std::vector<float> grain_perimeter_ratio_depths_bubble;
+        std::vector<float> grain_perimeter_ratio_values_bubble;
+        std::vector<float> grain_perimeter_ratio_errors_bubble;
 
         //string is read from temp file to check whether file is empty
         std::string teststring;
@@ -1522,20 +1547,122 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                 {
                     percentage_filled_grains_depths[0].push_back(depth);
                     percentage_filled_grains_values[0].push_back(entries[k].mean[1]);
+                    if (depth<2367.0f) percentage_filled_grains_ages[0].push_back(ageb2k[(int)depth]);
 
                     percentage_filled_grains_depths[1].push_back(depth);
                     percentage_filled_grains_values[1].push_back(entries[k].mean[2]);
+                    if (depth<2367.0f) percentage_filled_grains_ages[1].push_back(ageb2k[(int)depth]);
 
                     percentage_filled_grains_depths[2].push_back(depth);
                     percentage_filled_grains_values[2].push_back(entries[k].mean[7]);
+                    if (depth<2367.0f) percentage_filled_grains_ages[2].push_back(ageb2k[(int)depth]);
 
                     percentage_filled_grains_depths[3].push_back(depth);
                     percentage_filled_grains_values[3].push_back(entries[k].mean[12]);
+                    if (depth<2367.0f) percentage_filled_grains_ages[3].push_back(ageb2k[(int)depth]);
                 }
             }
 
             percentage_filled_grains_file.close();
             temp_percentage_filled_grains_file.close();
+        }
+
+        std::string filepath_grain_perimeter_ratio=path_results;
+        filepath_grain_perimeter_ratio.append("grain_perimeter_ratio");
+        filepath_grain_perimeter_ratio.append(s.str());
+
+        //grain perimeter ratio
+        std::ifstream grain_perimeter_ratio_file(filepath_grain_perimeter_ratio.c_str());
+        std::ifstream temp_grain_perimeter_ratio_file(filepath_grain_perimeter_ratio.c_str());
+        temp_grain_perimeter_ratio_file>>teststring;
+
+        if(grain_perimeter_ratio_file && teststring.size()!=0)
+        {
+            std::vector<depth_parameter> entries;
+
+            while(!grain_perimeter_ratio_file.eof())
+            {
+                std::string name;
+                float mean=-1, stdabw;
+	            grain_perimeter_ratio_file>>name>>mean>>stdabw;
+                depth_parameter entry;
+                entry.name=name;
+                entry.mean=mean;
+                entry.stdabw=stdabw;
+                if(mean!=-1) entries.push_back(entry);
+            }
+
+            //check for multiple entries for same image
+            for (int k=0; k<entries.size(); k++)
+            {
+                bool other_entry=false;
+
+                for(int j=k+1; j<entries.size() && !other_entry; j++)
+                {
+                    if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
+                }
+
+                float depth=get_depth(entries[k].name, max_depth);
+
+                if (!other_entry && depth>0.0f)
+                {
+                    grain_perimeter_ratio_depths.push_back(depth);
+                    grain_perimeter_ratio_values.push_back(entries[k].mean);
+                    grain_perimeter_ratio_errors.push_back(entries[k].stdabw);
+                }
+            }
+
+            grain_perimeter_ratio_file.close();
+            temp_grain_perimeter_ratio_file.close();
+        }
+
+        std::string filepath_grain_perimeter_ratio2=path_results;
+        filepath_grain_perimeter_ratio2.append("grain_perimeter_ratio2");
+        filepath_grain_perimeter_ratio2.append(s.str());
+
+        //grain perimeter ratio
+        std::ifstream grain_perimeter_ratio_file2(filepath_grain_perimeter_ratio2.c_str());
+        std::ifstream temp_grain_perimeter_ratio_file2(filepath_grain_perimeter_ratio2.c_str());
+        temp_grain_perimeter_ratio_file2>>teststring;
+
+        if(grain_perimeter_ratio_file2 && teststring.size()!=0)
+        {
+            std::vector<depth_parameter> entries;
+
+            while(!grain_perimeter_ratio_file2.eof())
+            {
+                std::string name;
+                float mean=-1, stdabw;
+	            grain_perimeter_ratio_file2>>name>>mean>>stdabw;
+                depth_parameter entry;
+                entry.name=name;
+                entry.mean=mean;
+                entry.stdabw=stdabw;
+                if(mean!=-1) entries.push_back(entry);
+            }
+
+            //check for multiple entries for same image
+            for (int k=0; k<entries.size(); k++)
+            {
+                bool other_entry=false;
+
+                for(int j=k+1; j<entries.size() && !other_entry; j++)
+                {
+                    if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
+                }
+
+                float depth=get_depth(entries[k].name, max_depth);
+
+                if (!other_entry && depth>0.0f)
+                {
+                    grain_perimeter_ratio_depths_bubble.push_back(depth);
+                    grain_perimeter_ratio_values_bubble.push_back(entries[k].mean);
+                    grain_perimeter_ratio_errors_bubble.push_back(entries[k].stdabw);
+                }
+            }
+
+            grain_perimeter_ratio_file2.close();
+            temp_grain_perimeter_ratio_file2.close();
         }
 
         std::cout<<"Mean grain size (all grains): "<<grainsize_all_values.size()<<std::endl;
@@ -1616,35 +1743,17 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
         filepath_grainsize_all_out.resize(filepath_grainsize_all_out.size()-3);
         filepath_grainsize_all_out.append("svg");
 
-        std::string filepath_grainsize_all_combined_out=path_results;
-        filepath_grainsize_all_combined_out.append("grainsize_all_combined");
-        filepath_grainsize_all_combined_out.append(s.str());
-        filepath_grainsize_all_combined_out.resize(filepath_grainsize_all_combined_out.size()-3);
-        filepath_grainsize_all_combined_out.append("svg");
-
         std::string filepath_grainsize_fit_out=path_results;
         filepath_grainsize_fit_out.append("grainsize_fit");
         filepath_grainsize_fit_out.append(s.str());
         filepath_grainsize_fit_out.resize(filepath_grainsize_fit_out.size()-3);
         filepath_grainsize_fit_out.append("svg");
 
-        std::string filepath_grainsize_fit_combined_out=path_results;
-        filepath_grainsize_fit_combined_out.append("grainsize_fit_combined");
-        filepath_grainsize_fit_combined_out.append(s.str());
-        filepath_grainsize_fit_combined_out.resize(filepath_grainsize_fit_combined_out.size()-3);
-        filepath_grainsize_fit_combined_out.append("svg");
-
         std::string filepath_corr_ellipse_box_flattening_out=path_results;
         filepath_corr_ellipse_box_flattening_out.append("corr_ellipse_box_flattening");
         filepath_corr_ellipse_box_flattening_out.append(s.str());
         filepath_corr_ellipse_box_flattening_out.resize(filepath_corr_ellipse_box_flattening_out.size()-3);
         filepath_corr_ellipse_box_flattening_out.append("svg");
-
-        std::string filepath_corr_ellipse_box_flattening_combined_out=path_results;
-        filepath_corr_ellipse_box_flattening_combined_out.append("corr_ellipse_box_flattening_combined");
-        filepath_corr_ellipse_box_flattening_combined_out.append(s.str());
-        filepath_corr_ellipse_box_flattening_combined_out.resize(filepath_corr_ellipse_box_flattening_combined_out.size()-3);
-        filepath_corr_ellipse_box_flattening_combined_out.append("svg");
 
         std::string filepath_grainsize_step_out=path_results;
         filepath_grainsize_step_out.append("step/grainsize_");
@@ -1747,6 +1856,18 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
         filepath_grainsize_percentage_filled_out.append(s.str());
         filepath_grainsize_percentage_filled_out.resize(filepath_grainsize_percentage_filled_out.size()-3);
         filepath_grainsize_percentage_filled_out.append("svg");
+
+        std::string filepath_grainsize_percentage_filled_age_out=path_results;
+        filepath_grainsize_percentage_filled_age_out.append("grainsize_percentage_filled_age");
+        filepath_grainsize_percentage_filled_age_out.append(s.str());
+        filepath_grainsize_percentage_filled_age_out.resize(filepath_grainsize_percentage_filled_age_out.size()-3);
+        filepath_grainsize_percentage_filled_age_out.append("svg");
+
+        std::string filepath_grain_perimeter_ratio_combined_out=path_results;
+        filepath_grain_perimeter_ratio_combined_out.append("grain_perimeter_ratio_combined");
+        filepath_grain_perimeter_ratio_combined_out.append(s.str());
+        filepath_grain_perimeter_ratio_combined_out.resize(filepath_grain_perimeter_ratio_combined_out.size()-3);
+        filepath_grain_perimeter_ratio_combined_out.append("svg");
 
         if(grainsize_all_values.size()>0) plot.draw_depth_errors("Depth in m", area_unit, "Mean grain size profile (all grains)",
                                                                  grainsize_all_depths, grainsize_all_values, grainsize_all_errors,
@@ -2064,6 +2185,20 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                                                                  "Mean grain size for different percentage of area filled by grains",
                                                                  percentage_filled_grains_depths, percentage_filled_grains_values,
                                                                  filepath_grainsize_percentage_filled_out.c_str());
+        if(max_depth<2367.0f && percentage_filled_grains_values.size()>0)  plot.draw_depth("Age before 2000 in years", area_unit,
+                                                                 "Mean grain size for different percentage of area filled by grains",
+                                                                 percentage_filled_grains_ages, percentage_filled_grains_values,
+                                                                 filepath_grainsize_percentage_filled_age_out.c_str());
+
+        if(grain_perimeter_ratio_values.size()>0 && grain_perimeter_ratio_values_bubble.size()>0) plot.draw_depth_errors(
+                                                                 "Depth in m", "Perimeter ratio", "Perimeter ratio profile",
+                                                                 grain_perimeter_ratio_depths, grain_perimeter_ratio_values,
+                                                                 grain_perimeter_ratio_errors, grain_perimeter_ratio_errors,
+                                                                 grain_perimeter_ratio_depths_bubble,
+                                                                 grain_perimeter_ratio_values_bubble,
+                                                                 grain_perimeter_ratio_errors_bubble,
+                                                                 grain_perimeter_ratio_errors_bubble, 0.7f,
+                                                                 filepath_grain_perimeter_ratio_combined_out.c_str());
 
         if(depth_bin_width>0.0f)
         {
@@ -2071,6 +2206,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
 
             //load nr values 
             std::vector<depth_numbers> nr_values;
+            std::vector<depth_numbers> nr_values_new;
 
             std::string filepath_nr=path_results;
             filepath_nr.append("nr_values");
@@ -2115,6 +2251,35 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
 
                 nr_file.close();
                 temp_nr_file.close();
+            }
+
+            std::string filepath_nr_new=path_results;
+            filepath_nr_new.append("nr_values2");
+            filepath_nr_new.append(s.str());
+
+            std::ifstream nr_file_new(filepath_nr_new.c_str());
+            std::ifstream temp_nr_file_new(filepath_nr_new.c_str());
+            temp_nr_file_new>>teststring;
+
+            if(nr_file_new && teststring.size()!=0)
+            {
+                while(!nr_file_new.eof())
+                {
+                    std::string name;
+                    int nr_correct_length=-1;
+                    int nr_curved_pixels;
+
+                    nr_file_new>>name>>nr_correct_length>>nr_curved_pixels;
+                    depth_numbers entry;
+                    entry.name=name;
+                    entry.nr[4]=nr_correct_length;
+                    entry.nr[7]=nr_curved_pixels;
+
+                    if(nr_correct_length!=-1) nr_values_new.push_back(entry);
+                }
+
+                nr_file_new.close();
+                temp_nr_file_new.close();
             }
 
             //number histograms
@@ -2256,10 +2421,17 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                 "length_grainarcs", "Grain arc length", "Depth in m", length_unit, "Grain boundary length profile", 0.0f, 5,
                 nr_values, depth_max, depth_bin_width, max_depth, length_scaling());
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
+                "length_grainarcs2", "Grain arc length", "Depth in m", length_unit, "Grain boundary length profile", 0.0f, 5,
+                nr_values, depth_max, depth_bin_width, max_depth, length_scaling());
+            single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "longest_grainarcs", "Grain longest arc length", "Depth in m", length_unit, "Grain longest boundary length profile",
                 0.0f, 6, nr_values, depth_max, depth_bin_width, max_depth, length_scaling());
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
                 "dislocation_densities", "Dislocation density differences", "Depth in m", "Dislocation density difference in m^(-2)",
+                "Profile of mean dislocation density difference at grain boundaries", 0.0f, 8, nr_values, depth_max, depth_bin_width,
+                max_depth);
+            single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
+                "dislocation_densities2", "Dislocation density differences", "Depth in m", "Dislocation density difference in m^(-2)",
                 "Profile of mean dislocation density difference at grain boundaries", 0.0f, 8, nr_values, depth_max, depth_bin_width,
                 max_depth);
             single_new_lin_depth_profile(path_results, minimal_bubble_distance, minimal_grain_size, grain_size_min, s.str(), plot,
@@ -2380,6 +2552,16 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
             percentage_filled_grains_sum.resize(4);
             for(int p=0; p<4; p++) percentage_filled_grains_sum[p].resize((size_t)(1+depth_max/depth_bin_width),0.0f);
 
+            std::vector< std::vector<float> > grain_perimeter_ratio_depths;
+            grain_perimeter_ratio_depths.resize(2);
+            for(int p=0; p<2; p++) grain_perimeter_ratio_depths[p].resize((size_t)(1+depth_max/depth_bin_width));
+            std::vector< std::vector<float> > grain_perimeter_ratio_values;
+            grain_perimeter_ratio_values.resize(2);
+            for(int p=0; p<2; p++) grain_perimeter_ratio_values[p].resize((size_t)(1+depth_max/depth_bin_width),0.0f);
+            std::vector< std::vector<float> > grain_perimeter_ratio_sum;
+            grain_perimeter_ratio_sum.resize(2);
+            for(int p=0; p<2; p++) grain_perimeter_ratio_sum[p].resize((size_t)(1+depth_max/depth_bin_width),0.0f);
+
             std::string filepath_grainsize_all=path_results;
             filepath_grainsize_all.append("grainsize_all");
             filepath_grainsize_all.append(s.str());
@@ -2436,6 +2618,7 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
 
                     int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
 
+                    if(k>nr_values.size()-1) continue;
                     if(!other_entry && depth_bin>0 && entries[k].name.compare(nr_values[k].name)==0)//nr of values found
                     {
                         grainsize_all_values[depth_bin]+=entries[k].mean*(float)nr_values[k].nr[0]/area_scaling();
@@ -3065,6 +3248,100 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                 temp_percentage_filled_grains_file.close();
             }
 
+            std::string filepath_grain_perimeter_ratio=path_results;
+            filepath_grain_perimeter_ratio.append("grain_perimeter_ratio");
+            filepath_grain_perimeter_ratio.append(s.str());
+
+            //grain perimeter ratio
+            std::ifstream grain_perimeter_ratio_file(filepath_grain_perimeter_ratio.c_str());
+            std::ifstream temp_grain_perimeter_ratio_file(filepath_grain_perimeter_ratio.c_str());
+            temp_grain_perimeter_ratio_file>>teststring;
+
+            if(grain_perimeter_ratio_file && teststring.size()!=0)
+            {
+                std::vector<depth_parameter> entries;
+
+                while(!grain_perimeter_ratio_file.eof())
+                {
+                    std::string name;
+                    float mean=-1, stdabw;
+	                grain_perimeter_ratio_file>>name>>mean>>stdabw;
+                    depth_parameter entry;
+                    entry.name=name;
+                    entry.mean=mean;
+                    if(mean!=-1) entries.push_back(entry);
+                }
+
+                //check for multiple entries for same image
+                for (int k=0; k<entries.size(); k++)
+                {
+                    bool other_entry=false;
+
+                    for(int j=k+1; j<entries.size() && !other_entry; j++)
+                    {
+                        if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
+                    }
+
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
+
+                    if(!other_entry && depth_bin>0 && entries[k].name.compare(nr_values[k].name)==0)//nr of values found
+                    {
+                        grain_perimeter_ratio_values[0][depth_bin]+=entries[k].mean*nr_values[k].nr[0];
+                        grain_perimeter_ratio_sum[0][depth_bin]+=nr_values[k].nr[0];
+                    }
+                }
+
+                grain_perimeter_ratio_file.close();
+                temp_grain_perimeter_ratio_file.close();
+            }
+
+            std::string filepath_grain_perimeter_ratio2=path_results;
+            filepath_grain_perimeter_ratio2.append("grain_perimeter_ratio2");
+            filepath_grain_perimeter_ratio2.append(s.str());
+
+            //grain perimeter ratio
+            std::ifstream grain_perimeter_ratio_file2(filepath_grain_perimeter_ratio2.c_str());
+            std::ifstream temp_grain_perimeter_ratio_file2(filepath_grain_perimeter_ratio2.c_str());
+            temp_grain_perimeter_ratio_file2>>teststring;
+
+            if(grain_perimeter_ratio_file2 && teststring.size()!=0)
+            {
+                std::vector<depth_parameter> entries;
+
+                while(!grain_perimeter_ratio_file2.eof())
+                {
+                    std::string name;
+                    float mean=-1, stdabw;
+	                grain_perimeter_ratio_file2>>name>>mean>>stdabw;
+                    depth_parameter entry;
+                    entry.name=name;
+                    entry.mean=mean;
+                    if(mean!=-1) entries.push_back(entry);
+                }
+
+                //check for multiple entries for same image
+                for (int k=0; k<entries.size(); k++)
+                {
+                    bool other_entry=false;
+
+                    for(int j=k+1; j<entries.size() && !other_entry; j++)
+                    {
+                        if(entries[k].name.compare(entries[j].name)==0) other_entry=true;
+                    }
+
+                    int depth_bin=get_depth(entries[k].name, max_depth)/depth_bin_width;
+
+                    if(!other_entry && depth_bin>0 && entries[k].name.compare(nr_values[k].name)==0)//nr of values found
+                    {
+                        grain_perimeter_ratio_values[1][depth_bin]+=entries[k].mean*nr_values[k].nr[0];
+                        grain_perimeter_ratio_sum[1][depth_bin]+=nr_values[k].nr[0];
+                    }
+                }
+
+                grain_perimeter_ratio_file2.close();
+                temp_grain_perimeter_ratio_file2.close();
+            }
+
             for (int bin=0; bin<grainsize_all_values.size(); bin++)
             {
                 grainsize_all_depths[bin]=(bin+0.5f)*depth_bin_width;
@@ -3375,17 +3652,32 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
                 }
             }
 
+            for(int p=0; p<2; p++)
+            {
+                for (int bin=0; bin<grain_perimeter_ratio_values[p].size(); bin++)
+                {
+                    grain_perimeter_ratio_depths[p][bin]=(bin+0.5f)*depth_bin_width;
+                }
+
+                for (int bin=0; bin<grain_perimeter_ratio_values[p].size(); bin++)
+                {
+                    if(grain_perimeter_ratio_sum[p][bin]>0.0f)
+                        grain_perimeter_ratio_values[p][bin]/=grain_perimeter_ratio_sum[p][bin];
+                    else
+                    {
+                        grain_perimeter_ratio_depths[p].erase(grain_perimeter_ratio_depths[p].begin()+bin);
+                        grain_perimeter_ratio_values[p].erase(grain_perimeter_ratio_values[p].begin()+bin);
+                        grain_perimeter_ratio_sum[p].erase(grain_perimeter_ratio_sum[p].begin()+bin);
+                        bin--;
+                    }
+                }
+            }
+
             std::string filepath_grainsize_all_out=path_results;
             filepath_grainsize_all_out.append("new_grainsize_all");
             filepath_grainsize_all_out.append(s.str());
             filepath_grainsize_all_out.resize(filepath_grainsize_all_out.size()-3);
             filepath_grainsize_all_out.append("svg");
-
-            std::string filepath_grainsize_all_combined_out=path_results;
-            filepath_grainsize_all_combined_out.append("new_grainsize_all_combined");
-            filepath_grainsize_all_combined_out.append(s.str());
-            filepath_grainsize_all_combined_out.resize(filepath_grainsize_all_combined_out.size()-3);
-            filepath_grainsize_all_combined_out.append("svg");
 
             std::string filepath_grainsize_step_out=path_results;
             filepath_grainsize_step_out.append("step/new_grainsize_");
@@ -3455,6 +3747,12 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
             filepath_grainsize_percentage_filled_out.append(s.str());
             filepath_grainsize_percentage_filled_out.resize(filepath_grainsize_percentage_filled_out.size()-3);
             filepath_grainsize_percentage_filled_out.append("svg");
+
+            std::string filepath_grain_perimeter_ratio_combined_out=path_results;
+            filepath_grain_perimeter_ratio_combined_out.append("new_grain_perimeter_ratio_combined");
+            filepath_grain_perimeter_ratio_combined_out.append(s.str());
+            filepath_grain_perimeter_ratio_combined_out.resize(filepath_grain_perimeter_ratio_combined_out.size()-3);
+            filepath_grain_perimeter_ratio_combined_out.append("svg");
 
             if(grainsize_all_values.size()>0) plot.draw_depth("Depth in m", area_unit, "Mean grain size profile (all grains)",
                 grainsize_all_depths, grainsize_all_values, 0.0f, filepath_grainsize_all_out.c_str());
@@ -3651,6 +3949,9 @@ void single_depth_profile(std::string path_results, ParameterFile paramFile, flo
             if(percentage_filled_grains_values.size()>0) plot.draw_depth_nofit("Depth in m", area_unit,
                 "Mean grain size for different percentage of area filled by grains", percentage_filled_grains_depths,
                 percentage_filled_grains_values, filepath_grainsize_percentage_filled_out.c_str());
+            if(grain_perimeter_ratio_values.size()>0) plot.draw_depth_nofit("Depth in m", "Perimeter ratio",
+                "Perimeter ratio profile", grain_perimeter_ratio_depths, grain_perimeter_ratio_values,
+                filepath_grain_perimeter_ratio_combined_out.c_str(), 0.7f);
         }
     }
 };
