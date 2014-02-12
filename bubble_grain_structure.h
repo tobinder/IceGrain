@@ -1428,8 +1428,14 @@ void find_grain_arcs(seg & segment,
 
     while (diff>0)
     {
+        //this is the new version, consistently applied to EDML data set
         merge_areas(region_image, arcs, dim_x, dim_y, arc_state, twoCellNeighbors, nr_of_regions, areas, region_arc_index, minimal_grain_size,
                     found_bubble_areas, found_border_areas, not_used, unknown_probability, 5, filepath_image);
+
+        //this is the old version, consistently applied to NEEM data set
+//        merge_areas(region_image, arcs, dim_x, dim_y, arc_state, twoCellNeighbors, nr_of_regions, areas, region_arc_index, minimal_grain_size,
+//                    found_bubble_areas, found_border_areas, not_used, unknown_probability, 2);
+
         std::cout<<"nr of regions after merging: "<<nr_of_regions<<std::endl;
         diff=nr_of_regions-old_nr_of_regions;
         old_nr_of_regions=nr_of_regions;
