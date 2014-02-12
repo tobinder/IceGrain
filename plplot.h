@@ -68,7 +68,7 @@ class plplot
     void draw_depth(std::string, std::string, std::string, std::vector<float>, std::vector<float>, float, std::string);
     void draw_depth(std::string, std::string, std::string, std::vector<float>, std::vector<float>, std::vector<float>, std::vector<float>, float, std::string);
     void draw_depth(std::string, std::string, std::string, std::vector< std::vector<float> >, std::vector< std::vector<float> >, std::string);
-    void draw_depth_nofit(std::string, std::string, std::string, std::vector< std::vector<float> >, std::vector< std::vector<float> >, std::string);
+    void draw_depth_nofit(std::string, std::string, std::string, std::vector< std::vector<float> >, std::vector< std::vector<float> >, std::string, float);
     void draw_depth_nofit2(std::string, std::string, std::string, std::vector< std::vector<float> >, std::vector< std::vector<float> >, std::string,
                           std::vector<float>, float);
     void draw_depth_errors(std::string, std::string, std::string, std::vector<float>, std::vector<float>, std::vector<float>, std::vector<float>,
@@ -1485,7 +1485,8 @@ void plplot::draw_depth(std::string x_axis, std::string y_axis, std::string titl
     pls->vsta();
     pls->col0(0);
     pls->wind( x_min-0.09*x_max, x_max, 0.0, y_high);
-    if (x_max>500) pls->box( "bcinst", 250.0, 5.0, "bcinstv", 0, 0 );
+    if (x_max>4000) pls->box( "bcinst", 0.0, 0, "bcinstv", 0, 0 );
+    else if (x_max>500) pls->box( "bcinst", 250.0, 5.0, "bcinstv", 0, 0 );
     else pls->box( "bcinst", 50.0, 5.0, "bcinstv", 0, 0 );
     pls->lab(x_axis.c_str(), y_axis.c_str(), title.c_str());
 
@@ -1532,7 +1533,7 @@ void plplot::draw_depth(std::string x_axis, std::string y_axis, std::string titl
 }
 
 void plplot::draw_depth_nofit(std::string x_axis, std::string y_axis, std::string title, std::vector< std::vector<float> > x_values,
-                        std::vector< std::vector<float> > y_values, std::string dest_path)
+                        std::vector< std::vector<float> > y_values, std::string dest_path, float y_minimal=0.0f)
 {
     pls = new plstream();
 
@@ -1562,8 +1563,10 @@ void plplot::draw_depth_nofit(std::string x_axis, std::string y_axis, std::strin
     pls->adv(0);
     pls->vsta();
     pls->col0(0);
-    pls->wind( x_min-0.09*x_max, x_max, 0.0, y_high);
-    if (x_max>500) pls->box( "bcinst", 250.0, 5.0, "bcinstv", 0, 0 );
+//    pls->wind( x_min-0.09*x_max, x_max, y_minimal, y_high);
+    pls->wind(0.0, x_max, y_minimal, y_high);
+    if (x_max>4000) pls->box( "bcinst", 0.0, 0, "bcinstv", 0, 0 );
+    else if (x_max>500) pls->box( "bcinst", 250.0, 5.0, "bcinstv", 0, 0 );
     else pls->box( "bcinst", 50.0, 5.0, "bcinstv", 0, 0 );
     pls->lab(x_axis.c_str(), y_axis.c_str(), title.c_str());
 
@@ -1756,9 +1759,48 @@ void plplot::draw_depth_errors(std::string x_axis, std::string y_axis, std::stri
 
     pls->scmap1l(true,5,pos,red,red,red,NULL);
 
+    int XPTS = 100;
+    int YPTS = 100;
+    PLFLT **z = new PLFLT *[XPTS];
+    for (int i = 0; i < XPTS; i++ )
+    {
+        z[i] = new PLFLT[YPTS];
+        for(int j = 0; j < YPTS; j++) z[i][j] = 0.0;
+    }
+
+    for(int i=0; i<y_values.size(); i++)
+    {
+        int xx=XPTS*x[i]/x_max;
+        int yy1=YPTS*(std::max(y_minimal,(float)y_min[i])-y_minimal)/(y_high-y_minimal);
+        int yy2=YPTS*(std::min(y_high,(float)y_max[i])-y_minimal)/(y_high-y_minimal);
+
+        for(int yy = yy1; yy <= yy2 && yy<YPTS; yy++)
+        {
+            z[xx][yy] = 1.0;
+            if(xx>0) z[xx-1][yy] = 1.0;
+            if(xx<XPTS-1) z[xx+1][yy] = 1.0;
+        }
+    }
+
+    PLFLT shade_min = 0.9, shade_max = 1.1, sh_color = 0.65;
+    int   sh_cmap   = 1, sh_width = 0;
+    int   min_color = 0, min_width = 0, max_color = 0, max_width = 0;
+
+    pls->psty(0);
+    pls->shade(z, XPTS, YPTS, NULL, 0, (PLFLT) x_max, (PLFLT) y_minimal, (PLFLT) y_high,
+        shade_min, shade_max, sh_cmap, sh_color, sh_width, min_color, min_width, max_color, max_width,
+        plstream::fill, false, NULL, NULL);
+/*
+    if (x_max > 2360)
+    {
+        pls->scmap1l(true,5,pos,pos,pos,pos,NULL);
+        pls->col1(1.0);
+        plfbox(2214.3, y_high, y_minimal, x_max-2214.3);
+    }
+*/
     pls->col1(0.0);
     pls->poin( y_values.size(), x , y , 0.0 );
-    pls->erry( y_values.size(), x, y_min, y_max );
+    //pls->erry( y_values.size(), x, y_min, y_max );
 
     delete y_min;
     delete y_max;
