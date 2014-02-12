@@ -306,8 +306,11 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
     float grain_perimeter_ratio_bin_width=0.025f;
     std::vector<int> grain_perimeter_ratio_histogram;
     std::vector<float> & grain_perimeter_ratio_values = para.grain_perimeter_ratio;
+    std::vector<float>  grain_perimeter_ratio_values2;
     float grain_perimeter_ratio_mean;
+    float grain_perimeter_ratio_mean2;
     float grain_perimeter_ratio_standard_deviation;
+    float grain_perimeter_ratio_standard_deviation2;
     float grain_perimeter_ratio_y_max=0.0f;
 
     //grain area width histogram
@@ -386,6 +389,11 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
     float grain_arc_length_mean;
     float grain_arc_length_standard_deviation;
     float grain_arc_length_y_max=0.0f;
+    int grain_arc_length_max2=0;
+    std::vector<int> grain_arc_length_histogram2;
+    std::vector<float> grain_arc_length_values2;
+    float grain_arc_length_mean2;
+    float grain_arc_length_standard_deviation2;
 
     //grain longest arc length histogram
     float grain_longest_arc_length_min=0.0f;
@@ -427,6 +435,11 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
     float dislocation_density_mean;
     float dislocation_density_standard_deviation;
     float dislocation_density_y_max=0.0f;
+    float curvature_max2=0.0f;
+    std::vector<float> dislocation_density_histogram2;
+    std::vector<float> dislocation_density_values2;
+    float dislocation_density_mean2;
+    float dislocation_density_standard_deviation2;
 
     //boundary orientation histogram
     float phi_max=0.0f;
@@ -971,6 +984,8 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         grain_perimeter_ratio_histogram.clear();
         grain_perimeter_ratio_values.clear();
         grain_perimeter_ratio_values.resize(grain_size_values.size(), 0.0f);
+        grain_perimeter_ratio_values2.clear();
+        grain_perimeter_ratio_values2.resize(grain_size_values.size(), 0.0f);
 
         for (int area_index=0; area_index<grain_areas.size(); area_index++)//only selected grains
         {
@@ -1003,6 +1018,10 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                 grain_perimeter_ratio_max = grain_perimeter_ratio_values[area_index];
             }
             grain_perimeter_ratio_histogram[(int)(perimeterLength/(grain_perimeter2[grain_areas[area_index]]*grain_perimeter_ratio_bin_width))]++;
+
+            //old version
+            grain_perimeter[grain_areas[area_index]] = std::max(perimeterLength,grain_perimeter[grain_areas[area_index]]);
+            grain_perimeter_ratio_values2[area_index] = perimeterLength/grain_perimeter[grain_areas[area_index]];
 
             if(fabs(1.0f-grain_ellipse_params[area_index][5])<0.1f)//ellipse fitting gave result
             {
@@ -1175,6 +1194,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         calculate_mean_standard_deviation(grain_ellipse_long_axis_angle_values2, grain_ellipse_long_axis_angle_mean,
                                           grain_ellipse_long_axis_angle_standard_deviation);
         calculate_mean_standard_deviation(grain_perimeter_ratio_values, grain_perimeter_ratio_mean, grain_perimeter_ratio_standard_deviation);
+        calculate_mean_standard_deviation(grain_perimeter_ratio_values2, grain_perimeter_ratio_mean2, grain_perimeter_ratio_standard_deviation2);
 
         //calculate correlations
         float covariance_ellipse_box_flattening=0.0f;
@@ -1308,10 +1328,21 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
             calculate_mean_standard_deviation(relaxation2_values[i], relaxation2_mean[i], relaxation2_standard_deviation[i]);
         }
 
+        std::vector<int> selected_boundaries(grain_boundary_pixels.size(),0);
+
+        for (int area_index=0; area_index<grain_areas.size(); area_index++)//only grains considered for previous histograms
+            for (int boundary=0; boundary<para.grain_area_boundaries[grain_areas[area_index]].size(); boundary++)
+                selected_boundaries[para.grain_area_boundaries[grain_areas[area_index]][boundary]]++;
+
         //fill grain arc length histogram
         grain_arc_length_max=0;
         grain_arc_length_histogram.clear();
         grain_arc_length_values.clear();
+
+        grain_arc_length_max2=0;
+        grain_arc_length_histogram2.clear();
+        grain_arc_length_values2.clear();
+
         std::vector<size_index> boundary_sizes;
 
         for (int segment=0; segment<grain_boundary_pixels.size(); segment++)
@@ -1346,9 +1377,23 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                 grain_arc_length_histogram[(int)grain_arc_length_bin_width*log10(grain_arc_length)]++;
                 grain_arc_length_values.push_back(grain_arc_length/length_scaling());
             }
+
+            if (selected_boundaries[segment]<2) continue;
+
+            if (grain_arc_length>grain_arc_length_max2)
+            {
+                grain_arc_length_histogram2.resize((int)grain_arc_length_bin_width*log10(grain_arc_length)+1);
+                grain_arc_length_max2=grain_arc_length;
+            }
+            if (grain_arc_length>grain_arc_length_min) 
+            {
+                grain_arc_length_histogram2[(int)grain_arc_length_bin_width*log10(grain_arc_length)]++;
+                grain_arc_length_values2.push_back(grain_arc_length/length_scaling());
+            }
         }
 
         calculate_mean_standard_deviation(grain_arc_length_values, grain_arc_length_mean, grain_arc_length_standard_deviation);
+        calculate_mean_standard_deviation(grain_arc_length_values2, grain_arc_length_mean2, grain_arc_length_standard_deviation2);
 
         //fill grain arc number, nr of neighbors histogram, grain longest arc length and dihedral angle histogram
         grain_arc_number_max=0;
@@ -1490,6 +1535,11 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         dislocation_density_values.clear();
         float dislocation_in_histogram=0.0f;
 
+        curvature_max2=0.0f;
+        dislocation_density_histogram2.clear();
+        dislocation_density_values2.clear();
+        float dislocation_in_histogram2=0.0f;
+
         phi_max=0.0f;
         boundary_orientation_histogram.clear();
         boundary_orientation_values.clear();
@@ -1524,6 +1574,12 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                     dislocation_density_histogram.resize((int)(dislocation_density_bin_width*log10(curv/curvature_min))+1);
                     curvature_max=curv;
                 }
+                if (curv>curvature_max2 && curv>curvature_min && curv<0.15 &&
+                    selected_boundaries[boundary_sizes[boundary_number].index]==2)
+                {
+                    dislocation_density_histogram2.resize((int)(dislocation_density_bin_width*log10(curv/curvature_min))+1);
+                    curvature_max2=curv;
+                }
                 if (curv<0.15)
                 {
                     //dislocation density histogram is a curvature histogram
@@ -1533,6 +1589,15 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                         dislocation_in_histogram++;
                     }
                     dislocation_density_values.push_back(curv/dislocation_density_scaling);
+                }
+                if (curv<0.15 && selected_boundaries[boundary_sizes[boundary_number].index]==2)
+                {
+                    if (curv>curvature_min)
+                    {
+                        dislocation_density_histogram2[(int)(dislocation_density_bin_width*log10(curv/curvature_min))]++;
+                        dislocation_in_histogram2++;
+                    }
+                    dislocation_density_values2.push_back(curv/dislocation_density_scaling);
                 }
 
                 curv=grain_boundary_curvs[boundary_sizes[boundary_number].index][p];
@@ -1619,6 +1684,8 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         }
         calculate_mean_standard_deviation(dislocation_density_values, dislocation_density_mean, dislocation_density_standard_deviation);
         dislocation_in_histogram=dislocation_in_histogram/(float)dislocation_density_values.size();
+        calculate_mean_standard_deviation(dislocation_density_values2, dislocation_density_mean2, dislocation_density_standard_deviation2);
+        dislocation_in_histogram2=dislocation_in_histogram2/(float)dislocation_density_values2.size();
         calculate_mean_standard_deviation(turning_point_values, turning_point_mean, turning_point_standard_deviation);
         calculate_mean_standard_deviation(boundary_orientation_values, boundary_orientation_mean, boundary_orientation_standard_deviation);
 
@@ -1652,8 +1719,10 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         std::string filepath_grain_arc_number=filepath_plots;
         std::string filepath_grain_neighbors=filepath_plots;
         std::string filepath_grain_arc_length=filepath_plots;
+        std::string filepath_grain_arc_length2=filepath_plots;
         std::string filepath_grain_longest_arc_length=filepath_plots;
         std::string filepath_dislocation_density=filepath_plots;
+        std::string filepath_dislocation_density2=filepath_plots;
         std::string filepath_boundary_orientation=filepath_plots;
         std::string filepath_dihedral_angle=filepath_plots;
         std::string filepath_dihedral_angle2=filepath_plots;
@@ -1686,8 +1755,10 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         filepath_grain_arc_number.append(".grain_arc_number");
         filepath_grain_neighbors.append(".grain_neighbors");
         filepath_grain_arc_length.append(".grain_arc_length");
+        filepath_grain_arc_length2.append(".grain_arc_length2");
         filepath_grain_longest_arc_length.append(".grain_longest_arc_length");
         filepath_dislocation_density.append(".dislocation_density");
+        filepath_dislocation_density2.append(".dislocation_density2");
         filepath_boundary_orientation.append(".boundary_orientation");
         filepath_dihedral_angle.append(".dihedral_angle");
         filepath_dihedral_angle2.append(".dihedral_angle2");
@@ -1720,8 +1791,10 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         filepath_grain_arc_number.append(s.str());
         filepath_grain_neighbors.append(s.str());
         filepath_grain_arc_length.append(s.str());
+        filepath_grain_arc_length2.append(s.str());
         filepath_grain_longest_arc_length.append(s.str());
         filepath_dislocation_density.append(s.str());
+        filepath_dislocation_density2.append(s.str());
         filepath_boundary_orientation.append(s.str());
         filepath_dihedral_angle.append(s.str());
         filepath_dihedral_angle2.append(s.str());
@@ -1744,6 +1817,11 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         sprintf(percent_in_histogram, "%1.2f", dislocation_in_histogram);
         std::string dislocation_title="Relative occurrence x";
         dislocation_title.append(percent_in_histogram);
+
+        char percent_in_histogram2[20];
+        sprintf(percent_in_histogram2, "%1.2f", dislocation_in_histogram2);
+        std::string dislocation_title2="Relative occurrence x";
+        dislocation_title2.append(percent_in_histogram2);
 
         plot.draw_values_errors(x_axis, y_axis, "Largest grains distribution", grain_region_values, grain_region_errors, filepath_largest_grains.c_str());
         plot.draw_values_errors("* 10 percent largest grains", "Mean grain size of 10*n percent largest grains [mm^2]", "Largest grains distribution",
@@ -1835,6 +1913,9 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         plot.draw_histogram_log(length_unit,"Relative occurrence","Grain boundary length distribution", grain_arc_length_histogram,
                                 grain_arc_length_bin_width, length_scaling(), grain_arc_length_mean, grain_arc_length_standard_deviation,
                                 grain_arc_length_y_max, filepath_grain_arc_length.c_str());
+        plot.draw_histogram_log(length_unit,"Relative occurrence","Grain boundary length distribution", grain_arc_length_histogram2,
+                                grain_arc_length_bin_width, length_scaling(), grain_arc_length_mean2, grain_arc_length_standard_deviation2,
+                                grain_arc_length_y_max, filepath_grain_arc_length2.c_str());
         plot.draw_histogram_log(length_unit,"Relative occurrence","Grain longest boundary length distribution", grain_longest_arc_length_histogram,
                                 grain_longest_arc_length_bin_width, length_scaling(), grain_longest_arc_length_mean,
                                 grain_longest_arc_length_standard_deviation, grain_longest_arc_length_y_max, filepath_grain_longest_arc_length.c_str());
@@ -1842,6 +1923,10 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
                                     "Estimation of dislocation density difference at grain boundaries", dislocation_density_histogram,
                                     dislocation_density_bin_width, dislocation_density_scaling, log10(curvature_min), dislocation_density_mean,
                                     dislocation_density_standard_deviation, dislocation_density_y_max, filepath_dislocation_density.c_str());
+        plot.draw_histogram_log_log("Dislocation density difference in m^(-2)", dislocation_title2,
+                                    "Estimation of dislocation density difference at grain boundaries", dislocation_density_histogram2,
+                                    dislocation_density_bin_width, dislocation_density_scaling, log10(curvature_min), dislocation_density_mean2,
+                                    dislocation_density_standard_deviation2, dislocation_density_y_max, filepath_dislocation_density2.c_str());
         plot.draw_histogram_rose("Boundary orientation","Relative occurrence","Boundary orientation distribution",
                             boundary_orientation_histogram, boundary_orientation_bin_width, angle_scaling,
                             boundary_orientation_mean, boundary_orientation_standard_deviation, boundary_orientation_y_max,
@@ -2101,6 +2186,8 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         filepath_nr_neighbors.append("nr_neighbors");
         std::string filepath_length_grainarcs=path_results;
         filepath_length_grainarcs.append("length_grainarcs");
+        std::string filepath_length_grainarcs2=path_results;
+        filepath_length_grainarcs2.append("length_grainarcs2");
         std::string filepath_longest_grainarcs=path_results;
         filepath_longest_grainarcs.append("longest_grainarcs");
         std::string filepath_dihedral_angles=path_results;
@@ -2109,6 +2196,8 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         filepath_dihedral_angles2.append("dihedral_angles2");
         std::string filepath_dislocation_densities=path_results;
         filepath_dislocation_densities.append("dislocation_densities");
+        std::string filepath_dislocation_densities2=path_results;
+        filepath_dislocation_densities2.append("dislocation_densities2");
         std::string filepath_boundaryorientation=path_results;
         filepath_boundaryorientation.append("boundary_orientation");
         std::string filepath_turning_points=path_results;
@@ -2117,6 +2206,8 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         filepath_correlation_ellipse_box_flattening.append("corr_ellipse_box_flattening");
         std::string filepath_nr_values=path_results;
         filepath_nr_values.append("nr_values");
+        std::string filepath_nr_values2=path_results;
+        filepath_nr_values2.append("nr_values2");
         std::string filepath_disl_dens_step=path_results;
         filepath_disl_dens_step.append("disl_dens_step");
         std::string filepath_disl_dens_percent=path_results;
@@ -2127,6 +2218,8 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         filepath_nr_percentage_filled.append("nr_percentage_filled_grains");
         std::string filepath_grain_perimeter_ratio = path_results;
         filepath_grain_perimeter_ratio.append("grain_perimeter_ratio");
+        std::string filepath_grain_perimeter_ratio2 = path_results;
+        filepath_grain_perimeter_ratio2.append("grain_perimeter_ratio2");
 
         std::string suffix=s.str();
         suffix.resize(suffix.size()-3);
@@ -2155,19 +2248,23 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         filepath_nr_grainarcs.append(suffix.c_str());
         filepath_nr_neighbors.append(suffix.c_str());
         filepath_length_grainarcs.append(suffix.c_str());
+        filepath_length_grainarcs2.append(suffix.c_str());
         filepath_longest_grainarcs.append(suffix.c_str());
         filepath_dihedral_angles.append(suffix.c_str());
         filepath_dihedral_angles2.append(suffix.c_str());
         filepath_dislocation_densities.append(suffix.c_str());
+        filepath_dislocation_densities2.append(suffix.c_str());
         filepath_boundaryorientation.append(suffix.c_str());
         filepath_turning_points.append(suffix.c_str());
         filepath_correlation_ellipse_box_flattening.append(suffix.c_str());
         filepath_nr_values.append(suffix.c_str());
+        filepath_nr_values2.append(suffix.c_str());
         filepath_disl_dens_step.append(suffix.c_str());
         filepath_disl_dens_percent.append(suffix.c_str());
         filepath_percentage_filled.append(suffix.c_str());
         filepath_nr_percentage_filled.append(suffix.c_str());
         filepath_grain_perimeter_ratio.append(suffix.c_str());
+        filepath_grain_perimeter_ratio2.append(suffix.c_str());
 
         std::ofstream grainsize_all_file(filepath_grainsize_all.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream grainsize_fit_file(filepath_grainsize_fit.c_str(), std::ios_base::out | std::ios_base::app);
@@ -2192,19 +2289,23 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         std::ofstream nr_grainarcs_file(filepath_nr_grainarcs.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream nr_neighbors_file(filepath_nr_neighbors.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream length_grainarcs_file(filepath_length_grainarcs.c_str(), std::ios_base::out | std::ios_base::app);
+        std::ofstream length_grainarcs2_file(filepath_length_grainarcs2.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream longest_grainarcs_file(filepath_longest_grainarcs.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream dihedral_angles_file(filepath_dihedral_angles.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream dihedral_angles2_file(filepath_dihedral_angles2.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream dislocation_densities_file(filepath_dislocation_densities.c_str(), std::ios_base::out | std::ios_base::app);
+        std::ofstream dislocation_densities2_file(filepath_dislocation_densities2.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream boundary_orientation_file(filepath_boundaryorientation.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream turning_points_file(filepath_turning_points.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream correlation_ellipse_box_flattening_file(filepath_correlation_ellipse_box_flattening.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream nr_values_file(filepath_nr_values.c_str(), std::ios_base::out | std::ios_base::app);
+        std::ofstream nr_values2_file(filepath_nr_values2.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream disl_dens_step_file(filepath_disl_dens_step.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream disl_dens_percent_file(filepath_disl_dens_percent.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream percentage_filled_grains_file(filepath_percentage_filled.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream nr_percentage_filled_grains_file(filepath_nr_percentage_filled.c_str(), std::ios_base::out | std::ios_base::app);
         std::ofstream grain_perimeter_ratio_file(filepath_grain_perimeter_ratio.c_str(), std::ios_base::out | std::ios_base::app);
+        std::ofstream grain_perimeter_ratio_file2(filepath_grain_perimeter_ratio2.c_str(), std::ios_base::out | std::ios_base::app);
 
         grainsize_all_file <<filename<<" "<<grain_size_mean*area_scaling()<<" "<<grain_size_standard_deviation*area_scaling()<< "\n";
         grainsize_fit_file <<filename<<" "<<grain_size_max_x*area_scaling()<<" "<<grain_size_stdabw_low*area_scaling()<<" "<<
@@ -2246,6 +2347,7 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         grain_neighbors_bin_file << "\n";
 
         grain_perimeter_ratio_file << filename << " " << grain_perimeter_ratio_mean << " " << grain_perimeter_ratio_standard_deviation << "\n";        
+        grain_perimeter_ratio_file2 << filename << " " << grain_perimeter_ratio_mean2 << " " << grain_perimeter_ratio_standard_deviation2 << "\n";        
 
         grainshape_file <<filename<<" "<<grain_roundness_mean<<" "<<grain_roundness_standard_deviation<< "\n";
         grain_equivradius_file <<filename<<" "<<grain_equiv_radius_mean*length_scaling()<<" "<<grain_equiv_radius_standard_deviation*length_scaling()<< "\n";
@@ -2262,17 +2364,20 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         nr_grainarcs_file <<filename<<" "<<grain_arc_number_max_x<<" "<<grain_arc_number_standard_deviation<< "\n";
         nr_neighbors_file <<filename<<" "<<grain_neighbors_max_x<<" "<<grain_neighbors_standard_deviation<< "\n";
         length_grainarcs_file <<filename<<" "<<grain_arc_length_mean*length_scaling()<<" "<<grain_arc_length_standard_deviation*length_scaling()<< "\n";
+        length_grainarcs2_file <<filename<<" "<<grain_arc_length_mean2*length_scaling()<<" "<<grain_arc_length_standard_deviation2*length_scaling()<< "\n";
         longest_grainarcs_file <<filename<<" "<<grain_longest_arc_length_mean*length_scaling()<<" "<<
             grain_longest_arc_length_standard_deviation*length_scaling()<< "\n";
         dihedral_angles_file <<filename<<" "<<dihedral_angle_mean<<" "<<dihedral_angle_standard_deviation<< "\n";
         dihedral_angles2_file <<filename<<" "<<dihedral_angle2_mean<<" "<<dihedral_angle2_standard_deviation<< "\n";
         dislocation_densities_file <<filename<<" "<<dislocation_density_mean<<" "<<dislocation_density_standard_deviation<< "\n";
+        dislocation_densities2_file <<filename<<" "<<dislocation_density_mean2<<" "<<dislocation_density_standard_deviation2<< "\n";
         boundary_orientation_file <<filename<<" "<<boundary_orientation_mean<<" "<<boundary_orientation_standard_deviation<< "\n";
         turning_points_file <<filename<<" "<<turning_point_mean<<" "<<turning_point_standard_deviation<< "\n";
         correlation_ellipse_box_flattening_file <<filename<<" "<<correlation_ellipse_box_flattening<< "\n";
         nr_values_file<< filename<<" "<<grain_size_values.size()<<" "<<grain_box_flattening_values2.size()<<" "<<grain_ellipse_flattening_values2.size()<<
             " "<<grain_ellipse_long_axis_values2.size()<<" "<<grain_arc_length_values.size()<<" "<<grain_longest_arc_length_values2.size()<<" "<<
             dihedral_angle_values.size()<<" "<<dislocation_density_values.size()<<" "<<turning_point_values.size()<<" "<<grain_junctions.size()<< "\n";
+        nr_values2_file<< filename<<" "<<grain_arc_length_values2.size()<<" "<<dislocation_density_values2.size()<< "\n";
 
         disl_dens_step_file <<filename<<" ";
         for(int step=0; step<disl_dens_boundary_region_values.size(); step++) disl_dens_step_file
@@ -2317,19 +2422,23 @@ void do_statistics(std::string filepath_to_feature_file, std::string path_to_ws_
         nr_grainarcs_file.close();
         nr_neighbors_file.close();
         length_grainarcs_file.close();
+        length_grainarcs2_file.close();
         longest_grainarcs_file.close();
         dihedral_angles_file.close();
         dihedral_angles2_file.close();
         dislocation_densities_file.close();
+        dislocation_densities2_file.close();
         boundary_orientation_file.close();
         turning_points_file.close();
         correlation_ellipse_box_flattening_file.close();
         nr_values_file.close();
+        nr_values2_file.close();
         disl_dens_step_file.close();
         disl_dens_percent_file.close();
         percentage_filled_grains_file.close();
         nr_percentage_filled_grains_file.close();
         grain_perimeter_ratio_file.close();
+        grain_perimeter_ratio_file2.close();
 
         //***********************************
         //EXTRACT ALL PARAMETERS FOR ANALYSIS
