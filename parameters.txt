@@ -16,7 +16,7 @@ config.bubble_boundary_threshold 0.5
 config.max_bubble_arc_length 10000
 config.vertical_lines 1
 config.tile_borders 0
-config.relativeCoords /export/disk01/tobinder/Data/EDML_A/relative_coords/
+config.relativeCoords /Volumes/Images/EDML_A/relative_coords/
 #SUBGRAIN DETECTION
 config.subgrain_boundary_threshold 0.9
 #GRAIN MERGING
